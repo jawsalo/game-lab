@@ -1,0 +1,24 @@
+{{- if .Values.modules.web.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "game-lab.name" . }}-web
+  labels:
+    {{- include "game-lab.labels" . | nindent 4 }}
+data:
+  index.html: |
+    <!doctype html>
+    <html lang="en">
+      <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <title>Game Lab</title>
+      </head>
+      <body>
+        <main>
+          <h1>Game Lab</h1>
+          <p>The platform is online. Modules are installed independently.</p>
+        </main>
+      </body>
+    </html>
+{{- end }}

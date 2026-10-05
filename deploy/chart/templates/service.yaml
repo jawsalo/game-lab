@@ -1,0 +1,18 @@
+{{- if .Values.modules.web.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "game-lab.name" . }}-web
+  labels:
+    {{- include "game-lab.labels" . | nindent 4 }}
+    app.kubernetes.io/component: web
+spec:
+  selector:
+    app.kubernetes.io/name: {{ include "game-lab.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: web
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+{{- end }}

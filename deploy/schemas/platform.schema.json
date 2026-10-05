@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Game Lab environment values",
+  "type": "object",
+  "required": ["platform", "modules", "ingress"],
+  "properties": {
+    "platform": {
+      "type": "object",
+      "required": ["name", "environment", "baseDomain"],
+      "properties": {
+        "name": {"type": "string", "minLength": 1},
+        "environment": {"type": "string", "minLength": 1},
+        "baseDomain": {"type": "string", "minLength": 1}
+      },
+      "additionalProperties": false
+    },
+    "modules": {"type": "object"},
+    "ingress": {"type": "object"}
+  }
+}

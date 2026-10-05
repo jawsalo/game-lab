@@ -1,0 +1,5 @@
+{{- if .Values.modules.web.enabled }}
+Game Lab web endpoint: https://{{ include "game-lab.webHost" . }}
+{{- else }}
+No public modules are enabled.
+{{- end }}

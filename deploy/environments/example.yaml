@@ -1,0 +1,29 @@
+platform:
+  name: game-lab
+  environment: example
+  baseDomain: example.com
+
+modules:
+  web:
+    enabled: true
+    subdomain: games
+    hostname: ""
+  api:
+    enabled: false
+    subdomain: api
+    hostname: ""
+  mcp:
+    enabled: false
+    subdomain: mcp
+    hostname: ""
+  observability:
+    enabled: false
+    subdomain: grafana
+    hostname: ""
+
+ingress:
+  enabled: true
+  className: traefik
+  tls:
+    enabled: true
+    clusterIssuer: letsencrypt-prod

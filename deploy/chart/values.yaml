@@ -1,0 +1,47 @@
+platform:
+  name: game-lab
+  environment: default
+  baseDomain: example.invalid
+
+modules:
+  web:
+    enabled: false
+    subdomain: games
+    hostname: ""
+  api:
+    enabled: false
+    subdomain: api
+    hostname: ""
+  mcp:
+    enabled: false
+    subdomain: mcp
+    hostname: ""
+  observability:
+    enabled: false
+    subdomain: grafana
+    hostname: ""
+
+image:
+  repository: nginxinc/nginx-unprivileged
+  tag: 1.29-alpine
+  pullPolicy: IfNotPresent
+
+replicaCount: 1
+
+service:
+  port: 8080
+
+ingress:
+  enabled: true
+  className: traefik
+  tls:
+    enabled: true
+    clusterIssuer: letsencrypt-prod
+
+resources:
+  requests:
+    cpu: 10m
+    memory: 16Mi
+  limits:
+    cpu: 100m
+    memory: 64Mi
