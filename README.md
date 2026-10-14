@@ -28,7 +28,7 @@ The deployment values file is the platform's equivalent of a parent `pom.xml`: e
 ## Quick start
 
 ```bash
-python3 -m pip install -r requirements-dev.txt
+python3 -m pip install -r requirements.txt
 make validate
 make endpoints ENV=example
 ```
