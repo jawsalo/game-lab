@@ -1,6 +1,6 @@
 # Game Lab — V9 Roadmap
 
-**Status:** IN PROGRESS — application foundation deployed October 18, 2026  
+**Status:** PHASE 1 COMPLETE — October 18, 2026  
 **Supersedes:** V8  
 **Execution:** Not starting tonight. Resume with **“Resume Game Lab V9”**.
 
@@ -48,10 +48,10 @@ Unify application, Kubernetes, GitHub and observability context for guided inves
 - Each chunk should be short, descriptive, understandable, testable and committed.
 - The Grim Dawn parser is **not** a prerequisite for the first API deployment.
 
-## Next two-hour work session (not tonight)
-1. **Inspect Current Deployment — 20 min:** review GitHub, Helm values, pods and live HTTPS endpoint.
-2. **Create Application Skeleton — 60 min:** frontend, API, health endpoints and parameterized configuration.
-3. **Deploy and Verify — 40 min:** build, deploy, test on mobile and commit a working checkpoint.
+## Next work session — begin Phase 2
+1. **Confirm Phase 1 Baseline — 15 min:** verify revision 5, both pods, public smoke tests and current capacity.
+2. **Design Persistence Boundary — 30 min:** define the PostgreSQL ownership model and the first Grim Dawn inventory-snapshot upload contract.
+3. **Add PostgreSQL Foundation — 60–75 min:** deploy conservative persistent storage, credentials injection and API connectivity without implementing the parser yet.
 
 ## Progress — October 18, 2026
 
@@ -62,12 +62,12 @@ Unify application, Kubernetes, GitHub and observability context for guided inves
 - Exercised rollback behavior when NGINX lacked a writable temporary directory, then fixed it with a narrowly scoped ephemeral `/tmp` mount.
 - Verified public HTTPS, browser-rendered status, API metadata and readiness.
 
-**Next Phase 1 checkpoint:** automate or fully document GitHub-to-K3s deployment, add smoke tests, and merge the application-foundation branch.
+**Phase 1 complete:** the application-foundation branch was merged into `main`; the parameterized deployment and public smoke-test workflow passed end to end at Helm revision 5.
 
 ## Resume checklist
-- Verify current repo branch, Helm release, pods, DNS/TLS and VPS capacity.
-- Take a checkpoint / backup before disruptive changes.
-- Begin Chunk 1 and work sequentially.
+- Start from `main` and verify Helm revision 5, both pods and the public smoke test.
+- Take a checkpoint / backup before persistent-data changes.
+- Begin Phase 2 with the database boundary and upload contract; the parser remains a later feature slice.
 - Do not install monitoring infrastructure first or activate Datadog prematurely.
 
 *Time estimates are rough hands-on sessions, not deadlines.*
