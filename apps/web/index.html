@@ -1,0 +1,52 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="theme-color" content="#111827">
+    <title>Game Lab</title>
+    <link rel="stylesheet" href="/styles.css">
+    <script src="/app.js" defer></script>
+  </head>
+  <body>
+    <main class="shell">
+      <header class="hero">
+        <p class="eyebrow">SELF-HOSTED TOOLBOX</p>
+        <h1>Game Lab</h1>
+        <p class="lede">Small, focused tools for the games worth taking too seriously.</p>
+        <div class="status" role="status" aria-live="polite">
+          <span id="status-dot" class="status__dot status__dot--checking"></span>
+          <span id="status-text">Checking platform status…</span>
+        </div>
+      </header>
+
+      <section aria-labelledby="tools-heading">
+        <div class="section-heading">
+          <p class="eyebrow">MODULES</p>
+          <h2 id="tools-heading">Workbench</h2>
+        </div>
+
+        <div class="grid">
+          <article class="card">
+            <p class="card__tag">FIRST BUILD</p>
+            <h3>Grim Dawn Inventory</h3>
+            <p>Upload read-only inventory snapshots, find duplicates, and turn a mountain of loot into something searchable.</p>
+            <span class="card__state">Foundation in progress</span>
+          </article>
+
+          <article class="card card--muted">
+            <p class="card__tag">PLANNED</p>
+            <h3>More game tools</h3>
+            <p>New modules can join the platform without owning infrastructure, public hostnames, or deployment logic.</p>
+            <span class="card__state">Waiting in the workshop</span>
+          </article>
+        </div>
+      </section>
+
+      <footer>
+        <span>Game Lab</span>
+        <span id="api-version">API version unavailable</span>
+      </footer>
+    </main>
+  </body>
+</html>
