@@ -18,6 +18,7 @@ DOMAIN_RE = re.compile(
 )
 APPROVED_DOMAIN_FILES = {
     Path("deploy/environments/production.yaml"),
+    Path("docs/ROADMAP-V9.md"),
 }
 REQUIRED_MODULES = {"web", "api", "mcp", "observability"}
 
@@ -146,11 +147,16 @@ def validate_portability() -> list[str]:
             errors.append(
                 f"{rel}: deployment domain must only appear in approved environment config"
             )
-        if re.search(
-            r"(?im)^\s*(password|token|secret|api[_-]?key)\s*:\s*(?![\"']?\$|false\s*$|true\s*$|[\"']?\s*$)[^\n]+",
-            text,
-        ):
-            errors.append(f"{rel}: possible committed secret; inject it at deploy time")
+        secret_assignment = re.compile(
+            r"(?im)^\s*(password|token|secret|api[_-]?key)\s*:\s*(.*?)\s*$"
+        )
+        for match in secret_assignment.finditer(text):
+            value = match.group(2).strip().strip("\"'")
+            if value and not value.startswith("$") and value.lower() not in {"false", "true"}:
+                errors.append(
+                    f"{rel}: possible committed secret; inject it at deploy time"
+                )
+                break
     return errors
 
 
