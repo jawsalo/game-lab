@@ -13,6 +13,25 @@ spec:
     app.kubernetes.io/component: web
   ports:
     - name: http
-      port: 80
+      port: {{ .Values.modules.web.service.port }}
+      targetPort: http
+{{- end }}
+{{- if .Values.modules.api.enabled }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "game-lab.name" . }}-api
+  labels:
+    {{- include "game-lab.labels" . | nindent 4 }}
+    app.kubernetes.io/component: api
+spec:
+  selector:
+    app.kubernetes.io/name: {{ include "game-lab.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/component: api
+  ports:
+    - name: http
+      port: {{ .Values.modules.api.service.port }}
       targetPort: http
 {{- end }}

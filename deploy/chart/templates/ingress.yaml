@@ -21,6 +21,15 @@ spec:
     - host: {{ include "game-lab.webHost" . | quote }}
       http:
         paths:
+          {{- if .Values.modules.api.enabled }}
+          - path: {{ .Values.modules.api.path }}
+            pathType: Prefix
+            backend:
+              service:
+                name: {{ include "game-lab.name" . }}-api
+                port:
+                  name: http
+          {{- end }}
           - path: /
             pathType: Prefix
             backend:

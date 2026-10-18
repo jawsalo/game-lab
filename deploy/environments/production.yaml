@@ -8,14 +8,25 @@ modules:
     enabled: true
     subdomain: games
     hostname: ""
+    image:
+      repository: ghcr.io/jawsalo/game-lab-web
+      tag: sha-ec3db73
+      pullPolicy: IfNotPresent
+
   api:
-    enabled: false
-    subdomain: api
-    hostname: ""
+    enabled: true
+    path: /api
+    appVersion: ec3db73
+    image:
+      repository: ghcr.io/jawsalo/game-lab-api
+      tag: sha-ec3db73
+      pullPolicy: IfNotPresent
+
   mcp:
     enabled: false
     subdomain: mcp
     hostname: ""
+
   observability:
     enabled: false
     subdomain: grafana

@@ -42,8 +42,26 @@ make helm-render ENV=example
 
 The example environment is safe to copy. Personal secrets and machine-specific overrides belong in ignored `*.local.yaml` files or an external secret manager.
 
+## Deployment
+
+GitHub Actions publishes matching web and API images with immutable `sha-<commit>` tags. From a configured K3s host, deploy one tested image pair and run public smoke tests with:
+
+```bash
+scripts/deploy.sh sha-abcdef0 https://games.example.com
+```
+
+The command validates configuration, lints the chart, performs a rollback-on-failure Helm upgrade, waits for both rollouts, and verifies the public web and API routes. Override `GAME_LAB_RELEASE`, `GAME_LAB_NAMESPACE`, or `GAME_LAB_VALUES` when targeting another environment.
+
 ## Current status
 
-This first milestone establishes the deployment contract and a small HTTPS-ready placeholder workload. Installation of cert-manager, DNS changes, firewall changes, and production deployment are deliberately separate operations.
+Phase 1 application foundation is running:
+
+- A mobile-first static web shell is served by an unprivileged NGINX container.
+- A FastAPI service exposes metadata plus liveness and readiness endpoints.
+- Traefik routes same-origin `/api` requests to the API service.
+- GitHub Actions builds and publishes immutable web and API images to GHCR.
+- Helm chart `0.2.0` deploys both workloads with non-root security contexts, read-only root filesystems, health probes, and resource limits.
+
+The remaining Phase 1 work is to automate the currently manual GitHub-to-K3s deployment path and add deployment smoke tests.
 
 Licensed under Apache 2.0. Game names and third-party data remain the property of their respective owners.
