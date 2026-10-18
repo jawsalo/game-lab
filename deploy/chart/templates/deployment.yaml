@@ -7,7 +7,7 @@ metadata:
     {{- include "game-lab.labels" . | nindent 4 }}
     app.kubernetes.io/component: web
 spec:
-  replicas: {{ .Values.replicaCount }}
+  replicas: {{ .Values.modules.web.replicas }}
   selector:
     matchLabels:
       app.kubernetes.io/name: {{ include "game-lab.name" . }}
@@ -27,44 +27,80 @@ spec:
           type: RuntimeDefault
       containers:
         - name: web
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
-          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          image: "{{ .Values.modules.web.image.repository }}:{{ .Values.modules.web.image.tag }}"
+          imagePullPolicy: {{ .Values.modules.web.image.pullPolicy }}
           ports:
             - name: http
-              containerPort: {{ .Values.service.port }}
+              containerPort: {{ .Values.modules.web.service.containerPort }}
           readinessProbe:
             httpGet:
-              path: /
+              path: /healthz
               port: http
           livenessProbe:
             httpGet:
-              path: /
+              path: /healthz
               port: http
           resources:
-            {{- toYaml .Values.resources | nindent 12 }}
+            {{- toYaml .Values.modules.web.resources | nindent 12 }}
           securityContext:
             allowPrivilegeEscalation: false
             capabilities:
               drop: ["ALL"]
             readOnlyRootFilesystem: true
-          volumeMounts:
-            - name: content
-              mountPath: /usr/share/nginx/html
-              readOnly: true
-            - name: cache
-              mountPath: /var/cache/nginx
-            - name: run
-              mountPath: /var/run
-            - name: tmp
-              mountPath: /tmp
-      volumes:
-        - name: content
-          configMap:
-            name: {{ include "game-lab.name" . }}-web
-        - name: cache
-          emptyDir: {}
-        - name: run
-          emptyDir: {}
-        - name: tmp
-          emptyDir: {}
+{{- end }}
+{{- if .Values.modules.api.enabled }}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "game-lab.name" . }}-api
+  labels:
+    {{- include "game-lab.labels" . | nindent 4 }}
+    app.kubernetes.io/component: api
+spec:
+  replicas: {{ .Values.modules.api.replicas }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "game-lab.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+      app.kubernetes.io/component: api
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "game-lab.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+        app.kubernetes.io/component: api
+    spec:
+      automountServiceAccountToken: false
+      securityContext:
+        runAsNonRoot: true
+        seccompProfile:
+          type: RuntimeDefault
+      containers:
+        - name: api
+          image: "{{ .Values.modules.api.image.repository }}:{{ .Values.modules.api.image.tag }}"
+          imagePullPolicy: {{ .Values.modules.api.image.pullPolicy }}
+          env:
+            - name: APP_ENV
+              value: {{ .Values.platform.environment | quote }}
+            - name: APP_VERSION
+              value: {{ .Values.modules.api.appVersion | quote }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.modules.api.service.containerPort }}
+          readinessProbe:
+            httpGet:
+              path: /api/health/ready
+              port: http
+          livenessProbe:
+            httpGet:
+              path: /api/health/live
+              port: http
+          resources:
+            {{- toYaml .Values.modules.api.resources | nindent 12 }}
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop: ["ALL"]
+            readOnlyRootFilesystem: true
 {{- end }}

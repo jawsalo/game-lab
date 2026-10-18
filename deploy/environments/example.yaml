@@ -8,14 +8,16 @@ modules:
     enabled: true
     subdomain: games
     hostname: ""
+
   api:
-    enabled: false
-    subdomain: api
-    hostname: ""
+    enabled: true
+    path: /api
+
   mcp:
     enabled: false
     subdomain: mcp
     hostname: ""
+
   observability:
     enabled: false
     subdomain: grafana

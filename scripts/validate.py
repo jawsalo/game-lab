@@ -70,16 +70,40 @@ def validate_environment(path: Path) -> tuple[list[str], dict[str, str]]:
     if missing:
         errors.append(f"{rel}: missing modules: {', '.join(sorted(missing))}")
 
+    web_module = modules.get("web", {})
+    web_host = hostname(web_module, base_domain) if isinstance(web_module, dict) else ""
     seen_hosts: set[str] = set()
+
     for name, module in modules.items():
         if not isinstance(module, dict):
             errors.append(f"{rel}: modules.{name} must be a mapping")
             continue
         if not isinstance(module.get("enabled"), bool):
             errors.append(f"{rel}: modules.{name}.enabled must be true or false")
-        if not module.get("hostname") and not module.get("subdomain"):
-            errors.append(f"{rel}: modules.{name} needs subdomain or hostname")
+
+        route = str(module.get("path", "")).strip()
+        has_host = bool(module.get("hostname") or module.get("subdomain"))
+
+        if route:
+            if not route.startswith("/"):
+                errors.append(f"{rel}: modules.{name}.path must start with '/'")
+            if has_host:
+                errors.append(
+                    f"{rel}: modules.{name} cannot define both path and hostname/subdomain"
+                )
+            if module.get("enabled"):
+                if not isinstance(web_module, dict) or not web_module.get("enabled"):
+                    errors.append(
+                        f"{rel}: routed module {name!r} requires the web module"
+                    )
+                elif DOMAIN_RE.fullmatch(web_host):
+                    endpoints[name] = f"https://{web_host}{route}"
             continue
+
+        if not has_host:
+            errors.append(f"{rel}: modules.{name} needs path, subdomain, or hostname")
+            continue
+
         host = hostname(module, base_domain)
         if not DOMAIN_RE.fullmatch(host):
             errors.append(f"{rel}: modules.{name} resolves to invalid hostname {host!r}")
@@ -96,7 +120,18 @@ def validate_portability() -> list[str]:
     errors: list[str] = []
     production = load_yaml(ROOT / "deploy/environments/production.yaml")
     deployment_domain = str(production["platform"]["baseDomain"]).lower()
-    text_extensions = {".md", ".yaml", ".yml", ".json", ".py", ".tpl", ".txt"}
+    text_extensions = {
+        ".css",
+        ".html",
+        ".js",
+        ".json",
+        ".md",
+        ".py",
+        ".tpl",
+        ".txt",
+        ".yaml",
+        ".yml",
+    }
     for path in ROOT.rglob("*"):
         if not path.is_file() or ".git" in path.parts or path.suffix not in text_extensions:
             continue
