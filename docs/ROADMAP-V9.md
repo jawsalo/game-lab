@@ -1,6 +1,6 @@
 # Game Lab — V9 Roadmap
 
-**Status:** ADOPTED — October 13, 2026  
+**Status:** IN PROGRESS — application foundation deployed October 18, 2026  
 **Supersedes:** V8  
 **Execution:** Not starting tonight. Resume with **“Resume Game Lab V9”**.
 
@@ -52,6 +52,17 @@ Unify application, Kubernetes, GitHub and observability context for guided inves
 1. **Inspect Current Deployment — 20 min:** review GitHub, Helm values, pods and live HTTPS endpoint.
 2. **Create Application Skeleton — 60 min:** frontend, API, health endpoints and parameterized configuration.
 3. **Deploy and Verify — 40 min:** build, deploy, test on mobile and commit a working checkpoint.
+
+## Progress — October 18, 2026
+
+- Deployed the mobile-first web shell and FastAPI service at `games.phobosandeimos.com`.
+- Added same-origin `/api` routing, liveness/readiness probes, resource limits and non-root containers with read-only root filesystems.
+- Added GitHub Actions image builds and immutable GHCR tags; K3s successfully pulled both images.
+- Upgraded Helm chart from `0.1.0` to `0.2.0`; active release is revision 4.
+- Exercised rollback behavior when NGINX lacked a writable temporary directory, then fixed it with a narrowly scoped ephemeral `/tmp` mount.
+- Verified public HTTPS, browser-rendered status, API metadata and readiness.
+
+**Next Phase 1 checkpoint:** automate or fully document GitHub-to-K3s deployment, add smoke tests, and merge the application-foundation branch.
 
 ## Resume checklist
 - Verify current repo branch, Helm release, pods, DNS/TLS and VPS capacity.

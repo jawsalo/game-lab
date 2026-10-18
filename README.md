@@ -44,6 +44,14 @@ The example environment is safe to copy. Personal secrets and machine-specific o
 
 ## Current status
 
-This first milestone establishes the deployment contract and a small HTTPS-ready placeholder workload. Installation of cert-manager, DNS changes, firewall changes, and production deployment are deliberately separate operations.
+Phase 1 application foundation is running:
+
+- A mobile-first static web shell is served by an unprivileged NGINX container.
+- A FastAPI service exposes metadata plus liveness and readiness endpoints.
+- Traefik routes same-origin `/api` requests to the API service.
+- GitHub Actions builds and publishes immutable web and API images to GHCR.
+- Helm chart `0.2.0` deploys both workloads with non-root security contexts, read-only root filesystems, health probes, and resource limits.
+
+The remaining Phase 1 work is to automate the currently manual GitHub-to-K3s deployment path and add deployment smoke tests.
 
 Licensed under Apache 2.0. Game names and third-party data remain the property of their respective owners.
