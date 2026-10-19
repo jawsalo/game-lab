@@ -2,8 +2,10 @@
 
 import os
 
-from fastapi import FastAPI
+from fastapi import FastAPI, HTTPException
 
+from .catalog import CatalogUnavailableError
+from .grim_dawn import catalog as grim_dawn_catalog
 from .grim_dawn import router as grim_dawn_router
 
 SERVICE_NAME = "game-lab-api"
@@ -36,6 +38,10 @@ async def liveness() -> dict[str, str]:
 
 
 @app.get("/api/health/ready", tags=["health"])
-async def readiness() -> dict[str, str]:
-    """Confirm that the API is ready to serve requests."""
+def readiness() -> dict[str, str]:
+    """Confirm that the API and its required catalog are ready."""
+    try:
+        grim_dawn_catalog.readiness()
+    except CatalogUnavailableError as error:
+        raise HTTPException(status_code=503, detail=str(error)) from error
     return {"status": "ready", "service": SERVICE_NAME}
