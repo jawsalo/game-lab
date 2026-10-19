@@ -12,6 +12,11 @@ class GrimDawnCatalogTests(unittest.TestCase):
     def setUpClass(cls) -> None:
         cls.catalog = GrimDawnCatalog()
 
+    def test_readiness_checks_catalog_identity_and_count(self) -> None:
+        readiness = self.catalog.readiness()
+        self.assertEqual(readiness["gameVersion"], "1.3.1.0")
+        self.assertEqual(readiness["recordCount"], 8695)
+
     def test_metadata_matches_pinned_catalog(self) -> None:
         metadata = self.catalog.metadata()
         self.assertEqual(metadata["gameVersion"], "1.3.1.0")
