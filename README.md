@@ -54,14 +54,18 @@ The command validates configuration, lints the chart, performs a rollback-on-fai
 
 ## Current status
 
-Phase 1 application foundation is running:
+Phase 2 is in progress, with the Grim Dawn catalog foundation running in production:
 
-- A mobile-first static web shell is served by an unprivileged NGINX container.
-- A FastAPI service exposes metadata plus liveness and readiness endpoints.
-- Traefik routes same-origin `/api` requests to the API service.
-- GitHub Actions builds and publishes immutable web and API images to GHCR.
-- Helm chart `0.2.0` deploys both workloads with non-root security contexts, read-only root filesystems, health probes, and resource limits.
+- The API packages a pinned, read-only Grim Dawn `1.3.1.0` SQLite catalog containing 8,695 records.
+- Catalog provenance records the authoritative `jawsalo/grimtools-data` source commit, byte size, and SHA-256.
+- `/api/grim-dawn/catalog` exposes version and facet metadata.
+- `/api/grim-dawn/items` provides full-text search, filters, bounded pagination, and exact-match ranking.
+- `/api/grim-dawn/items/{id}` returns one complete record by stable item ID.
+- The mobile-first web interface searches the catalog through same-origin API routes.
+- Validation checks the artifact, SQLite identity and integrity, embedded metadata, item/FTS counts, and regression queries.
+- CI validates the repository before publishing matched immutable API and web images.
+- Deployment smoke tests retry brief ingress handoffs and verify the live catalog.
 
-The remaining Phase 1 work is to automate the currently manual GitHub-to-K3s deployment path and add deployment smoke tests.
+The catalog describes the complete game item database. It is intentionally separate from personal inventory. The next Phase 2 slice will add read-only character/stash snapshot ingestion, persistence, and duplicate detection.
 
 Licensed under Apache 2.0. Game names and third-party data remain the property of their respective owners.
