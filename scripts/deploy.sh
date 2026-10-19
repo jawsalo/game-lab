@@ -20,7 +20,7 @@ fi
 
 expected_version="${image_tag#sha-}"
 
-python3 scripts/validate.py
+make validate
 helm lint deploy/chart --values "$values_file"
 
 helm upgrade --install "$release" deploy/chart \
