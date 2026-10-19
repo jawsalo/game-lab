@@ -1,6 +1,6 @@
 # Game Lab — V9 Roadmap
 
-**Status:** PHASE 1 COMPLETE — October 18, 2026  
+**Status:** PHASE 2 IN PROGRESS — October 18, 2026  
 **Supersedes:** V8  
 **Execution:** Not starting tonight. Resume with **“Resume Game Lab V9”**.
 
@@ -20,7 +20,7 @@ Build a genuinely useful application on our existing K3s VPS, instrument it with
 Inspect repo, cluster and Helm release. Replace placeholder with a mobile-friendly web frontend, backend API and health endpoints. Make GitHub-to-K3s deployment repeatable. **Exit:** reachable app and tested deployment workflow.
 
 ### 2. Persistent data and useful features — 3–5 sessions
-Add PostgreSQL and actual features. Candidate first feature: Grim Dawn inventory snapshot upload, parsing and duplicate detection. Keep local export read-only and upload access separate from MCP privileges. **Exit:** useful persistent workload generating real traffic.
+Establish the versioned Grim Dawn item catalog, then add PostgreSQL-backed character/stash snapshot uploads, parsing and duplicate detection. Keep canonical game data separate from personal inventory, keep local exports read-only, and separate upload access from MCP privileges. **Exit:** useful persistent workload generating real traffic.
 
 ### 3. Vendor-neutral instrumentation — 1–2 sessions
 Instrument API and background worker with OpenTelemetry: structured logs, HTTP metrics, DB timing, distributed traces and trace context. **Exit:** telemetry independent of a vendor backend.
@@ -48,10 +48,10 @@ Unify application, Kubernetes, GitHub and observability context for guided inves
 - Each chunk should be short, descriptive, understandable, testable and committed.
 - The Grim Dawn parser is **not** a prerequisite for the first API deployment.
 
-## Next work session — begin Phase 2
-1. **Confirm Phase 1 Baseline — 15 min:** verify revision 5, both pods, public smoke tests and current capacity.
-2. **Design Persistence Boundary — 30 min:** define the PostgreSQL ownership model and the first Grim Dawn inventory-snapshot upload contract.
-3. **Add PostgreSQL Foundation — 60–75 min:** deploy conservative persistent storage, credentials injection and API connectivity without implementing the parser yet.
+## Next work session — continue Phase 2
+1. **Merge Catalog Foundation — 15 min:** review and merge the tested catalog branch after final CI checks.
+2. **Design Inventory Snapshot Contract — 30–45 min:** define supported save/stash inputs, immutable upload metadata, ownership, and failure handling.
+3. **Add PostgreSQL Foundation — 60–75 min:** deploy conservative persistent storage and credentials injection without coupling canonical item data to user inventory.
 
 ## Progress — October 18, 2026
 
@@ -64,10 +64,22 @@ Unify application, Kubernetes, GitHub and observability context for guided inves
 
 **Phase 1 complete:** the application-foundation branch was merged into `main`; the parameterized deployment and public smoke-test workflow passed end to end at Helm revision 5.
 
+### Phase 2 catalog checkpoint
+
+- Recreated the GrimTools ingestion procedure from fresh browser-downloaded `1.3.1.0` sources and merged the reproducible pipeline into `jawsalo/grimtools-data`.
+- Pinned the verified 11.6 MB SQLite artifact in the API build with source commit, size, and SHA-256 provenance.
+- Added guarded catalog validation, read-only immutable SQLite access, metadata, item detail, full-text search, filters, pagination, and exact-name relevance ranking.
+- Added a responsive web catalog with 8,695 searchable records and explicit separation from future personal inventory.
+- Added eight catalog regression tests, catalog-aware readiness, CI validation, immutable image publication, retrying deployment smoke tests, and production catalog assertions.
+- Deployed and verified the catalog at Helm revision 8 with API version `125cea4`.
+
+**Phase 2 remains in progress:** canonical item search is complete; personal character/stash ingestion, PostgreSQL persistence, ownership, and duplicate detection remain.
+
 ## Resume checklist
-- Start from `main` and verify Helm revision 5, both pods and the public smoke test.
-- Take a checkpoint / backup before persistent-data changes.
-- Begin Phase 2 with the database boundary and upload contract; the parser remains a later feature slice.
+- Merge the catalog branch, start from updated `main`, and verify Helm revision 8, both pods, and the catalog-aware public smoke test.
+- Preserve the pinned canonical catalog as immutable reference data.
+- Take a checkpoint / backup before PostgreSQL or personal inventory changes.
+- Define the upload and ownership boundary before implementing save/stash parsing.
 - Do not install monitoring infrastructure first or activate Datadog prematurely.
 
 *Time estimates are rough hands-on sessions, not deadlines.*

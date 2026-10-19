@@ -28,10 +28,10 @@
 
         <div class="grid">
           <article class="card">
-            <p class="card__tag">FIRST BUILD</p>
-            <h3>Grim Dawn Inventory</h3>
-            <p>Upload read-only inventory snapshots, find duplicates, and turn a mountain of loot into something searchable.</p>
-            <span class="card__state">Foundation in progress</span>
+            <p class="card__tag">NOW ONLINE</p>
+            <h3>Grim Dawn Catalog</h3>
+            <p>Search the complete current item database. Personal inventory snapshots and duplicate detection come next.</p>
+            <a class="card__link" href="#catalog">Open item catalog</a>
           </article>
 
           <article class="card card--muted">
@@ -41,6 +41,51 @@
             <span class="card__state">Waiting in the workshop</span>
           </article>
         </div>
+      </section>
+
+      <section id="catalog" class="catalog" aria-labelledby="catalog-heading">
+        <div class="section-heading">
+          <p class="eyebrow">GRIM DAWN</p>
+          <h2 id="catalog-heading">Item Catalog</h2>
+          <p id="catalog-meta" class="catalog__meta">Loading catalog metadata…</p>
+        </div>
+
+        <form id="catalog-search" class="search" role="search">
+          <label class="search__query">
+            <span>Item name or description</span>
+            <input id="search-query" name="q" type="search" maxlength="200" placeholder="Try Serenity or Cracked Lodestone">
+          </label>
+
+          <label>
+            <span>Group</span>
+            <select id="search-group" name="group">
+              <option value="">All groups</option>
+            </select>
+          </label>
+
+          <label>
+            <span>Rarity</span>
+            <select id="search-rarity" name="rarity">
+              <option value="">All rarities</option>
+              <option value="Common">Common</option>
+              <option value="Magical">Magical</option>
+              <option value="Rare">Rare</option>
+              <option value="Epic">Epic</option>
+              <option value="Legendary">Legendary</option>
+              <option value="Quest">Quest</option>
+            </select>
+          </label>
+
+          <div class="search__actions">
+            <button type="submit">Search catalog</button>
+            <button id="search-reset" class="button--secondary" type="reset">Clear</button>
+          </div>
+        </form>
+
+        <p id="search-status" class="search__status" role="status" aria-live="polite">
+          Enter a name or choose a filter to begin.
+        </p>
+        <div id="search-results" class="results"></div>
       </section>
 
       <footer>
