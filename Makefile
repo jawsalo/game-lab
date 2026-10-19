@@ -2,10 +2,14 @@ ENV ?= example
 VALUES := deploy/environments/$(ENV).yaml
 CHART := deploy/chart
 
-.PHONY: validate endpoints helm-lint helm-render
+.PHONY: validate validate-catalog endpoints helm-lint helm-render
 
 validate:
 	python3 scripts/validate.py
+	python3 scripts/validate-grim-dawn-catalog.py
+
+validate-catalog:
+	python3 scripts/validate-grim-dawn-catalog.py
 
 endpoints:
 	python3 scripts/validate.py --environment $(VALUES) --print-endpoints
