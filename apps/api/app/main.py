@@ -4,6 +4,8 @@ import os
 
 from fastapi import FastAPI
 
+from .grim_dawn import router as grim_dawn_router
+
 SERVICE_NAME = "game-lab-api"
 ENVIRONMENT = os.getenv("APP_ENV", "development")
 VERSION = os.getenv("APP_VERSION", "dev")
@@ -14,6 +16,7 @@ app = FastAPI(
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
 )
+app.include_router(grim_dawn_router)
 
 
 @app.get("/api", tags=["system"])
