@@ -76,6 +76,42 @@ class GrimDawnCatalog:
                 f"cannot open catalog database: {error}"
             ) from error
 
+    def readiness(self) -> dict[str, Any]:
+        """Verify that the expected catalog is available for requests."""
+        try:
+            with self.connect() as connection:
+                application_id = connection.execute(
+                    "PRAGMA application_id"
+                ).fetchone()[0]
+                metadata = dict(
+                    connection.execute(
+                        """
+                        SELECT key, value
+                        FROM metadata
+                        WHERE key IN ('game_version', 'record_count')
+                        """
+                    )
+                )
+                item_count = connection.execute(
+                    "SELECT COUNT(*) FROM items"
+                ).fetchone()[0]
+        except sqlite3.Error as error:
+            raise CatalogUnavailableError(
+                f"catalog readiness check failed: {error}"
+            ) from error
+
+        record_count = int(metadata.get("record_count", "-1"))
+        game_version = metadata.get("game_version")
+        if application_id != 0x47444C42:
+            raise CatalogUnavailableError("catalog application ID is invalid")
+        if not game_version or item_count != record_count:
+            raise CatalogUnavailableError("catalog metadata or row count is invalid")
+
+        return {
+            "gameVersion": game_version,
+            "recordCount": record_count,
+        }
+
     def metadata(self) -> dict[str, Any]:
         try:
             with self.connect() as connection:
