@@ -43,6 +43,12 @@ class GrimDawnCatalogTests(unittest.TestCase):
             {"it2837", "it74"},
         )
 
+    def test_exact_name_match_ranks_before_related_items(self) -> None:
+        result = self.catalog.search_items(query="Serenity")
+        self.assertGreater(result["total"], 1)
+        self.assertEqual(result["items"][0]["id"], "it11751")
+        self.assertEqual(result["items"][0]["name"], "Serenity")
+
     def test_filters_can_isolate_equipped_relics(self) -> None:
         result = self.catalog.search_items(
             item_group="equipment",
