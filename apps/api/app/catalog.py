@@ -230,6 +230,17 @@ class GrimDawnCatalog:
 
         where = f"WHERE {' AND '.join(clauses)}" if clauses else ""
         from_sql = f"FROM items {join} {where}"
+        order_sql = "items.name_sort, items.id"
+        order_parameters: list[Any] = []
+        if query and fts_query:
+            normalized_query = query.strip().casefold()
+            order_sql = (
+                "CASE "
+                "WHEN items.name_sort = ? THEN 0 "
+                "WHEN items.name_sort LIKE ? THEN 1 "
+                "ELSE 2 END, items.name_sort, items.id"
+            )
+            order_parameters = [normalized_query, f"{normalized_query}%"]
 
         try:
             with self.connect() as connection:
@@ -245,10 +256,10 @@ class GrimDawnCatalog:
                         items.rarity, items.level_requirement,
                         items.item_level, items.bitmap, items.mods_json
                     {from_sql}
-                    ORDER BY items.name_sort, items.id
+                    ORDER BY {order_sql}
                     LIMIT ? OFFSET ?
                     """,
-                    [*parameters, limit, offset],
+                    [*parameters, *order_parameters, limit, offset],
                 ).fetchall()
         except sqlite3.Error as error:
             raise CatalogUnavailableError(f"cannot search catalog: {error}") from error
