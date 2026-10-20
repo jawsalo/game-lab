@@ -12,7 +12,7 @@ This is a standalone platform release in the `observability` namespace. It does 
 | Tempo | Single binary, local storage | 5 GiB | 3 days |
 | Alloy | One Deployment | None | Forwards OTLP, reads Kubernetes pod logs |
 
-The stack requests about 0.8 CPU and 1.5 GiB memory. Container limits total about 3.5 CPU and 3.5 GiB memory. These are ceilings, not expected steady-state use. It asks for 22 GiB of persistent volume capacity, and the deployment script requires at least 30 GiB free on the host so the node has room for growth and other workloads.
+The stack requests about 0.8 CPU and 1.75 GiB memory. Container limits total about 3.5 CPU and 3.5 GiB memory. These are ceilings, not expected steady-state use. It asks for 22 GiB of persistent volume capacity, and the deployment script requires at least 30 GiB free on the host so the node has room for growth and other workloads.
 
 Grafana has no Ingress or LoadBalancer. Reach it through a local tunnel:
 
