@@ -92,11 +92,11 @@ class GrimDawnCatalog:
         """Verify that the expected catalog is available for requests."""
         try:
             with self.connect() as connection:
-                application_id = connection.execute(
+                application_id = _execute(connection, 
                     "PRAGMA application_id"
                 ).fetchone()[0]
                 metadata = dict(
-                    connection.execute(
+                    _execute(connection, 
                         """
                         SELECT key, value
                         FROM metadata
@@ -104,7 +104,7 @@ class GrimDawnCatalog:
                         """
                     )
                 )
-                item_count = connection.execute(
+                item_count = _execute(connection, 
                     "SELECT COUNT(*) FROM items"
                 ).fetchone()[0]
         except sqlite3.Error as error:
@@ -128,12 +128,12 @@ class GrimDawnCatalog:
         try:
             with self.connect() as connection:
                 metadata = dict(
-                    connection.execute(
+                    _execute(connection, 
                         "SELECT key, value FROM metadata ORDER BY key"
                     )
                 )
                 groups = dict(
-                    connection.execute(
+                    _execute(connection, 
                         """
                         SELECT item_group, COUNT(*)
                         FROM items
@@ -143,7 +143,7 @@ class GrimDawnCatalog:
                     )
                 )
                 categories = dict(
-                    connection.execute(
+                    _execute(connection, 
                         """
                         SELECT category, COUNT(*)
                         FROM items
@@ -166,7 +166,7 @@ class GrimDawnCatalog:
     def get_item(self, item_id: str) -> dict[str, Any] | None:
         try:
             with self.connect() as connection:
-                row = connection.execute(
+                row = _execute(connection, 
                     """
                     SELECT
                         id, name, description, item_group, category, slot,
@@ -256,11 +256,11 @@ class GrimDawnCatalog:
 
         try:
             with self.connect() as connection:
-                total = connection.execute(
+                total = _execute(connection, 
                     f"SELECT COUNT(*) {from_sql}",
                     parameters,
                 ).fetchone()[0]
-                rows = connection.execute(
+                rows = _execute(connection, 
                     f"""
                     SELECT
                         items.id, items.name, items.description,
