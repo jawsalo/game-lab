@@ -1,8 +1,8 @@
 # Game Lab — V9 Roadmap
 
-**Status:** PHASE 2 IN PROGRESS — October 18, 2026  
+**Status:** PHASE 2 IN PROGRESS — October 20, 2026  
 **Supersedes:** V8  
-**Execution:** Not starting tonight. Resume with **“Resume Game Lab V9”**.
+**Execution:** Continue with short, validated chunks from the current Phase 2 checkpoint.
 
 ## Mission
 Build a genuinely useful application on our existing K3s VPS, instrument it with vendor-neutral OpenTelemetry, run an open-source observability stack, introduce controlled MCP operations, then evaluate Datadog using real workloads and reproducible failures. Keep the system small, teachable, and portfolio-worthy.
@@ -49,9 +49,9 @@ Unify application, Kubernetes, GitHub and observability context for guided inves
 - The Grim Dawn parser is **not** a prerequisite for the first API deployment.
 
 ## Next work session — continue Phase 2
-1. **Merge Catalog Foundation — 15 min:** review and merge the tested catalog branch after final CI checks.
-2. **Design Inventory Snapshot Contract — 30–45 min:** define supported save/stash inputs, immutable upload metadata, ownership, and failure handling.
-3. **Add PostgreSQL Foundation — 60–75 min:** deploy conservative persistent storage and credentials injection without coupling canonical item data to user inventory.
+1. **Merge Item Card API — 15 min:** review the draft PR after green CI; production remains on the current catalog release until deployment is planned.
+2. **Render Item Cards — 30–60 min:** use the structured card endpoint in the web UI for item descriptions, properties, conversions, and recipe details.
+3. **Add Observability — 30–60 min:** add useful application telemetry before moving to Sphere and persistence features.
 
 ## Progress — October 18, 2026
 
@@ -75,11 +75,19 @@ Unify application, Kubernetes, GitHub and observability context for guided inves
 
 **Phase 2 remains in progress:** canonical item search is complete; personal character/stash ingestion, PostgreSQL persistence, ownership, and duplicate detection remain.
 
+### Item card contract checkpoint — October 20, 2026
+
+- Confirmed description markers in the catalog: `^n`, `^w`, and `^o`; absent descriptions should be omitted.
+- Added a structured card model and `GET /api/grim-dawn/items/{id}/card` on draft PR #3. The response separates expansions, numeric gameplay properties, conversions, and recipe details without exposing the raw record.
+- Added focused tests and documented the endpoint. GitHub Actions validation and both API/web image builds passed on the PR branch.
+- This is not merged or deployed; production remains at the verified catalog release. Next: render the card contract in the web UI.
+
 ## Resume checklist
-- Merge the catalog branch, start from updated `main`, and verify Helm revision 8, both pods, and the catalog-aware public smoke test.
-- Preserve the pinned canonical catalog as immutable reference data.
+- Review and merge draft PR #3 after confirming its green CI checks.
+- Keep the pinned canonical catalog as immutable reference data and production at the current release until deployment is planned.
+- Verify Helm revision 8, both pods, and the catalog-aware public smoke test after the next deployment.
 - Take a checkpoint / backup before PostgreSQL or personal inventory changes.
 - Define the upload and ownership boundary before implementing save/stash parsing.
-- Do not install monitoring infrastructure first or activate Datadog prematurely.
+- Do not activate Datadog prematurely.
 
 *Time estimates are rough hands-on sessions, not deadlines.*
