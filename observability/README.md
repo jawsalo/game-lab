@@ -27,7 +27,7 @@ Then open `http://127.0.0.1:3000`. The admin password is entered without echo by
 From the repository root on the VPS, after pulling the branch/merge that contains these files:
 
 ```sh
-scripts/deploy-observability.sh
+bash scripts/deploy-observability.sh
 ```
 
 The script shows the Kubernetes context, node utilization, and host disk usage before any cluster changes. It stops if `kubectl top nodes` is unavailable or host disk free space is below 30 GiB. Confirm at least 4 GiB of node memory remains available, then type `deploy` at the prompt. No public route is created.
