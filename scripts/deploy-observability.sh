@@ -4,11 +4,6 @@ set -euo pipefail
 repo_root="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)"
 cd "$repo_root"
 
-if [[ -z "${GRAFANA_ADMIN_PASSWORD:-}" ]]; then
-  echo "Set GRAFANA_ADMIN_PASSWORD for the Grafana admin secret." >&2
-  exit 2
-fi
-
 if ! command -v kubectl >/dev/null || ! command -v helm >/dev/null; then
   echo "kubectl and Helm are required." >&2
   exit 2
@@ -20,16 +15,34 @@ kubectl get nodes -o wide
 echo
 echo "Current node usage (requires metrics-server):"
 kubectl top nodes || {
-  echo "kubectl top nodes failed; verify node memory and host disk capacity before deploying." >&2
+  echo "kubectl top nodes failed; verify metrics-server and node capacity before deploying." >&2
   exit 2
 }
 echo
-echo "Host disk should be checked directly with: df -h /"
+echo "Host disk:"
+df -h /
+disk_available_bytes="$(df --output=avail -B1 / | tail -n 1 | tr -d ' ')"
+minimum_disk_bytes=$((30 * 1024 * 1024 * 1024))
+if (( disk_available_bytes < minimum_disk_bytes )); then
+  echo "At least 30 GiB free host disk is required; stopping before cluster changes." >&2
+  exit 2
+fi
+echo
 echo "Planned persistent claims total 22Gi (Prometheus 8Gi, Loki 8Gi, Tempo 5Gi, Grafana 1Gi)."
-read -r -p "Confirm node and disk capacity are sufficient, then type deploy: " answer
+echo "Confirm at least 4 GiB of node memory remains available."
+read -r -p "After checking capacity, type deploy to continue: " answer
 if [[ "$answer" != "deploy" ]]; then
   echo "Stopped before making cluster changes."
   exit 1
+fi
+
+if [[ -z "${GRAFANA_ADMIN_PASSWORD:-}" ]]; then
+  read -r -s -p "Choose a Grafana admin password: " GRAFANA_ADMIN_PASSWORD
+  echo
+fi
+if [[ -z "${GRAFANA_ADMIN_PASSWORD:-}" ]]; then
+  echo "Grafana admin password cannot be empty." >&2
+  exit 2
 fi
 
 helm repo add prometheus-community https://prometheus-community.github.io/helm-charts --force-update
@@ -42,6 +55,7 @@ kubectl -n observability create secret generic grafana-admin \
   --from-literal=admin-user=admin \
   --from-literal=admin-password="$GRAFANA_ADMIN_PASSWORD" \
   --dry-run=client -o yaml | kubectl apply -f -
+unset GRAFANA_ADMIN_PASSWORD
 
 helm upgrade --install prometheus prometheus-community/prometheus \
   --namespace observability --version 29.37.0 \
