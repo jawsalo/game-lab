@@ -91,6 +91,12 @@ spec:
               value: {{ .Values.platform.environment | quote }}
             - name: APP_VERSION
               value: {{ .Values.modules.api.appVersion | quote }}
+            - name: OTEL_SERVICE_NAME
+              value: {{ .Values.modules.api.telemetry.serviceName | quote }}
+            {{- with .Values.modules.api.telemetry.otlpEndpoint }}
+            - name: OTEL_EXPORTER_OTLP_ENDPOINT
+              value: {{ . | quote }}
+            {{- end }}
           ports:
             - name: http
               containerPort: {{ .Values.modules.api.service.containerPort }}
