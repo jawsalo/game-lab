@@ -93,7 +93,6 @@ Unify application, Kubernetes, GitHub and observability context for guided inves
 - Keep the OTLP endpoint unset until the Collector is deployed and reachable.
 - Next deploy the open-source stack in the `observability` namespace, then configure the API to export to it.
 - Take a checkpoint / backup before PostgreSQL or personal inventory changes.
-- Take a checkpoint / backup before PostgreSQL or personal inventory changes.
 - Define the upload and ownership boundary before implementing save/stash parsing.
 - Do not activate Datadog prematurely.
 
