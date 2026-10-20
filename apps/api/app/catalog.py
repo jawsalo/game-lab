@@ -6,6 +6,7 @@ import json
 import os
 import re
 import sqlite3
+from collections.abc import Sequence
 from pathlib import Path
 from typing import Any
 
@@ -40,7 +41,7 @@ def _fts_query(value: str) -> str | None:
 def _execute(
     connection: sqlite3.Connection,
     statement: str,
-    parameters: tuple[Any, ...] = (),
+    parameters: Sequence[Any] = (),
 ) -> sqlite3.Cursor:
     """Execute through an explicit cursor so SQLite instrumentation can trace it."""
     cursor = connection.cursor()
