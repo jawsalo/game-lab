@@ -37,6 +37,17 @@ def _fts_query(value: str) -> str | None:
     return " AND ".join(f'"{token}"*' for token in tokens)
 
 
+def _execute(
+    connection: sqlite3.Connection,
+    statement: str,
+    parameters: tuple[Any, ...] = (),
+) -> sqlite3.Cursor:
+    """Execute through an explicit cursor so SQLite instrumentation can trace it."""
+    cursor = connection.cursor()
+    cursor.execute(statement, parameters)
+    return cursor
+
+
 def _item_summary(row: sqlite3.Row) -> dict[str, Any]:
     return {
         "id": row["id"],
@@ -69,7 +80,7 @@ class GrimDawnCatalog:
         try:
             connection = sqlite3.connect(uri, uri=True)
             connection.row_factory = sqlite3.Row
-            connection.execute("PRAGMA query_only = ON")
+            _execute(connection, "PRAGMA query_only = ON")
             return connection
         except sqlite3.Error as error:
             raise CatalogUnavailableError(
