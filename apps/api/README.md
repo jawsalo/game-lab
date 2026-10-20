@@ -34,9 +34,3 @@ make validate
 The API instruments inbound FastAPI requests and SQLite catalog statements. HTTP health-check paths are excluded to keep probe traffic out of request signals. When traces are enabled, SQLite statements appear as child spans of the request trace.
 
 Telemetry uses the OpenTelemetry SDK and OTLP/gRPC exporters. Set `OTEL_EXPORTER_OTLP_ENDPOINT` to a collector endpoint such as `http://otel-collector.observability.svc.cluster.local:4317`; `OTEL_EXPORTER_OTLP_TRACES_ENDPOINT` and `OTEL_EXPORTER_OTLP_METRICS_ENDPOINT` can override it per signal. Resource identity uses `OTEL_SERVICE_NAME`, `APP_ENV`, and `APP_VERSION`. Setting `OTEL_SDK_DISABLED=true` or leaving all OTLP endpoints unset disables export. The Helm chart leaves the endpoint blank until the collector is deployed.
-
-## OpenTelemetry
-
-The API instruments inbound FastAPI requests and SQLite catalog statements. HTTP health-check paths are excluded to keep probe traffic out of request signals. When traces are enabled, SQLite statements appear as child spans of the request trace.
-
-Telemetry uses the OpenTelemetry SDK and OTLP/gRPC exporters. Set `OTEL_EXPORTER_OTLP_ENDPOINT` to a collector endpoint such as `http://otel-collector.observability.svc.cluster.local:4317`; `OTEL_EXPORTER_OTLP_TRACES_ENDPOINT` and `OTEL_EXPORTER_OTLP_METRICS_ENDPOINT` can override it per signal. Resource identity uses `OTEL_SERVICE_NAME`, `APP_ENV`, and `APP_VERSION`. Setting `OTEL_SDK_DISABLED=true` or leaving all OTLP endpoints unset disables export. The Helm chart leaves the endpoint blank until the collector is deployed.
