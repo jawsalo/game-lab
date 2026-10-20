@@ -1,6 +1,6 @@
 # Game Lab — V9 Roadmap
 
-**Status:** PHASE 2 IN PROGRESS — October 20, 2026  
+**Status:** PHASE 2 IN PROGRESS; PHASE 3/4 FOUNDATIONS UNDERWAY — October 20, 2026  
 **Supersedes:** V8  
 **Execution:** Continue with short, validated chunks from the current Phase 2 checkpoint.
 
@@ -48,11 +48,12 @@ Unify application, Kubernetes, GitHub and observability context for guided inves
 - Each chunk should be short, descriptive, understandable, testable and committed.
 - The Grim Dawn parser is **not** a prerequisite for the first API deployment.
 
-## Current work — Phase 3 instrumentation foundation
-1. **Instrument the API:** export FastAPI request traces/metrics and SQLite statement spans through standard OTLP settings.
-2. **Instrument worker signals:** add structured logs, trace context, and worker metrics when the worker gains a real job.
-3. **Deploy the open-source stack:** route OTLP to an OpenTelemetry Collector and validate Prometheus, Grafana, Loki, and Tempo.
-4. **Evaluate Datadog later:** use the same instrumented workload and failure scenarios for a measured comparison; do not start the trial yet.
+## Current work — Phase 3/4 observability foundation
+1. **API instrumentation code is merged:** PR #4 adds optional OTLP/gRPC exporters, FastAPI request instrumentation, and SQLite statement spans. Export remains disabled until the in-cluster Alloy receiver is available.
+2. **Worker signals:** add structured logs, trace context, and worker metrics when the worker gains a real job.
+3. **Deploy the open-source stack:** PR #5 prepares pinned Helm releases for Prometheus, Grafana, Loki, Tempo, and Alloy in the separate `observability` namespace. Check VPS capacity before installation; keep Grafana private.
+4. **Enable application export:** after stack health is verified, set the API OTLP endpoint to Alloy and deploy the instrumented API image.
+5. **Evaluate Datadog later:** use the same workload and failure scenarios for a measured comparison; do not start the trial yet.
 
 ## Progress — October 18, 2026
 
@@ -82,16 +83,15 @@ Unify application, Kubernetes, GitHub and observability context for guided inves
 - Merged PR #3 and deployed API/web image `sha-9fc6cbd`; Helm revision 9 rolled out both pods and the public smoke test passed.
 - Production remains on the pinned 1.3.1.0 Grim Dawn catalog with 8,695 records.
 
-### OpenTelemetry API foundation — in progress
+### OpenTelemetry API foundation — code merged, export pending
 
-- Add optional OTLP/gRPC trace and metric exporters, FastAPI request instrumentation, and SQLite statement spans.
-- Keep export off until an OTLP Collector endpoint is configured in Helm values.
-- Validate resource identity and per-signal endpoint configuration with regression tests.
+- Merged PR #4 with optional OTLP/gRPC trace and metric exporters, FastAPI request instrumentation, and SQLite statement spans.
+- Export remains off until the Alloy OTLP receiver is deployed and configured in Helm values.
+- Regression tests validate resource identity and per-signal endpoint configuration.
 
 ## Resume checklist
-- Complete and validate the API instrumentation PR before deployment.
-- Keep the OTLP endpoint unset until the Collector is deployed and reachable.
-- Next deploy the open-source stack in the `observability` namespace, then configure the API to export to it.
+- Keep the OTLP endpoint unset until the open-source stack is deployed and reachable.
+- Deploy the open-source stack in the `observability` namespace after checking current VPS memory and disk capacity, then configure the API to export to Alloy.
 - Take a checkpoint / backup before PostgreSQL or personal inventory changes.
 - Define the upload and ownership boundary before implementing save/stash parsing.
 - Do not activate Datadog prematurely.
