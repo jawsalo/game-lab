@@ -28,6 +28,17 @@ def signal_endpoint(environment: Mapping[str, str], signal: str) -> str | None:
     return signal_endpoint or shared_endpoint or None
 
 
+def configured_signal_endpoint(
+    environment: Mapping[str, str],
+    signal: str,
+) -> str | None:
+    """Return an OTLP endpoint only when that signal selects the OTLP exporter."""
+    exporter = environment.get(f"OTEL_{signal.upper()}_EXPORTER", "otlp")
+    if exporter.strip().lower() != "otlp":
+        return None
+    return signal_endpoint(environment, signal)
+
+
 def resource_attributes(environment: Mapping[str, str]) -> dict[str, str]:
     """Build stable resource identity from application environment variables."""
     return {
@@ -51,8 +62,8 @@ def configure_telemetry(
         FastAPIInstrumentor.instrument_app(app, excluded_urls=HEALTH_CHECK_URLS)
         return None, None
 
-    traces_endpoint = signal_endpoint(settings, "traces")
-    metrics_endpoint = signal_endpoint(settings, "metrics")
+    traces_endpoint = configured_signal_endpoint(settings, "traces")
+    metrics_endpoint = configured_signal_endpoint(settings, "metrics")
     if not traces_endpoint and not metrics_endpoint:
         FastAPIInstrumentor.instrument_app(app, excluded_urls=HEALTH_CHECK_URLS)
         return None, None
