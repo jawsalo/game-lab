@@ -4,7 +4,11 @@ from __future__ import annotations
 
 import unittest
 
-from apps.api.app.telemetry import resource_attributes, signal_endpoint
+from apps.api.app.telemetry import (
+    configured_signal_endpoint,
+    resource_attributes,
+    signal_endpoint,
+)
 
 
 class TelemetryConfigurationTests(unittest.TestCase):
@@ -25,6 +29,17 @@ class TelemetryConfigurationTests(unittest.TestCase):
 
     def test_signal_endpoint_is_optional(self) -> None:
         self.assertIsNone(signal_endpoint({}, "traces"))
+
+    def test_non_otlp_exporter_disables_signal(self) -> None:
+        self.assertIsNone(
+            configured_signal_endpoint(
+                {
+                    "OTEL_EXPORTER_OTLP_ENDPOINT": "http://collector:4317",
+                    "OTEL_TRACES_EXPORTER": "none",
+                },
+                "traces",
+            )
+        )
 
     def test_resource_identity_uses_application_environment(self) -> None:
         self.assertEqual(
