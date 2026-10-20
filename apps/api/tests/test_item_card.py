@@ -112,8 +112,8 @@ class ItemCardTests(unittest.TestCase):
         self.assertEqual(
             recipe["ingredients"],
             [
-                {"itemIds": ["it1306", "it1307"], "quantity": 1},
                 {"itemIds": ["it2900"], "quantity": 1},
+                {"itemIds": ["it1306", "it1307"], "quantity": 1},
             ],
         )
 
