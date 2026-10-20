@@ -358,3 +358,119 @@ select:focus-visible {
     grid-template-columns: 1fr 1fr;
   }
 }
+
+
+.result__details-toggle {
+  min-height: 2.4rem;
+  margin-top: 0.85rem;
+  padding: 0.45rem 0.7rem;
+  border: 1px solid #334155;
+  border-radius: 0.65rem;
+  background: rgba(11, 18, 32, 0.72);
+  color: #67e8f9;
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.8rem;
+  font-weight: 750;
+  text-align: left;
+}
+
+.result__details-toggle:hover:not(:disabled) {
+  border-color: #67e8f9;
+  background: rgba(8, 47, 73, 0.42);
+}
+
+.result__details-toggle:disabled {
+  cursor: wait;
+  opacity: 0.7;
+}
+
+.result__details {
+  margin-top: 1rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid #334155;
+  color: #cbd5e1;
+  font-size: 0.85rem;
+  line-height: 1.55;
+}
+
+.result__details[hidden] {
+  display: none;
+}
+
+.item-card__description {
+  margin: 0 0 1rem;
+  color: #a8b3c7;
+  line-height: 1.65;
+  white-space: pre-line;
+}
+
+.item-card__description--default {
+  color: #a8b3c7;
+}
+
+.item-card__description--white {
+  color: #f8fafc;
+}
+
+.item-card__description--accent {
+  color: #67e8f9;
+}
+
+.item-card__heading {
+  margin: 1rem 0 0.45rem;
+  color: #67e8f9;
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.item-card__properties {
+  margin: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  gap: 0.35rem 1rem;
+}
+
+.item-card__properties dt {
+  color: #a8b3c7;
+  overflow-wrap: anywhere;
+}
+
+.item-card__properties dd {
+  margin: 0;
+  color: #f8fafc;
+  font-variant-numeric: tabular-nums;
+  text-align: right;
+}
+
+.item-card__list,
+.item-card__recipe ul {
+  margin: 0.35rem 0 0;
+  padding-left: 1.2rem;
+}
+
+.item-card__list li,
+.item-card__recipe li {
+  margin: 0.25rem 0;
+  overflow-wrap: anywhere;
+}
+
+.item-card__recipe p {
+  margin: 0.4rem 0;
+}
+
+.item-card__expansions,
+.item-card__empty {
+  margin: 1rem 0 0;
+  color: #94a3b8;
+  font-size: 0.76rem;
+}
+
+@media (max-width: 42rem) {
+  .result__details-toggle {
+    width: 100%;
+    text-align: center;
+  }
+}
