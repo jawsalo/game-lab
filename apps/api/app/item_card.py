@@ -36,16 +36,16 @@ class ItemConversion(BaseModel):
 class RecipeIngredient(BaseModel):
     """A crafting ingredient, optionally allowing one of several item IDs."""
 
-    item_ids: list[str]
+    item_ids: list[str] = Field(alias="itemIds")
     quantity: int
 
 
 class ItemRecipe(BaseModel):
     """Crafting details for a blueprint or formula."""
 
-    output_item_id: str
-    output_quantity: int
-    crafting_cost: int | None = None
+    output_item_id: str = Field(alias="outputItemId")
+    output_quantity: int = Field(alias="outputQuantity")
+    crafting_cost: int | None = Field(default=None, alias="craftingCost")
     ingredients: list[RecipeIngredient]
 
 
