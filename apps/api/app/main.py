@@ -7,6 +7,7 @@ from fastapi import FastAPI, HTTPException
 from .catalog import CatalogUnavailableError
 from .grim_dawn import catalog as grim_dawn_catalog
 from .grim_dawn import router as grim_dawn_router
+from .telemetry import configure_telemetry, shutdown_telemetry
 
 SERVICE_NAME = "game-lab-api"
 ENVIRONMENT = os.getenv("APP_ENV", "development")
@@ -19,6 +20,11 @@ app = FastAPI(
     openapi_url="/api/openapi.json",
 )
 app.include_router(grim_dawn_router)
+
+telemetry_providers = configure_telemetry(app)
+app.add_event_handler(
+    "shutdown", lambda: shutdown_telemetry(telemetry_providers)
+)
 
 
 @app.get("/api", tags=["system"])

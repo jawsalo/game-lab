@@ -36,6 +36,9 @@ modules:
     service:
       port: 80
       containerPort: 8080
+    telemetry:
+      serviceName: game-lab-api
+      otlpEndpoint: ""
     resources:
       requests:
         cpu: 25m

@@ -48,10 +48,11 @@ Unify application, Kubernetes, GitHub and observability context for guided inves
 - Each chunk should be short, descriptive, understandable, testable and committed.
 - The Grim Dawn parser is **not** a prerequisite for the first API deployment.
 
-## Next work session — continue Phase 2
-1. **Merge Item Card API — 15 min:** review the draft PR after green CI; production remains on the current catalog release until deployment is planned.
-2. **Render Item Cards — 30–60 min:** use the structured card endpoint in the web UI for item descriptions, properties, conversions, and recipe details.
-3. **Add Observability — 30–60 min:** add useful application telemetry before moving to Sphere and persistence features.
+## Current work — Phase 3 instrumentation foundation
+1. **Instrument the API:** export FastAPI request traces/metrics and SQLite statement spans through standard OTLP settings.
+2. **Instrument worker signals:** add structured logs, trace context, and worker metrics when the worker gains a real job.
+3. **Deploy the open-source stack:** route OTLP to an OpenTelemetry Collector and validate Prometheus, Grafana, Loki, and Tempo.
+4. **Evaluate Datadog later:** use the same instrumented workload and failure scenarios for a measured comparison; do not start the trial yet.
 
 ## Progress — October 18, 2026
 
@@ -75,17 +76,22 @@ Unify application, Kubernetes, GitHub and observability context for guided inves
 
 **Phase 2 remains in progress:** canonical item search is complete; personal character/stash ingestion, PostgreSQL persistence, ownership, and duplicate detection remain.
 
-### Item card contract checkpoint — October 20, 2026
+### Item cards checkpoint — October 20, 2026
 
-- Confirmed description markers in the catalog: `^n`, `^w`, and `^o`; absent descriptions should be omitted.
-- Added a structured card model and `GET /api/grim-dawn/items/{id}/card` on draft PR #3. The response separates expansions, numeric gameplay properties, conversions, and recipe details without exposing the raw record.
-- Added focused tests and documented the endpoint. GitHub Actions validation and both API/web image builds passed on the PR branch.
-- This is not merged or deployed; production remains at the verified catalog release. Next: render the card contract in the web UI.
+- Added the structured card API and rendered descriptions, properties, conversions, recipes, and expansion IDs in the web interface.
+- Merged PR #3 and deployed API/web image `sha-9fc6cbd`; Helm revision 9 rolled out both pods and the public smoke test passed.
+- Production remains on the pinned 1.3.1.0 Grim Dawn catalog with 8,695 records.
+
+### OpenTelemetry API foundation — in progress
+
+- Add optional OTLP/gRPC trace and metric exporters, FastAPI request instrumentation, and SQLite statement spans.
+- Keep export off until an OTLP Collector endpoint is configured in Helm values.
+- Validate resource identity and per-signal endpoint configuration with regression tests.
 
 ## Resume checklist
-- Review and merge draft PR #3 after confirming its green CI checks.
-- Keep the pinned canonical catalog as immutable reference data and production at the current release until deployment is planned.
-- Verify Helm revision 8, both pods, and the catalog-aware public smoke test after the next deployment.
+- Complete and validate the API instrumentation PR before deployment.
+- Keep the OTLP endpoint unset until the Collector is deployed and reachable.
+- Next deploy the open-source stack in the `observability` namespace, then configure the API to export to it.
 - Take a checkpoint / backup before PostgreSQL or personal inventory changes.
 - Define the upload and ownership boundary before implementing save/stash parsing.
 - Do not activate Datadog prematurely.
