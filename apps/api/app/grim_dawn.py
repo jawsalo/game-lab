@@ -7,6 +7,7 @@ from typing import Annotated, Any
 from fastapi import APIRouter, HTTPException, Query
 
 from .catalog import CatalogUnavailableError, GrimDawnCatalog
+from .item_card import ItemCard, build_item_card
 
 router = APIRouter(prefix="/api/grim-dawn", tags=["grim-dawn"])
 catalog = GrimDawnCatalog()
@@ -78,3 +79,20 @@ def get_item(item_id: str) -> dict[str, Any]:
     if item is None:
         raise HTTPException(status_code=404, detail="item not found")
     return item
+
+
+@router.get(
+    "/items/{item_id}/card",
+    response_model=ItemCard,
+    response_model_exclude_none=True,
+)
+def get_item_card(item_id: str) -> ItemCard:
+    """Return a structured, display-safe card for one catalog item."""
+    try:
+        item = catalog.get_item(item_id)
+    except CatalogUnavailableError as error:
+        raise unavailable(error) from error
+
+    if item is None:
+        raise HTTPException(status_code=404, detail="item not found")
+    return build_item_card(item)
