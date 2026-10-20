@@ -1,0 +1,92 @@
+logging {
+  level  = "info"
+  format = "logfmt"
+}
+
+otelcol.receiver.otlp "application" {
+  grpc {
+    endpoint = "0.0.0.0:4317"
+  }
+
+  http {
+    endpoint = "0.0.0.0:4318"
+  }
+
+  output {
+    metrics = [otelcol.processor.batch.application.input]
+    logs    = [otelcol.processor.batch.application.input]
+    traces  = [otelcol.processor.batch.application.input]
+  }
+}
+
+otelcol.processor.batch "application" {
+  output {
+    metrics = [otelcol.exporter.prometheus.application.input]
+    logs    = [otelcol.exporter.otlphttp.loki.input]
+    traces  = [otelcol.exporter.otlp.tempo.input]
+  }
+}
+
+otelcol.exporter.prometheus "application" {
+  forward_to = [prometheus.remote_write.local.receiver]
+}
+
+prometheus.remote_write "local" {
+  endpoint {
+    url = "http://prometheus-server.observability.svc.cluster.local:9090/api/v1/write"
+  }
+}
+
+otelcol.exporter.otlp "tempo" {
+  client {
+    endpoint = "tempo.observability.svc.cluster.local:4317"
+    tls {
+      insecure = true
+    }
+  }
+}
+
+otelcol.exporter.otlphttp "loki" {
+  client {
+    endpoint = "http://loki.observability.svc.cluster.local:3100/otlp"
+  }
+}
+
+discovery.kubernetes "pods" {
+  role = "pod"
+}
+
+discovery.relabel "pod_logs" {
+  targets = discovery.kubernetes.pods.targets
+
+  rule {
+    source_labels = ["__meta_kubernetes_namespace"]
+    target_label  = "namespace"
+  }
+
+  rule {
+    source_labels = ["__meta_kubernetes_pod_name"]
+    target_label  = "pod"
+  }
+
+  rule {
+    source_labels = ["__meta_kubernetes_pod_container_name"]
+    target_label  = "container"
+  }
+
+  rule {
+    source_labels = ["__meta_kubernetes_pod_label_app_kubernetes_io_name"]
+    target_label  = "app"
+  }
+}
+
+loki.source.kubernetes "pods" {
+  targets    = discovery.relabel.pod_logs.output
+  forward_to = [loki.write.local.receiver]
+}
+
+loki.write "local" {
+  endpoint {
+    url = "http://loki.observability.svc.cluster.local:3100/loki/api/v1/push"
+  }
+}

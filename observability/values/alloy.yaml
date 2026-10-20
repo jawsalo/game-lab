@@ -1,0 +1,24 @@
+controller:
+  type: deployment
+  replicas: 1
+service:
+  enabled: true
+  type: ClusterIP
+alloy:
+  enableReporting: false
+  extraPorts:
+    - name: otlp-grpc
+      port: 4317
+      targetPort: 4317
+      protocol: TCP
+    - name: otlp-http
+      port: 4318
+      targetPort: 4318
+      protocol: TCP
+  resources:
+    requests:
+      cpu: 100m
+      memory: 256Mi
+    limits:
+      cpu: 500m
+      memory: 512Mi
