@@ -184,19 +184,21 @@ Steps 1, 3, 4, and 5 are not yet documented or tested end to end. Use this list 
 
 ## Successor access checklist — owner to complete privately
 
-Keep account recovery details in a password manager with emergency access or another secure mechanism. Do not place passwords, API tokens, private SSH keys, kubeconfig files, recovery codes, Grafana secrets, or provider credentials in GitHub.
+Keep account recovery details outside the repository in a secure offline record or another secure mechanism. The owner reports that a successor is selected and access credentials are documented offline; the exact storage location and credential values are intentionally omitted here. Do not place passwords, API tokens, private SSH keys, kubeconfig files, recovery codes, Grafana secrets, or provider credentials in GitHub.
 
-- [ ] Name a trusted successor and tell them where the secure credential handoff is stored.
+- [x] Owner reports that a trusted successor has been selected.
+- [x] Owner reports that access credentials are documented offline.
+- [ ] Verify that the successor knows how to locate and use the offline record.
 - [ ] Ensure they can recover GitHub owner/repository access using an appropriate collaborator, organization, or account-recovery arrangement. Do not share the owner's personal login as the routine method.
 - [ ] Ensure they can recover the OVHcloud VPS account and complete its second-factor challenge.
 - [ ] Ensure they can recover DNS registrar access. The registrar and current access arrangement need to be recorded privately.
-- [ ] Store the SSH key or alternate VPS console/recovery path in the secure handoff; verify access from a separate device/account.
+- [ ] Verify that the successor can use the SSH key or alternate VPS console/recovery path from a separate device/account.
 - [ ] Store the Grafana admin password and explain how to rotate it through the Kubernetes secret/deployment procedure.
 - [ ] Secure a copy of any K3s admin kubeconfig only in the designated encrypted credential storage. It grants cluster-wide authority.
 - [ ] Verify any provider backup plan and complete a restore to a separate target before relying on it.
 - [ ] When PostgreSQL or user data is added, implement off-host backups, retention, encryption, and scheduled restore tests before storing valuable data.
 
-**Current state:** successor identity, provider/registrar recovery, secret storage location, and successful alternate-access test have not been provided or verified.
+**Current state:** the owner confirms a successor is selected and all keys/access credentials are documented offline. The successor's ability to use them, provider and registrar recovery, and backup restoration remain unverified. Credential values and the record's exact location are intentionally not documented in this public repository.
 
 ## Repository navigation
 
