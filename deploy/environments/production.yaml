@@ -21,6 +21,9 @@ modules:
       repository: ghcr.io/jawsalo/game-lab-api
       tag: sha-ec3db73
       pullPolicy: IfNotPresent
+    telemetry:
+      serviceName: game-lab-api
+      otlpEndpoint: http://alloy.observability.svc.cluster.local:4317
 
   mcp:
     enabled: false
