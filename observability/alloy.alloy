@@ -33,7 +33,7 @@ otelcol.exporter.prometheus "application" {
 
 prometheus.remote_write "local" {
   endpoint {
-    url = "http://prometheus-server.observability.svc.cluster.local:9090/api/v1/write"
+    url = "http://prometheus-server.observability.svc.cluster.local:80/api/v1/write"
   }
 }
 
