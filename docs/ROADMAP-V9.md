@@ -1,6 +1,6 @@
 # Game Lab — V9 Roadmap
 
-**Status:** PHASE 2 IN PROGRESS; PHASE 3/4 FOUNDATIONS UNDERWAY — October 20, 2026  
+**Status:** PHASE 2 IN PROGRESS; PHASE 3 COMPLETE; PHASE 4 DEPLOYED / VERIFICATION IN PROGRESS — October 21, 2026  
 **Supersedes:** V8  
 **Execution:** Continue with short, validated chunks from the current Phase 2 checkpoint.
 
@@ -48,15 +48,16 @@ Unify application, Kubernetes, GitHub and observability context for guided inves
 - Each chunk should be short, descriptive, understandable, testable and committed.
 - The Grim Dawn parser is **not** a prerequisite for the first API deployment.
 
-## Current work — Phase 3/4 observability foundation
-1. **API instrumentation code is merged:** PR #4 adds optional OTLP/gRPC exporters, FastAPI request instrumentation, and SQLite statement spans. Export remains disabled until the in-cluster Alloy receiver is available.
-2. **Worker signals:** add structured logs, trace context, and worker metrics when the worker gains a real job.
-3. **Deploy the open-source stack:** PR #5 prepares pinned Helm releases for Prometheus, Grafana, Loki, Tempo, and Alloy in the separate `observability` namespace. Check VPS capacity before installation; keep Grafana private.
-4. **Enable application export:** after stack health is verified, set the API OTLP endpoint to Alloy and deploy the instrumented API image.
-5. **Evaluate Datadog later:** use the same workload and failure scenarios for a measured comparison; do not start the trial yet.
+## Current work — Phase 2 feature work with Phase 3/4 observability now active
+1. **Grim Dawn catalog and item cards are deployed:** catalog search, filters, item details, structured item-card API and web rendering are live. PR #3 merged; the production catalog is pinned to Grim Dawn 1.3.1.0 with 8,695 records.
+2. **OpenTelemetry API instrumentation is deployed:** FastAPI request metrics/traces and SQLite statement spans are enabled, with lifecycle management compatible with the current FastAPI version.
+3. **Open-source stack is deployed:** Prometheus, Grafana, Loki, Tempo, and Alloy are running in the separate `observability` namespace. Grafana remains private.
+4. **API metrics are confirmed end to end:** requests to `/api`, `/api/grim-dawn/catalog`, and `/api/grim-dawn/items` appeared in Prometheus as `http_server_duration_milliseconds_count`, labeled with `job="game-lab-api"` and HTTP 200.
+5. **Alloy remote-write endpoint was corrected** to use the Prometheus Service port 80, and Alloy was upgraded/restarted. The Prometheus metric query confirms application metrics are arriving.
+6. **Grafana access is working** through a VPS Kubernetes port-forward plus an SSH tunnel. A readable Game Lab dashboard has not been built yet. Logs and traces still need an end-user verification pass.
+7. **Phase 2 remains in progress:** personal character/stash snapshot contract, PostgreSQL persistence, ownership, parsing and duplicate detection remain.
 
 ## Progress — October 18, 2026
-
 - Deployed the mobile-first web shell and FastAPI service at `games.phobosandeimos.com`.
 - Added same-origin `/api` routing, liveness/readiness probes, resource limits and non-root containers with read-only root filesystems.
 - Added GitHub Actions image builds and immutable GHCR tags; K3s successfully pulled both images.
@@ -67,7 +68,6 @@ Unify application, Kubernetes, GitHub and observability context for guided inves
 **Phase 1 complete:** the application-foundation branch was merged into `main`; the parameterized deployment and public smoke-test workflow passed end to end at Helm revision 5.
 
 ### Phase 2 catalog checkpoint
-
 - Recreated the GrimTools ingestion procedure from fresh browser-downloaded `1.3.1.0` sources and merged the reproducible pipeline into `jawsalo/grimtools-data`.
 - Pinned the verified 11.6 MB SQLite artifact in the API build with source commit, size, and SHA-256 provenance.
 - Added guarded catalog validation, read-only immutable SQLite access, metadata, item detail, full-text search, filters, pagination, and exact-name relevance ranking.
@@ -78,22 +78,23 @@ Unify application, Kubernetes, GitHub and observability context for guided inves
 **Phase 2 remains in progress:** canonical item search is complete; personal character/stash ingestion, PostgreSQL persistence, ownership, and duplicate detection remain.
 
 ### Item cards checkpoint — October 20, 2026
-
 - Added the structured card API and rendered descriptions, properties, conversions, recipes, and expansion IDs in the web interface.
 - Merged PR #3 and deployed API/web image `sha-9fc6cbd`; Helm revision 9 rolled out both pods and the public smoke test passed.
 - Production remains on the pinned 1.3.1.0 Grim Dawn catalog with 8,695 records.
 
-### OpenTelemetry API foundation — code merged, export pending
+### OpenTelemetry API foundation — now deployed and exporting
+- Merged the API instrumentation with optional OTLP/gRPC trace and metric exporters, FastAPI request instrumentation, and SQLite statement spans.
+- Configured the API to export to Alloy at `http://alloy.observability.svc.cluster.local:4317`.
+- Fixed Alloy's Prometheus remote-write destination to use `prometheus-server.observability.svc.cluster.local:80`, then upgraded Alloy.
+- Queried Prometheus and confirmed three successful requests each for `/api`, `/api/grim-dawn/catalog`, and `/api/grim-dawn/items`.
 
-- Merged PR #4 with optional OTLP/gRPC trace and metric exporters, FastAPI request instrumentation, and SQLite statement spans.
-- Export remains off until the Alloy OTLP receiver is deployed and configured in Helm values.
-- Regression tests validate resource identity and per-signal endpoint configuration.
+### Session 3 stopping point — October 21, 2026
+The OSS observability stack is deployed and the API-to-Alloy-to-Prometheus metrics path is verified. The user signed in to Grafana and intentionally stopped before dashboard building. See [Session 3 handoff](SESSION-3-HANDOFF.md) for access steps and next actions.
 
 ## Resume checklist
-- Keep the OTLP endpoint unset until the open-source stack is deployed and reachable.
-- Deploy the open-source stack in the `observability` namespace after checking current VPS memory and disk capacity, then configure the API to export to Alloy.
-- Take a checkpoint / backup before PostgreSQL or personal inventory changes.
-- Define the upload and ownership boundary before implementing save/stash parsing.
-- Do not activate Datadog prematurely.
+- Keep Grafana private; access it with the two-step port-forward and SSH tunnel documented in the session handoff.
+- First observability task: build a beginner-friendly Game Lab dashboard and verify logs and traces from Grafana.
+- Then return to Phase 2: define the personal snapshot upload/ownership contract, check current VPS capacity, and plan PostgreSQL persistence before changing production.
+- Do not activate Datadog prematurely; wait for a meaningful workload and repeatable failure scenarios.
 
 *Time estimates are rough hands-on sessions, not deadlines.*
