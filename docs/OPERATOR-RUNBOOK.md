@@ -188,7 +188,8 @@ Keep account recovery details outside the repository in a secure offline record 
 
 - [x] Owner reports that a trusted successor has been selected.
 - [x] Owner reports that access credentials are documented offline.
-- [ ] Verify that the successor knows how to locate and use the offline record.
+- [x] Owner reports that a family handoff contact knows where the offline record is and who should receive it.
+- [ ] Verify that the designated recipient can use the credentials and reach the critical accounts.
 - [ ] Ensure they can recover GitHub owner/repository access using an appropriate collaborator, organization, or account-recovery arrangement. Do not share the owner's personal login as the routine method.
 - [ ] Ensure they can recover the OVHcloud VPS account and complete its second-factor challenge.
 - [ ] Ensure they can recover DNS registrar access. The registrar and current access arrangement need to be recorded privately.
@@ -198,7 +199,7 @@ Keep account recovery details outside the repository in a secure offline record 
 - [ ] Verify any provider backup plan and complete a restore to a separate target before relying on it.
 - [ ] When PostgreSQL or user data is added, implement off-host backups, retention, encryption, and scheduled restore tests before storing valuable data.
 
-**Current state:** the owner confirms a successor is selected and all keys/access credentials are documented offline. The successor's ability to use them, provider and registrar recovery, and backup restoration remain unverified. Credential values and the record's exact location are intentionally not documented in this public repository.
+**Current state:** the owner confirms a successor is selected, all keys/access credentials are documented offline, and a family handoff contact knows the record's location and intended recipient. The recipient's ability to use them, provider and registrar recovery, and backup restoration remain unverified. Names, credential values, and the record's exact location are intentionally not documented in this public repository.
 
 ## Repository navigation
 
