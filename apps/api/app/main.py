@@ -1,5 +1,6 @@
 """Game Lab HTTP API."""
 
+from contextlib import asynccontextmanager
 import os
 
 from fastapi import FastAPI, HTTPException
@@ -13,18 +14,29 @@ SERVICE_NAME = "game-lab-api"
 ENVIRONMENT = os.getenv("APP_ENV", "development")
 VERSION = os.getenv("APP_VERSION", "dev")
 
+telemetry_providers = None
+
+
+@asynccontextmanager
+async def lifespan(_: FastAPI):
+    """Shut down telemetry exporters when the API stops."""
+    try:
+        yield
+    finally:
+        if telemetry_providers is not None:
+            shutdown_telemetry(telemetry_providers)
+
+
 app = FastAPI(
     title="Game Lab API",
     version=VERSION,
     docs_url="/api/docs",
     openapi_url="/api/openapi.json",
+    lifespan=lifespan,
 )
 app.include_router(grim_dawn_router)
 
 telemetry_providers = configure_telemetry(app)
-app.add_event_handler(
-    "shutdown", lambda: shutdown_telemetry(telemetry_providers)
-)
 
 
 @app.get("/api", tags=["system"])
