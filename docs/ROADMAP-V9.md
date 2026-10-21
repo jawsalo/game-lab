@@ -91,6 +91,12 @@ Unify application, Kubernetes, GitHub and observability context for guided inves
 ### Session 3 stopping point — October 21, 2026
 The OSS observability stack is deployed and the API-to-Alloy-to-Prometheus metrics path is verified. The user signed in to Grafana and intentionally stopped before dashboard building. See [Session 3 handoff](SESSION-3-HANDOFF.md) for access steps and next actions.
 
+## Succession-readiness checkpoint — October 21, 2026
+
+- Added [the operator and succession runbook](OPERATOR-RUNBOOK.md), covering the known topology, application deploy/rollback, private Grafana access, recovery limits, and a private successor-access checklist.
+- Added its entry point to the repository README.
+- Provider snapshots, off-host backups, disaster recovery, DNS/registrar recovery, and alternate successor access remain unverified. Do not describe the project as recoverable until restoration has been tested.
+
 ## Resume checklist
 - Keep Grafana private; access it with the two-step port-forward and SSH tunnel documented in the session handoff.
 - First observability task: build a beginner-friendly Game Lab dashboard and verify logs and traces from Grafana.
