@@ -9,7 +9,7 @@
 | Area | Current record |
 | --- | --- |
 | GitHub repository | [jawsalo/game-lab](https://github.com/jawsalo/game-lab), default branch main |
-| Public web address | [https://games.phobosandeimos.com](https://games.phobosandeimos.com) |
+| Public web address | Production hostname is configured in deploy/environments/production.yaml. |
 | VPS | Host vps-a8605df4, Ubuntu 24.04, public IP 15.204.123.20 |
 | Kubernetes | Single-node K3s; version last reported as v1.36.3+k3s1 |
 | Application namespace | game-lab |
@@ -82,7 +82,8 @@ Deploy the immutable image tag produced for the tested commit:
 
 ~~~bash
 read -r -p "Tested immutable image tag (sha-...): " image_tag
-scripts/deploy.sh "$image_tag" https://games.phobosandeimos.com
+read -r -p "Production base URL from deploy/environments/production.yaml: " base_url
+scripts/deploy.sh "$image_tag" "$base_url"
 ~~~
 
 The script validates the repo, lints the Helm chart, upgrades the game-lab release with rollback-on-failure and a rollout wait, then runs public smoke tests. The tag must be the commit's exact sha- image tag, not latest. Do not continue if validation fails or the corresponding images were not published.
@@ -110,7 +111,8 @@ helm -n game-lab rollback game-lab "$revision" --wait --timeout 5m
 kubectl -n game-lab rollout status deployment/game-lab-api
 kubectl -n game-lab rollout status deployment/game-lab-web
 read -r -p "Expected API version (commit SHA): " expected_version
-scripts/smoke-test.sh https://games.phobosandeimos.com "$expected_version"
+read -r -p "Production base URL from deploy/environments/production.yaml: " base_url
+scripts/smoke-test.sh "$base_url" "$expected_version"
 ~~~
 
 A Helm rollback changes the application release. It does not restore lost persistent data or undo unrelated cluster changes. Do not use helm uninstall as a normal rollback.
