@@ -30,7 +30,7 @@ Host capacity figures in older notes are only a point-in-time estimate. Recheck 
 - The API reads a pinned SQLite catalog packaged with the image. It is read-only canonical game data, not the user's personal stash.
 - OpenTelemetry sends API telemetry to Alloy in observability. Alloy forwards metrics to Prometheus and is configured to collect cluster logs and send telemetry to Loki and Tempo.
 - Grafana queries the observability backends. Grafana is intentionally not exposed through the public ingress.
-- Observability and app data are stored on cluster PVCs using the VPS's local-path storage. A PVC is storage, not a backup.
+- Observability data is stored on cluster PVCs using the VPS's local-path storage. The app's Grim Dawn catalog is read-only and packaged in the API image; PostgreSQL-backed personal data does not exist yet. A PVC is storage, not a backup.
 
 ## First response: check before changing anything
 
@@ -81,7 +81,8 @@ make validate
 Deploy the immutable image tag produced for the tested commit:
 
 ~~~bash
-scripts/deploy.sh sha-<7-to-40-character-commit-sha> https://games.phobosandeimos.com
+read -r -p "Tested immutable image tag (sha-...): " image_tag
+scripts/deploy.sh "$image_tag" https://games.phobosandeimos.com
 ~~~
 
 The script validates the repo, lints the Helm chart, upgrades the game-lab release with rollback-on-failure and a rollout wait, then runs public smoke tests. The tag must be the commit's exact sha- image tag, not latest. Do not continue if validation fails or the corresponding images were not published.
@@ -93,8 +94,9 @@ helm -n game-lab status game-lab
 helm -n game-lab history game-lab
 kubectl -n game-lab get pods -o wide
 kubectl -n game-lab get events --sort-by=.metadata.creationTimestamp
-kubectl -n game-lab logs deployment/game-lab-api --previous
 kubectl -n game-lab logs deployment/game-lab-api
+# Use --previous only when inspecting a container that has restarted:
+kubectl -n game-lab logs deployment/game-lab-api --previous
 ~~~
 
 ### Roll back an unhealthy application release
@@ -103,10 +105,12 @@ First inspect history and choose the last known-good revision:
 
 ~~~bash
 helm -n game-lab history game-lab
-helm -n game-lab rollback game-lab <known-good-revision> --wait --timeout 5m
+read -r -p "Known-good Helm revision: " revision
+helm -n game-lab rollback game-lab "$revision" --wait --timeout 5m
 kubectl -n game-lab rollout status deployment/game-lab-api
 kubectl -n game-lab rollout status deployment/game-lab-web
-scripts/smoke-test.sh https://games.phobosandeimos.com <expected-api-version>
+read -r -p "Expected API version (commit SHA): " expected_version
+scripts/smoke-test.sh https://games.phobosandeimos.com "$expected_version"
 ~~~
 
 A Helm rollback changes the application release. It does not restore lost persistent data or undo unrelated cluster changes. Do not use helm uninstall as a normal rollback.
