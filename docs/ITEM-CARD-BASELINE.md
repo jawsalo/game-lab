@@ -19,7 +19,7 @@ The three original screenshots were uploaded with these names:
 - `1000115464.jpg`
 - `1000115465.jpg`
 
-The first screenshot contains two cards, so the reference set is four cards in total.
+The first screenshot contains two cards, so the reference set is four cards in total. These four cards are the **canonical item-card test set** for translator, API, and website-card changes. Use them for regression review so recipe handling, relic procs, affix/level ranges, skill bonuses, conversions, retaliation, shield stats, and provenance remain covered.
 
 The screenshots are committed in [`docs/reference/grimtools-item-cards/`](reference/grimtools-item-cards/) for posterity.
 
