@@ -40,6 +40,15 @@ Add synthetic traffic, HTTP errors, slow queries, latency, resource saturation a
 ### 8. AI-assisted operations and portfolio — ongoing
 Unify application, Kubernetes, GitHub and observability context for guided investigations and carefully approved remediation. Document architecture, tradeoffs and demos relevant to observability architecture and technical leadership.
 
+## Exploratory design note — phone-first, model-neutral operations
+
+- **Learning is the short-term goal; the Game Lab app is the hobby workload** used to practice observability. Prefer repeatable exercises that build transferable skills across Dynatrace, Datadog, New Relic, and LGTM.
+- Treat phone access as a first-class requirement so useful investigation fits into short gaps during work and family life.
+- Build telemetry and a readable incident report first. A future report could collect the alert, relevant logs/metrics/traces, health checks, and recent deployment context on the VPS.
+- Explore a model-neutral handoff: ChatGPT (or another assistant) can read the evidence and recommend a fixed runbook; Claude (or another MCP-capable client) may be given only specific, allowlisted write actions. Keep human approval, server-side target checks, audit records, and post-action verification in the runbook service.
+- Initially, an alert should create evidence for a person and assistant to review; it should not directly launch an unattended remediation. Consider more automation only after the alert patterns and runbooks are proven.
+- Verify that the intended assistant can use its MCP connection from a phone before selecting a paid tier or relying on that client. ChatGPT custom MCP availability and permissions vary by plan and client.
+
 ## Architecture and operating principles
 - Keep it small: frontend + API + PostgreSQL + optional worker on one K3s node.
 - Parameterize configuration; avoid hardcoded infrastructure values and unnecessary microservices.
