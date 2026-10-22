@@ -88,6 +88,8 @@ Unify application, Kubernetes, GitHub and observability context for guided inves
 
 ### Item cards checkpoint — October 20, 2026
 - Added the structured card API and rendered descriptions, properties, conversions, recipes, and expansion IDs in the web interface.
+- The four cards documented in [the item-card baseline](ITEM-CARD-BASELINE.md) are the canonical regression set for item-card translation, API, and UI changes.
+- Product requirement to add: give users an **“Only show highest-level version”** option in catalog results. It should collapse lower-level variants of the same item line while leaving unrelated items visible; the default behavior and interaction details can be settled during UI implementation.
 - Merged PR #3 and deployed API/web image `sha-9fc6cbd`; Helm revision 9 rolled out both pods and the public smoke test passed.
 - Production remains on the pinned 1.3.1.0 Grim Dawn catalog with 8,695 records.
 
