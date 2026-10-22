@@ -33,9 +33,9 @@ Unknown IDs return 404. A missing or invalid packaged catalog makes readiness fa
 
 ## Storage model and normalized item fields
 
-The item table has a normalized/search-friendly layer plus the original source record as JSON. The API's normalized item object uses these field names:
+The item table has a normalized/search-friendly layer plus the original source record as JSON. These are the SQLite storage column names; `_item_summary()` maps them to camelCase API names (see below):
 
-| API field | Meaning |
+| Storage column | Meaning |
 | --- | --- |
 | `id` | Source item ID, such as `it11751`; used for lookup and recipe references |
 | `name`, `name_sort` | Resolved display name and normalized case-folded sort/search name |
@@ -60,12 +60,13 @@ The API opens SQLite with `mode=ro&immutable=1` and `PRAGMA query_only = ON`. Ap
 
 `record_json` preserves the source's compact record keys and long-form property keys rather than discarding information during ingestion. The compact keys are source-format identifiers, not the card API's field names.
 
-Keys seen in the source examples:
+Keys observed in the pinned 1.3.1.0 catalog (counts are out of 8,695 records):
 
 | Source key | Safe interpretation |
 | --- | --- |
-| `d` | Name/localization token in the examples |
-| `b` | Description/localization token when present |
+| `a` | Name/localization token, mostly on equipment (6,671 records; always equals `name_tag` when present) |
+| `d` | Name/localization token, mostly on non-equipment groups such as recipes, augments, lore and quest items (1,903 records; equals `name_tag` in 1,895). 8 records carry both `a` and `d`; 129 carry neither |
+| `b` | Description/localization token when present (2,348 records; always equals `description_tag`) |
 | `f` | Rarity, e.g. `Legendary` or `Epic` |
 | `l` | Compact category code, e.g. `c43` or `c48` |
 | `n` | Bitmap path |
@@ -76,7 +77,14 @@ Keys seen in the source examples:
 | `reagent…BaseName`, `reagent…Quantity` | Recipe ingredient IDs and quantities |
 | `artifactCreateQuantity`, `artifactCreationCost` | Recipe output quantity and crafting cost |
 
-Do not infer undocumented meanings for other short keys from their names or frequency. Preserve unknown source keys. Long-form keys such as `characterLife`, `defensiveAether`, `offensivePhysicalModifier`, and `skillCooldownReduction` are source property identifiers; the card retains these exact identifiers as property keys.
+Do not assume `a` or `d` alone identifies the name token; inspect both. `name_tag` is the normalized column for the source localization token; `name` is the resolved display text. A resolved description can also exist when the raw record has no `b`, so `b` is not a complete test for whether `description` is populated.
+
+These counts describe this exact catalog artifact, whose SHA-256 is recorded above; they are measured data findings, not guarantees of the source format or future game versions. Recheck them when the pinned artifact changes. Do not infer undocumented meanings for other short keys from their names or frequency. Preserve unknown source keys. Long-form keys such as `characterLife`, `defensiveAether`, `offensivePhysicalModifier`, and `skillCooldownReduction` are source property identifiers; the card retains these exact identifiers as property keys.
+
+
+### Rechecking the data-derived findings
+
+The counts above were obtained by inspecting the pinned SQLite artifact, not by a runtime guarantee in the API. To reproduce or update them after changing the artifact, run a read-only script against the exact file and record its SHA-256 alongside the results. At minimum, count source keys in `record_json` and compare candidate localization keys with `name_tag` / `description_tag`; do not treat a key count as proof of meaning. The API's `/api/grim-dawn/items/{id}` endpoint is useful for spot-checking individual records, while the card endpoint shows exactly which fields the UI projection omits.
 
 ## Localization and missing descriptions
 
@@ -91,6 +99,17 @@ Descriptions can contain game markup tokens such as `^n`, `^w`, and `^o`. The ca
 - `^o` → accent style
 
 The marker changes the style of following text; the marker itself is removed. Unknown markup tokens are not currently interpreted by this mapper.
+
+### Unresolved references inside source records (known gap)
+
+Only item names and descriptions have a resolved display form in the current API. Other references in `record_json` remain raw identifiers. In the pinned catalog inspection, there was no lookup table for the skill/controller identifiers described below; recheck the SQLite schema if the catalog artifact or source pipeline changes:
+
+- **Granted-skill localization tags.** `augmentSkillName1`…`augmentSkillName4` hold skill-name tags such as `tagClass04SkillName05E` or `tagGDX2Class09SkillName02A`, with levels in `augmentSkillLevelN`. The class number in the tag identifies the mastery, but the skill's display text requires the game's localization data.
+- **Compact skill/controller IDs.** `itemSkillName` (e.g. `sk468`), `itemSkillAutoController` (e.g. `ct11`) and similar values are source-export IDs, not game localization tags. They need a skill/controller table from the same export that produced `items.sqlite`; game text files alone cannot resolve them.
+
+An earlier scan found roughly 6,000 records with at least one granted-skill field. Treat that as an approximate, version-specific measurement until it is reproduced against the pinned artifact. Until resolution data exists, consumers should present those values as unresolved (or name only the mastery) rather than guess skill names.
+
+Proposed resolution (not yet implemented): build the tables in the source pipeline (`jawsalo/grimtools-data`), not in the API. Add a `tags` table (localization tag → English text, extracted from the game's `Text_EN.arc`, with base text loaded before expansion text so later definitions win) and a `skills` table (compact `sk`/`ct` ID → tag and resolved name) from the same export as the items. Pin both to the same game version with the same provenance and hash checks, ship them in the packaged SQLite file, and have the card mapper join against them.
 
 ## Item-card contract
 
@@ -109,6 +128,8 @@ Top-level fields:
 ### Properties
 
 The mapper includes numeric fields whose source key begins with `character`, `defensive`, `offensive`, or `skill`. It sorts them by key for deterministic responses. Booleans are excluded even though Python treats booleans as integers. The three conversion fields are excluded from properties because they are represented separately. Other source fields (levels, affix limits, rarity, bitmap, recipe fields, etc.) are not numeric gameplay properties and do not appear here.
+
+**Known omission:** the prefix rule also drops real gameplay stats that use other prefixes. Notably, `retaliation…` keys (e.g. `retaliationPoisonMin`) and granted skills (`augmentSkill…`, `itemSkill…`) are absent from cards. A catalog scan reported `retaliationPoisonMin` on 408 equipment records; rerun that count against the pinned artifact before treating it as current. A card is therefore not a complete stat list; use the full item endpoint (`record`) when completeness matters. Example: Ring of the Black Matriarch (`it9040`) was observed with poison retaliation and four +2 skill bonuses in its record that do not appear on its card; verify the current record before relying on the exact values.
 
 Example:
 
@@ -157,4 +178,4 @@ The `GET /api/grim-dawn/items/it11751/card` response instead includes a compact 
 - `apps/api/tests/test_item_card.py` — description markup, omission of null description, properties/conversions, and recipes
 - `scripts/validate-grim-dawn-catalog.py` — artifact/provenance/schema/integrity checks
 
-When changing these behaviors, update the tests and this note together. Treat the pinned source data and implementation as authoritative if this prose ever drifts.
+When changing these behaviors, update the tests and this note together. Treat the pinned source data and implementation as authoritative if this prose ever drifts. For data-derived counts or item examples, include the catalog version/hash and a reproducible query or script.
