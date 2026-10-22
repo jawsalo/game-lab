@@ -8,10 +8,10 @@ This is the reference baseline for matching the **wording, grouping, and orderin
 
 | Card | Screenshot | Important cases |
 | --- | --- | --- |
-| Serenity, Mythical Relic | `01-1000115463.jpg` | Item stats, variant ranges, granted skill, proc thresholds/recharge/duration, completion bonus, source/crafting relationship, expansion |
-| Blueprint: Relic - Serenity | `01-1000115463.jpg` | Recipe ingredients and quantities, crafted output, drop source |
-| Mythical Ring of the Black Matriarch | `02-1000115464.jpg` | Flavor text, damage-over-time, retaliation, skill bonuses, granted skill details, level/attribute requirements, expansion |
-| Dauntless, Legendary Shield | `03-1000115465.jpg` | Block stats, conversions, retaliation, skill bonuses, embedded item skills and modifiers, faction/vendor/source information, expansion |
+| Serenity, Mythical Relic | [`01-1000115463.jpg`](reference/grimtools-item-cards/01-1000115463.jpg) | Item stats, variant ranges, granted skill, proc thresholds/recharge/duration, completion bonus, source/crafting relationship, expansion |
+| Blueprint: Relic - Serenity | [`01-1000115463.jpg`](reference/grimtools-item-cards/01-1000115463.jpg) | Recipe ingredients and quantities, crafted output, drop source |
+| Mythical Ring of the Black Matriarch | [`02-1000115464.jpg`](reference/grimtools-item-cards/02-1000115464.jpg) | Flavor text, damage-over-time, retaliation, skill bonuses, granted skill details, level/attribute requirements, expansion |
+| Dauntless, Legendary Shield | [`03-1000115465.jpg`](reference/grimtools-item-cards/03-1000115465.jpg) | Block stats, conversions, retaliation, skill bonuses, embedded item skills and modifiers, faction/vendor/source information, expansion |
 
 The three original screenshots were uploaded with these names:
 
@@ -20,6 +20,8 @@ The three original screenshots were uploaded with these names:
 - `1000115465.jpg`
 
 The first screenshot contains two cards, so the reference set is four cards in total.
+
+The screenshots are committed in [`docs/reference/grimtools-item-cards/`](reference/grimtools-item-cards/) for posterity.
 
 ## Card 1 — Serenity
 
