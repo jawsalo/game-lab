@@ -56,17 +56,19 @@ builds have no package-publish permission. Only trusted push builds receive
 `packages: write`.
 
 After the VPS timer is installed and its first baseline is recorded, add these
-repository Actions variables to turn on the post-deployment verification job:
+repository Actions variables to turn on the separate post-deployment
+verification workflow. It starts after image publishing completes, so it does
+not hold the image workflow open while the VPS waits for a build result:
 
 | Variable | Value |
 | --- | --- |
 | `GAME_LAB_AUTO_DEPLOY` | `true` |
 | `GAME_LAB_BASE_URL` | Production HTTPS origin, such as `https://games.example.com` |
 
-For each successful main push, that job waits up to 15 minutes for the public
-API to report the expected commit version, then runs the existing full smoke
-test. This makes deployment success or failure visible in the GitHub Actions
-run that built the images. Leave the variable unset until the VPS timer has
+For each successful main push, the verification workflow waits up to 15
+minutes for the public API to report the expected commit version, then runs
+the existing full smoke test. This makes deployment success or failure visible
+in a GitHub Actions run. Leave the variables unset until the VPS timer has
 been installed and checked.
 
 ## Day-to-day use and troubleshooting
