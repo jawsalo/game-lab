@@ -11,6 +11,10 @@ if [[ ! "$base_url" =~ ^https://[A-Za-z0-9.-]+(:[0-9]{1,5})?$ ]]; then
   echo "Base URL must be an HTTPS origin without a path." >&2
   exit 2
 fi
+if [[ -n "${KUBECONFIG:-}" && ! "$KUBECONFIG" =~ ^[A-Za-z0-9_./:-]+$ ]]; then
+  echo "KUBECONFIG must contain only path characters." >&2
+  exit 2
+fi
 
 if [[ "$EUID" -eq 0 ]]; then
   echo "Run this as the regular VPS operator account, not root." >&2
@@ -60,7 +64,12 @@ mkdir -p "$unit_dir" "$config_dir"
 install -m 0644 "$deploy_repo/deploy/systemd/game-lab-pull-deploy.service" "$unit_dir/"
 install -m 0644 "$deploy_repo/deploy/systemd/game-lab-pull-deploy.timer" "$unit_dir/"
 umask 077
-printf 'GAME_LAB_BASE_URL=%s\n' "$base_url" > "$config_dir/game-lab-pull-deploy.env"
+{
+  printf 'GAME_LAB_BASE_URL=%s\n' "$base_url"
+  if [[ -n "${KUBECONFIG:-}" ]]; then
+    printf 'KUBECONFIG=%s\n' "$KUBECONFIG"
+  fi
+} > "$config_dir/game-lab-pull-deploy.env"
 
 sudo loginctl enable-linger "$USER"
 systemctl --user daemon-reload
