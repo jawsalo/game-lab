@@ -20,6 +20,7 @@ APPROVED_DOMAIN_FILES = {
     Path("deploy/environments/production.yaml"),
     Path("docs/ROADMAP-V9.md"),
 }
+IGNORED_PORTABILITY_DIRECTORIES = {".git", ".venv"}
 REQUIRED_MODULES = {"web", "api", "mcp", "observability"}
 
 
@@ -134,7 +135,11 @@ def validate_portability() -> list[str]:
         ".yml",
     }
     for path in ROOT.rglob("*"):
-        if not path.is_file() or ".git" in path.parts or path.suffix not in text_extensions:
+        if (
+            not path.is_file()
+            or IGNORED_PORTABILITY_DIRECTORIES.intersection(path.parts)
+            or path.suffix not in text_extensions
+        ):
             continue
         rel = path.relative_to(ROOT)
         if rel in APPROVED_DOMAIN_FILES:
