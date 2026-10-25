@@ -55,7 +55,7 @@ Unify application, Kubernetes, GitHub and observability context for guided inves
 
 - Active GitHub ruleset targets `refs/heads/main`, requires pull requests, and requires the four CI checks documented in [PULL-DEPLOY.md](PULL-DEPLOY.md).
 - The VPS runs the user-level `game-lab-pull-deploy.timer` every five minutes from a separate deployer checkout. It uses no GitHub token or deploy SSH key.
-- The first timer run recorded baseline `35ae6cd` and correctly made no rollout. The user then configured the Actions variables `GAME_LAB_AUTO_DEPLOY=true` and `GAME_LAB_BASE_URL=https://games.phobosandeimos.com`, and enabled the timer.
+- The first timer run recorded baseline `35ae6cd` and correctly made no rollout. The user then configured the Actions variables `GAME_LAB_AUTO_DEPLOY=true` and `GAME_LAB_BASE_URL` set to the production HTTPS origin, and enabled the timer.
 - PR #13 added the opt-in **“Only show highest-level version”** catalog checkbox and API filtering. It groups Standard, Empowered, Elite, and Mythical name tiers by item group, category, and slot, applies highest-level selection before pagination, and preserves existing behavior by default.
 - PR #13 merged as `7d2e95f`. The VPS timer deployed it; GitHub's **Verify production deployment** job passed its live-version check and smoke tests. The user confirmed on the website that filtering works for Monster Infrequents and Legendaries.
 
