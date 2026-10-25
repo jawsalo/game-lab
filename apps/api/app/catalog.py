@@ -207,6 +207,7 @@ class GrimDawnCatalog:
         rarity: str | None = None,
         level_min: int | None = None,
         level_max: int | None = None,
+        highest_level_only: bool = False,
         limit: int = 50,
         offset: int = 0,
     ) -> dict[str, Any]:
@@ -242,6 +243,44 @@ class GrimDawnCatalog:
 
         where = f"WHERE {' AND '.join(clauses)}" if clauses else ""
         from_sql = f"FROM items {join} {where}"
+        if highest_level_only:
+            family_name = """
+                CASE
+                    WHEN items.name_sort LIKE 'mythical %'
+                        THEN substr(items.name_sort, 10)
+                    WHEN items.name_sort LIKE 'empowered %'
+                        THEN substr(items.name_sort, 11)
+                    WHEN items.name_sort LIKE 'elite %'
+                        THEN substr(items.name_sort, 7)
+                    ELSE items.name_sort
+                END
+            """
+            from_sql = f"""
+                FROM (
+                    SELECT *
+                    FROM (
+                        SELECT
+                            items.*,
+                            ROW_NUMBER() OVER (
+                                PARTITION BY
+                                    items.item_group,
+                                    items.category,
+                                    COALESCE(items.slot, ''),
+                                    {family_name}
+                                ORDER BY
+                                    COALESCE(
+                                        items.level_requirement,
+                                        items.item_level,
+                                        0
+                                    ) DESC,
+                                    items.item_level DESC,
+                                    items.id
+                            ) AS version_rank
+                        FROM items {join} {where}
+                    ) AS ranked_items
+                    WHERE version_rank = 1
+                ) AS items
+            """
         order_sql = "items.name_sort, items.id"
         order_parameters: list[Any] = []
         if query and fts_query:
