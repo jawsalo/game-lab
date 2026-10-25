@@ -1,6 +1,6 @@
 # Game Lab — V9 Roadmap
 
-**Status:** PHASE 2 IN PROGRESS; PHASE 3 COMPLETE; PHASE 4 DEPLOYED / VERIFICATION IN PROGRESS — October 21, 2026  
+**Status:** PHASE 2 IN PROGRESS; PHASE 3 COMPLETE; PHASE 4 STACK DEPLOYED / DASHBOARD AND LOG-TRACE VALIDATION PENDING; PHONE-APPROVED DEPLOYMENT VERIFIED — October 25, 2026  
 **Supersedes:** V8  
 **Execution:** Continue with short, validated chunks from the current Phase 2 checkpoint.
 
@@ -49,20 +49,17 @@ Unify application, Kubernetes, GitHub and observability context for guided inves
 - Initially, an alert should create evidence for a person and assistant to review; it should not directly launch an unattended remediation. Consider more automation only after the alert patterns and runbooks are proven.
 - Verify that the intended assistant can use its MCP connection from a phone before selecting a paid tier or relying on that client. ChatGPT custom MCP availability and permissions vary by plan and client.
 
-## Near-term priority — phone-approved PR deployment to VPS (planned October 24, 2026)
+## Phone-approved PR deployment to VPS — completed October 25, 2026
 
-**Goal:** From a phone, review and approve a fully vetted PR, merge it, and have Game Lab deploy to K3s with automated verification—without an interactive SSH session or copying commands. Keep the workflow independent of whether Claude, ChatGPT, or a human authored the change.
+**Goal achieved:** A reviewed PR can be merged from a phone, pulled by the VPS, deployed to K3s, and verified in GitHub without an interactive SSH deployment session.
 
-**Implementation plan (small, tested increments):**
-1. Audit existing GitHub Actions validation, image publication, `scripts/deploy.sh`, Helm release, and smoke tests. Preserve working deployments.
-2. Require appropriate PR checks (tests, security/secret scanning, image builds, Helm validation) and human review/approval before merging; confirm which branch-protection and environment approval controls are available for the repository/plan.
-3. Use immutable, commit-addressed images and an auditable post-merge deployment trigger. Prefer pull-based deployment to the VPS (a carefully scoped GitOps reconciler or pull mechanism) rather than giving AI assistants SSH credentials; evaluate security and operational complexity before choosing.
-4. Add rollout health checks, smoke tests, failure reporting, and a documented manual rollback/recovery path. Do not treat merge success as deployment success.
-5. Verify the complete approve → merge → deploy → validate workflow using only a phone.
+- Active GitHub ruleset targets `refs/heads/main`, requires pull requests, and requires the four CI checks documented in [PULL-DEPLOY.md](PULL-DEPLOY.md).
+- The VPS runs the user-level `game-lab-pull-deploy.timer` every five minutes from a separate deployer checkout. It uses no GitHub token or deploy SSH key.
+- The first timer run recorded baseline `35ae6cd` and correctly made no rollout. The user then configured the Actions variables `GAME_LAB_AUTO_DEPLOY=true` and `GAME_LAB_BASE_URL` set to the production HTTPS origin, and enabled the timer.
+- PR #13 added the opt-in **“Only show highest-level version”** catalog checkbox and API filtering. It groups Standard, Empowered, Elite, and Mythical name tiers by item group, category, and slot, applies highest-level selection before pagination, and preserves existing behavior by default.
+- PR #13 merged as `7d2e95f`. The VPS timer deployed it; GitHub's **Verify production deployment** job passed its live-version check and smoke tests. The user confirmed on the website that filtering works for Monster Infrequents and Legendaries.
 
-**Security boundary:** AI assistants can propose code and PRs, but cannot directly deploy to production. Human approval and passing checks gate changes. Keep production secrets out of AI tools and GitHub PR contexts; apply least privilege to deployment credentials. MCP starts with audited read-only Kubernetes/Grafana diagnostics; consequential writes remain a separate, later, explicitly approved capability.
-
-**Exit:** A vetted PR can be approved/merged on mobile, automatically deployed to the VPS, and confirmed healthy (or clearly reported failed) without manual shell intervention.
+**Operational path:** Review and merge a PR; monitor the merge commit's **Build application images** and **Verify production deployment** workflows. Use the timer/journal commands in [PULL-DEPLOY.md](PULL-DEPLOY.md) if deployment status needs diagnosis. Do not manually deploy the same commit unless the automated path reports a failure.
 
 ## Architecture and operating principles
 - Keep it small: frontend + API + PostgreSQL + optional worker on one K3s node.
@@ -104,7 +101,7 @@ Unify application, Kubernetes, GitHub and observability context for guided inves
 ### Item cards checkpoint — October 20, 2026
 - Added the structured card API and rendered descriptions, properties, conversions, recipes, and expansion IDs in the web interface.
 - The four cards documented in [the item-card baseline](ITEM-CARD-BASELINE.md) are the canonical regression set for item-card translation, API, and UI changes.
-- Product requirement to add: give users an **“Only show highest-level version”** option in catalog results. It should collapse lower-level variants of the same item line while leaving unrelated items visible; the default behavior and interaction details can be settled during UI implementation.
+- Product requirement: give users an **“Only show highest-level version”** option in catalog results. Delivered and verified on October 25, 2026; see the deployment checkpoint below.
 - Merged PR #3 and deployed API/web image `sha-9fc6cbd`; Helm revision 9 rolled out both pods and the public smoke test passed.
 - Production remains on the pinned 1.3.1.0 Grim Dawn catalog with 8,695 records.
 
@@ -125,8 +122,8 @@ The OSS observability stack is deployed and the API-to-Alloy-to-Prometheus metri
 
 ## Resume checklist
 - Keep Grafana private; access it with the two-step port-forward and SSH tunnel documented in the session handoff.
-- Prioritize the phone-approved PR-to-K3s deployment workflow above before expanding application functionality; preserve existing working deployment while implementing it.
-- First observability task: build a beginner-friendly Game Lab dashboard and verify logs and traces from Grafana.
+- The phone-approved PR-to-K3s deployment workflow is complete and verified. Preserve it as the default path for future production changes.
+- Next observability task: build a beginner-friendly Game Lab dashboard, then verify logs and traces from Grafana.
 - Then return to Phase 2: define the personal snapshot upload/ownership contract, check current VPS capacity, and plan PostgreSQL persistence before changing production.
 - Do not activate Datadog prematurely; wait for a meaningful workload and repeatable failure scenarios.
 

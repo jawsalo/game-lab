@@ -1,12 +1,14 @@
 # Game Lab V9 — Session 3 Handoff
 
-**Date:** October 21, 2026  
+**Updated:** October 25, 2026  
 **Repository:** `jawsalo/game-lab`  
 **Roadmap:** [ROADMAP-V9.md](ROADMAP-V9.md)
 
 ## Stopping point
 
-The open-source observability stack is deployed. The user reached Grafana, signed in with username `admin`, and chose to stop before building dashboards. Prometheus is receiving Game Lab API metrics. This is a clean stopping point; the next work can start in Grafana without repeating the infrastructure setup.
+The phone-approved PR-to-VPS path is live and has completed its first production deployment. The **“Only show highest-level version”** catalog option is deployed, and the user verified that it works for Monster Infrequents and Legendaries.
+
+This is a clean stopping point. Tomorrow, resume with the beginner-friendly Grafana dashboard and then verify the Loki logs and Tempo traces. The deployment workflow is operational; no setup or manual deploy needs to be repeated.
 
 ## Verified
 
@@ -17,6 +19,16 @@ The open-source observability stack is deployed. The user reached Grafana, signe
 - Confirmed route series for `/api`, `/api/grim-dawn/catalog`, and `/api/grim-dawn/items`, each labeled `job="game-lab-api"`, `http_status_code="200"`, with three requests recorded at query time.
 - The instrumented API deploy passed the public smoke test. A transient 502 line appeared during one deployment output, but the retrying smoke test completed successfully.
 - Alloy's remote-write endpoint was corrected from port 9090 to the Prometheus Service port 80; Alloy was upgraded and restarted. Application metrics are subsequently visible in Prometheus.
+
+## Phone-approved deployment — verified October 25, 2026
+
+- GitHub ruleset **Protect Main** targets `main`, requires pull requests, and requires the four checks listed in [PULL-DEPLOY.md](PULL-DEPLOY.md).
+- The VPS user timer is enabled and polls successful main builds every five minutes. Its first run recorded baseline `35ae6cd` without rolling production, as designed.
+- Repository Actions variables are set: `GAME_LAB_AUTO_DEPLOY=true` and `GAME_LAB_BASE_URL` set to the production HTTPS origin.
+- PR #13 merged as `7d2e95f`. Its validation and image publishing passed; the VPS deployed it; **Verify production deployment** passed the live API version check and production smoke tests.
+- The user checked the live catalog and confirmed **“Only show highest-level version”** works for Monster Infrequents and Legendaries.
+- Use the ordinary PR review/merge path for future changes. Keep the timer enabled. Troubleshooting commands are in [PULL-DEPLOY.md](PULL-DEPLOY.md).
+
 
 ## Grafana access
 
@@ -35,12 +47,12 @@ Keep both forwarding processes running while using Grafana.
 
 If the browser cannot connect, make sure both commands are still running. The Kubernetes port-forward is the VPS-to-Grafana leg; the SSH command carries that local VPS port to the PC.
 
-## Next session
+## Next-session restart point
 
-1. **Make Grafana understandable:** create a small Game Lab dashboard with request rate, response latency, and error rate. Start with the Prometheus data source already receiving API metrics; confirm its name in Grafana before building panels.
-2. **Verify the other signals:** use Grafana Explore to find Game Lab logs in Loki, then check whether API traces are visible in Tempo. Record any missing configuration before changing it.
+1. **Make Grafana understandable:** create a beginner-friendly Game Lab dashboard with request rate, response latency, and error rate. Use the Prometheus source already receiving API metrics.
+2. **Verify the other signals:** use Grafana Explore to find Game Lab logs in Loki, then confirm API traces in Tempo. Record any missing configuration before changing it.
 3. **Return to Phase 2:** define the character/stash snapshot upload and ownership contract before implementing PostgreSQL persistence or parsing.
-4. **Keep Datadog deferred** until there is a meaningful workload and repeatable failure scenarios to compare.
+4. Keep Datadog deferred until there is a meaningful workload and repeatable failure scenarios to compare.
 
 ## Current caveats
 
