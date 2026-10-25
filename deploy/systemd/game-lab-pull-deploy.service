@@ -1,0 +1,13 @@
+[Unit]
+Description=Deploy the latest validated Game Lab image build
+After=default.target
+
+[Service]
+Type=oneshot
+WorkingDirectory=%h/game-lab-deployer
+EnvironmentFile=%h/.config/game-lab-pull-deploy.env
+Environment=HOME=%h
+Environment=PATH=%h/.venvs/game-lab-pull-deploy/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+Environment=PYTHONUNBUFFERED=1
+ExecStart=/usr/bin/python3 %h/game-lab-deployer/scripts/pull_deploy.py
+TimeoutStartSec=15min
