@@ -24,7 +24,7 @@ This is a clean stopping point. Tomorrow, resume with the beginner-friendly Graf
 
 - GitHub ruleset **Protect Main** targets `main`, requires pull requests, and requires the four checks listed in [PULL-DEPLOY.md](PULL-DEPLOY.md).
 - The VPS user timer is enabled and polls successful main builds every five minutes. Its first run recorded baseline `35ae6cd` without rolling production, as designed.
-- Repository Actions variables are set: `GAME_LAB_AUTO_DEPLOY=true` and `GAME_LAB_BASE_URL=https://games.phobosandeimos.com`.
+- Repository Actions variables are set: `GAME_LAB_AUTO_DEPLOY=true` and `GAME_LAB_BASE_URL` set to the production HTTPS origin.
 - PR #13 merged as `7d2e95f`. Its validation and image publishing passed; the VPS deployed it; **Verify production deployment** passed the live API version check and production smoke tests.
 - The user checked the live catalog and confirmed **“Only show highest-level version”** works for Monster Infrequents and Legendaries.
 - Use the ordinary PR review/merge path for future changes. Keep the timer enabled. Troubleshooting commands are in [PULL-DEPLOY.md](PULL-DEPLOY.md).
