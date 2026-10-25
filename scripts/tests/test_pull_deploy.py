@@ -8,6 +8,7 @@ from scripts.pull_deploy import (
     BUILD_WORKFLOW,
     DeployError,
     VALIDATE_WORKFLOW,
+    is_https_origin,
     latest_validated_candidate,
     load_state,
     reconcile,
@@ -37,6 +38,7 @@ class PullDeploySelectionTests(unittest.TestCase):
         runs = [
             run(BUILD_WORKFLOW, SHA_B, number=11),
             run(VALIDATE_WORKFLOW, SHA_B, number=12),
+            run(".github/workflows/verify-deployment.yml", SHA_B, number=13, event="workflow_run", status="in_progress", conclusion=None),
             run(BUILD_WORKFLOW, SHA_A, number=10),
             run(VALIDATE_WORKFLOW, SHA_A, number=11),
         ]
@@ -153,6 +155,13 @@ class PullDeploySelectionTests(unittest.TestCase):
 
             with self.assertRaises(DeployError):
                 load_state(state)
+
+    def test_base_url_must_be_an_https_origin(self):
+        self.assertTrue(is_https_origin("https://games.example.com"))
+        self.assertTrue(is_https_origin("https://games.example.com:8443/"))
+        self.assertFalse(is_https_origin("http://games.example.com"))
+        self.assertFalse(is_https_origin("https://games.example.com/api"))
+        self.assertFalse(is_https_origin("https://user:pass@games.example.com"))
 
 
 if __name__ == "__main__":
