@@ -1,0 +1,48 @@
+name: Verify production deployment
+
+on:
+  workflow_run:
+    workflows: ["Build application images"]
+    types: [completed]
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  verify:
+    name: Verify production
+    if: ${{ github.event.workflow_run.event == 'push' && github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.head_branch == 'main' && vars.GAME_LAB_AUTO_DEPLOY == 'true' && vars.GAME_LAB_BASE_URL != '' }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    env:
+      BASE_URL: ${{ vars.GAME_LAB_BASE_URL }}
+      EXPECTED_SHA: ${{ github.event.workflow_run.head_sha }}
+    steps:
+      - name: Check out the commit whose images were published
+        uses: actions/checkout@v7
+        with:
+          ref: ${{ github.event.workflow_run.head_sha }}
+
+      - name: Wait for the VPS to report this commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          expected_version="${EXPECTED_SHA:0:7}"
+          deadline=$((SECONDS + 900))
+          while (( SECONDS < deadline )); do
+            metadata="$(curl --fail --silent --show-error --max-time 10 "$BASE_URL/api" 2>/dev/null || true)"
+            version="$(python3 -c 'import json,sys; print(json.loads(sys.stdin.read()).get("version", ""))' <<<"$metadata" 2>/dev/null || true)"
+            if [[ "$version" == "$expected_version" ]]; then
+              echo "Production reports API version $version."
+              exit 0
+            fi
+            echo "Waiting for production version $expected_version; current version: ${version:-unavailable}."
+            sleep 15
+          done
+          echo "Production did not report $expected_version within 15 minutes." >&2
+          exit 1
+
+      - name: Run production smoke tests
+        run: scripts/smoke-test.sh "$BASE_URL" "${EXPECTED_SHA:0:7}"
