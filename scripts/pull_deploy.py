@@ -16,6 +16,7 @@ import re
 import subprocess
 import tempfile
 import urllib.error
+import urllib.parse
 import urllib.request
 from dataclasses import dataclass
 from pathlib import Path
@@ -181,6 +182,23 @@ def save_state(path: Path, sha: str) -> None:
             temporary_path.unlink(missing_ok=True)
 
 
+def is_https_origin(value: str) -> bool:
+    try:
+        parsed = urllib.parse.urlsplit(value)
+        return (
+            parsed.scheme == "https"
+            and bool(parsed.hostname)
+            and parsed.path in {"", "/"}
+            and not parsed.query
+            and not parsed.fragment
+            and parsed.username is None
+            and parsed.password is None
+            and (parsed.port is None or 1 <= parsed.port <= 65535)
+        )
+    except ValueError:
+        return False
+
+
 def deploy(repo_dir: Path, sha: str, base_url: str, namespace: str) -> None:
     with tempfile.TemporaryDirectory(prefix="game-lab-deploy-") as temporary:
         source = Path(temporary) / "source"
@@ -210,8 +228,8 @@ def reconcile() -> int:
             Path.home() / ".local/state/game-lab-pull-deploy/state.json",
         )
     )
-    if not base_url.startswith("https://"):
-        raise DeployError("GAME_LAB_BASE_URL must be an HTTPS URL.")
+    if not is_https_origin(base_url):
+        raise DeployError("GAME_LAB_BASE_URL must be an HTTPS origin without a path.")
     if not repo_dir.is_dir():
         raise DeployError(f"Deployment checkout does not exist: {repo_dir}")
 
