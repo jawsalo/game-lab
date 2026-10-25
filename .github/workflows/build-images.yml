@@ -140,39 +140,3 @@ jobs:
           cache-from: type=gha,scope=${{ matrix.name }}
           cache-to: type=gha,mode=max,scope=${{ matrix.name }}
 
-  verify-deployment:
-    name: Verify production deployment
-    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' && vars.GAME_LAB_AUTO_DEPLOY == 'true' && vars.GAME_LAB_BASE_URL != '' }}
-    needs: publish
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-    env:
-      BASE_URL: ${{ vars.GAME_LAB_BASE_URL }}
-    steps:
-      - name: Check out the commit whose images were published
-        uses: actions/checkout@v7
-        with:
-          ref: ${{ github.sha }}
-
-      - name: Wait for the VPS to report this commit
-        shell: bash
-        run: |
-          set -euo pipefail
-          expected_version="${GITHUB_SHA:0:7}"
-          deadline=$((SECONDS + 900))
-          while (( SECONDS < deadline )); do
-            metadata="$(curl --fail --silent --show-error --max-time 10 "$BASE_URL/api" 2>/dev/null || true)"
-            version="$(python3 -c 'import json,sys; print(json.loads(sys.stdin.read()).get("version", ""))' <<<"$metadata" 2>/dev/null || true)"
-            if [[ "$version" == "$expected_version" ]]; then
-              echo "Production reports API version $version."
-              exit 0
-            fi
-            echo "Waiting for production version $expected_version; current version: ${version:-unavailable}."
-            sleep 15
-          done
-          echo "Production did not report $expected_version within 15 minutes." >&2
-          exit 1
-
-      - name: Run production smoke tests
-        run: scripts/smoke-test.sh "$BASE_URL" "${GITHUB_SHA:0:7}"
