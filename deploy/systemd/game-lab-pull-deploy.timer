@@ -1,0 +1,11 @@
+[Unit]
+Description=Check Game Lab for a new validated image build
+
+[Timer]
+OnActiveSec=2min
+OnUnitActiveSec=5min
+AccuracySec=30s
+Unit=game-lab-pull-deploy.service
+
+[Install]
+WantedBy=timers.target
