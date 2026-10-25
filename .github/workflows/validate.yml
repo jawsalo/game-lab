@@ -28,7 +28,7 @@ jobs:
           curl --fail --location --silent --show-error --output "$archive.sha256sum" "https://get.helm.sh/$archive.sha256sum"
           checksum="$(awk '{print $1}' "$archive.sha256sum")"
           [[ "$checksum" =~ ^[[:xdigit:]]{64}$ ]]
-          printf '%s  %s\\n' "$checksum" "$archive" | sha256sum --check --status
+          printf '%s  %s\n' "$checksum" "$archive" | sha256sum --check --status
           tar --extract --gzip --file "$archive" linux-amd64/helm
           sudo install --mode=0755 linux-amd64/helm /usr/local/bin/helm
           helm version --short
