@@ -48,11 +48,16 @@ successfully on the candidate commit:
 - `Build application images` — repository validation and both immutable GHCR
   images published successfully.
 
-Configure the `main` branch to require pull requests and the `Validate`
-workflow's successful check before merging. Keep the image-build checks
-required for application and deployment changes. The image build workflow runs
-on every pull request so its PR checks are available consistently; those PR
-builds have no package-publish permission. Only trusted push builds receive
+Configure `main` to require pull requests and these checks before merging:
+
+- `Validate / configuration`
+- `Build application images / Validate repository`
+- `Build application images / Build api (no publish)`
+- `Build application images / Build web (no publish)`
+
+The image-build workflow runs on every pull request so these checks are
+available consistently, including for docs-only changes. PR image builds have
+no package-publish permission; only trusted push builds receive
 `packages: write`.
 
 After the VPS timer is installed and its first baseline is recorded, add these
