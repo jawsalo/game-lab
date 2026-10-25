@@ -244,6 +244,24 @@ select:focus-visible {
   color: #64748b;
 }
 
+.search__toggle {
+  grid-column: 1 / -1;
+  display: flex !important;
+  align-items: center;
+  gap: 0.65rem;
+  font-size: 0.85rem !important;
+  font-weight: 600 !important;
+  letter-spacing: normal !important;
+  cursor: pointer;
+}
+
+.search__toggle input {
+  width: 1.1rem;
+  min-height: 1.1rem;
+  margin: 0;
+  accent-color: #22d3ee;
+}
+
 .search__actions {
   grid-column: 1 / -1;
   display: flex;
