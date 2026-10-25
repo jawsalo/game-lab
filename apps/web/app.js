@@ -6,6 +6,7 @@ const searchForm = document.querySelector("#catalog-search");
 const searchQuery = document.querySelector("#search-query");
 const searchGroup = document.querySelector("#search-group");
 const searchRarity = document.querySelector("#search-rarity");
+const highestLevelOnly = document.querySelector("#highest-level-only");
 const searchReset = document.querySelector("#search-reset");
 const searchStatus = document.querySelector("#search-status");
 const searchResults = document.querySelector("#search-results");
@@ -302,6 +303,7 @@ async function searchCatalog(event) {
   if (query) parameters.set("q", query);
   if (searchGroup.value) parameters.set("group", searchGroup.value);
   if (searchRarity.value) parameters.set("rarity", searchRarity.value);
+  if (highestLevelOnly.checked) parameters.set("highestLevelOnly", "true");
   parameters.set("limit", "30");
 
   searchStatus.textContent = "Searching catalog…";

@@ -38,6 +38,10 @@ def search_items(
     rarity: Annotated[str | None, Query(max_length=50)] = None,
     level_min: Annotated[int | None, Query(alias="levelMin", ge=0)] = None,
     level_max: Annotated[int | None, Query(alias="levelMax", ge=0)] = None,
+    highest_level_only: Annotated[
+        bool,
+        Query(alias="highestLevelOnly"),
+    ] = False,
     limit: Annotated[int, Query(ge=1, le=100)] = 50,
     offset: Annotated[int, Query(ge=0)] = 0,
 ) -> dict[str, Any]:
@@ -61,6 +65,7 @@ def search_items(
             rarity=rarity,
             level_min=level_min,
             level_max=level_max,
+            highest_level_only=highest_level_only,
             limit=limit,
             offset=offset,
         )
