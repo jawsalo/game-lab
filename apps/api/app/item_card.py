@@ -2,13 +2,56 @@
 
 from __future__ import annotations
 
+import math
 import re
 from typing import Any, Literal
 
 from pydantic import BaseModel, Field
 
 DESCRIPTION_TOKEN_RE = re.compile(r"\^([nwo])")
-PROPERTY_PREFIXES = ("character", "defensive", "offensive", "skill")
+PROPERTY_PREFIXES = ("character", "defensive", "offensive", "retaliation", "skill")
+VARIABLE_PROPERTY_PREFIXES = ("character", "defensive", "offensive", "retaliation")
+FIXED_VALUE_PROPERTIES = {
+    "characterAttackSpeed",
+    "characterConstitution",
+    "characterIncreasedExperience",
+    "characterIncreasedGold",
+    "characterLightRadius",
+    "characterManaRegen",
+    "characterRunSpeed",
+    "characterSpellCastSpeed",
+    "characterTotalSpeed",
+    "defensiveProtection",
+    "offensiveManaBurnDamageRatio",
+    "offensiveTauntMin",
+}
+ZERO_SCALE_PROPERTIES = {
+    "offensiveCritDamageModifier",
+    "offensiveSlowOffensiveReductionMin",
+    "offensiveSlowOffensiveReductionMax",
+    "offensiveSlowDefensiveReductionMin",
+    "offensiveSlowDefensiveReductionMax",
+    "offensiveSlowOffensiveAbilityMin",
+    "offensiveSlowOffensiveAbilityMax",
+    "offensiveSlowDefensiveAbilityMin",
+    "offensiveSlowDefensiveAbilityMax",
+    "offensiveLifeLeechMin",
+    "offensiveManaBurnDrainMin",
+    "offensiveManaBurnDrainMax",
+    "skillCooldownReduction",
+    "skillCooldownReductionModifier",
+    "skillManaCostReduction",
+    "skillManaCostReductionModifier",
+    "offensiveTotalResistanceReductionPercentMin",
+    "offensiveTotalResistanceReductionAbsoluteMin",
+    "offensivePhysicalResistanceReductionPercentMin",
+    "offensivePhysicalResistanceReductionAbsoluteMin",
+    "offensiveElementalResistanceReductionPercentMin",
+    "offensiveElementalResistanceReductionAbsoluteMin",
+    "offensiveTotalDamageReductionPercentMin",
+    "offensiveTotalDamageModifier",
+}
+FIXED_SUFFIX_RE = re.compile(r"(ReqReduction|DurationMin|DurationMax|Chance|MaxResist|Global|XOR)$")
 
 
 class DescriptionSegment(BaseModel):
@@ -23,6 +66,9 @@ class ItemProperty(BaseModel):
 
     key: str
     value: int | float
+    minimum: int | float | None = Field(default=None, alias="minValue")
+    maximum: int | float | None = Field(default=None, alias="maxValue")
+    duration_seconds: int | float | None = Field(default=None, alias="durationSeconds")
 
 
 class ItemConversion(BaseModel):
@@ -91,15 +137,78 @@ def _description_segments(value: Any) -> list[DescriptionSegment] | None:
     return result or None
 
 
-def _numeric_properties(record: dict[str, Any]) -> list[ItemProperty]:
-    return [
-        ItemProperty(key=key, value=value)
-        for key, value in sorted(record.items())
-        if key.startswith(PROPERTY_PREFIXES)
-        and key not in {"conversionInType", "conversionOutType", "conversionPercentage"}
-        and isinstance(value, (int, float))
-        and not isinstance(value, bool)
-    ]
+def _roll_bounds(
+    value: int | float,
+    *,
+    scale: int | float,
+    jitter: int | float,
+) -> tuple[int, int]:
+    """Calculate the display range used by GrimTools for a variable item stat."""
+    lower = min(math.ceil(value * (1 - jitter / 100)), value - 1)
+    upper = max(math.floor(value * (1 + jitter / 100)), value + 1)
+    multiplier = 1 + scale / 100
+    return math.floor(lower * multiplier), math.floor(upper * multiplier)
+
+
+def _numeric_properties(
+    record: dict[str, Any],
+    item_group: str | None,
+) -> list[ItemProperty]:
+    is_equipment = item_group == "equipment"
+    scale_value = record.get("h", 0)
+    scale = (
+        scale_value
+        if isinstance(scale_value, (int, float)) and not isinstance(scale_value, bool)
+        else 0
+    )
+    jitter_value = record.get("i", 20)
+    jitter = (
+        jitter_value
+        if isinstance(jitter_value, (int, float)) and not isinstance(jitter_value, bool)
+        else 20
+    )
+
+    result: list[ItemProperty] = []
+    for key, value in sorted(record.items()):
+        if (
+            not key.startswith(PROPERTY_PREFIXES)
+            or key in {"conversionInType", "conversionOutType", "conversionPercentage"}
+            or not isinstance(value, (int, float))
+            or isinstance(value, bool)
+        ):
+            continue
+
+        if key == "offensiveSlowPoisonDurationMin":
+            continue
+
+        property_data: dict[str, Any] = {"key": key, "value": value}
+        is_variable = (
+            is_equipment
+            and key.startswith(VARIABLE_PROPERTY_PREFIXES)
+            and key not in FIXED_VALUE_PROPERTIES
+            and not FIXED_SUFFIX_RE.search(key)
+        )
+        if is_variable:
+            property_scale = (
+                scale
+                if key.startswith("offensive") and key not in ZERO_SCALE_PROPERTIES
+                else 0
+            )
+            minimum, maximum = _roll_bounds(
+                value,
+                scale=property_scale,
+                jitter=jitter,
+            )
+            if key == "offensiveSlowPoisonMin":
+                duration = record.get("offensiveSlowPoisonDurationMin")
+                if isinstance(duration, (int, float)) and not isinstance(duration, bool):
+                    minimum *= duration
+                    maximum *= duration
+                    property_data["durationSeconds"] = duration
+            property_data["minValue"] = minimum
+            property_data["maxValue"] = maximum
+        result.append(ItemProperty(**property_data))
+    return result
 
 
 def _conversion(record: dict[str, Any]) -> list[ItemConversion]:
@@ -176,7 +285,7 @@ def build_item_card(item: dict[str, Any]) -> ItemCard:
         bitmap=item.get("bitmap"),
         description=_description_segments(item.get("description")),
         expansions=item.get("mods") or [],
-        properties=_numeric_properties(record),
+        properties=_numeric_properties(record, item.get("group")),
         conversions=_conversion(record),
         recipe=_recipe(record),
     )

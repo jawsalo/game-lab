@@ -74,8 +74,18 @@ class ItemCardTests(unittest.TestCase):
         self.assertEqual(
             payload["properties"],
             [
-                {"key": "characterLife", "value": 300},
-                {"key": "defensiveAether", "value": 25},
+                {
+                    "key": "characterLife",
+                    "value": 300,
+                    "minValue": 240,
+                    "maxValue": 360,
+                },
+                {
+                    "key": "defensiveAether",
+                    "value": 25,
+                    "minValue": 20,
+                    "maxValue": 30,
+                },
             ],
         )
         self.assertEqual(
@@ -84,6 +94,54 @@ class ItemCardTests(unittest.TestCase):
         )
         self.assertNotIn("record", payload)
         self.assertNotIn("mods", payload)
+
+    def test_black_matriarch_item_ranges_match_grimtools(self) -> None:
+        card = build_item_card(
+            {
+                "id": "it9040",
+                "name": "Mythical Ring of the Black Matriarch",
+                "group": "equipment",
+                "category": "ArmorJewelry_Ring",
+                "itemLevel": 94,
+                "record": {
+                    "h": 40,
+                    "characterAttackSpeedModifier": 5,
+                    "characterDexterity": 28,
+                    "defensiveLife": 12,
+                    "defensiveLifeMaxResist": 3,
+                    "defensivePierce": 33,
+                    "offensiveLifeLeechMin": 2,
+                    "offensivePhysicalModifier": 76,
+                    "offensiveSlowPoisonMin": 12,
+                    "offensiveSlowPoisonDurationMin": 5,
+                    "retaliationPoisonMin": 440,
+                },
+            }
+        )
+        properties = {
+            prop.key: prop.dict(by_alias=True, exclude_none=True)
+            for prop in card.properties
+        }
+
+        expected_ranges = {
+            "characterAttackSpeedModifier": (4, 6),
+            "characterDexterity": (23, 33),
+            "defensiveLife": (10, 14),
+            "defensivePierce": (27, 39),
+            "offensiveLifeLeechMin": (1, 3),
+            "offensivePhysicalModifier": (85, 127),
+            "offensiveSlowPoisonMin": (70, 95),
+            "retaliationPoisonMin": (352, 528),
+        }
+        for key, expected in expected_ranges.items():
+            with self.subTest(key=key):
+                self.assertEqual(
+                    (properties[key]["minValue"], properties[key]["maxValue"]),
+                    expected,
+                )
+        self.assertNotIn("minValue", properties["defensiveLifeMaxResist"])
+        self.assertNotIn("offensiveSlowPoisonDurationMin", properties)
+        self.assertEqual(properties["offensiveSlowPoisonMin"]["durationSeconds"], 5)
 
     def test_recipe_includes_output_cost_and_alternative_ingredients(self) -> None:
         card = build_item_card(
