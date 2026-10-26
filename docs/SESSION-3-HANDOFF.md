@@ -8,11 +8,11 @@
 
 The phone-approved PR-to-VPS path is live and has completed production deployments. The **“Only show highest-level version”** catalog option was verified for Monster Infrequents and Legendaries. Grafana metrics, Loki logs, Tempo traces, and SQLite span correlation are also verified end to end.
 
-PR #21 merged as `391688b`, and its mobile item-card changes are now confirmed live: the production API reports `391688b`, the `it9040` card endpoint contains the expected roll ranges and 5-second poison damage, and the web asset has the updated display labels. The live-site check confirmed the merge is deployed.
+Item-card fidelity is complete for this checkpoint. PR #23 added source-backed skill data for the Black Matriarch’s four +2 skill bonuses and Venom of the Black Matriarch proc. PR #24 put offensive properties before defensive properties. PR #25 replaced the raw `offensiveFireMin` label with “Fire Damage” for both item stats and granted-skill effects.
 
-Mobile item-card work also includes PR #17’s Mythical naming fix, PR #18’s duplicate-description fix, and PRs #19–20’s stat/resistance label translations. The user verified these mobile changes as they landed. The four canonical cards remain the regression set.
+The user verified the updated cards on the live site and is happy with them. Production API version is `d581b26`. Keep the four cards in [ITEM-CARD-BASELINE.md](ITEM-CARD-BASELINE.md) as the regression set; the card milestone is done for now.
 
-The current card gap is the four +2 skill bonuses and granted skill. Their names are given by the canonical baseline, but the catalog lacks source-backed skill/localization/controller lookups. Resume with reusable source lookups; after the Black Matriarch baseline is complete, return to the Phase 2 snapshot upload/ownership contract before starting PostgreSQL implementation.
+The next feature is personal character/stash snapshot upload. Define the upload, ownership, privacy, and snapshot-version contract before implementing persistence.
 
 ## Verified
 
@@ -42,15 +42,22 @@ The current card gap is the four +2 skill bonuses and granted skill. Their names
 - Tempo returned a `GET /api/grim-dawn/items` trace with six spans: the HTTP request, two HTTP send spans, one SQLite `PRAGMA`, and two SQLite `SELECT` spans. The SQLite spans appear under the same request trace, confirming correlation.
 - Metrics, logs, traces, and database-span correlation are verified end to end.
 
-## Mobile item-card progress — October 26, 2026
+## Item-card milestone complete — October 26, 2026
 
-- PR #17 fixed Mythical-tier item names; the user confirmed this still works with the highest-level filter.
-- PR #18 removed duplicate flavor text from expanded details; the user confirmed the fix.
-- PRs #19–20 translated character-stat and resistance labels. The user verified Cunning, Physique/Spirit, and resistance names on mobile.
-- PR #21 (`391688b`) added GrimTools-style roll ranges, Acid Retaliation, and the combined `70/95 Poison Damage over 5 Seconds` line. The live API reports `391688b`, and its item-card response plus web app asset contain the updated behavior.
-- The five item-card unit tests, Validate workflow, and Build application images workflow passed before merge.
-- Remaining Black Matriarch card gap: `+2 Cadence`, `+2 Curse of Frailty`, `+2 Nidalla’s Hidden Hand`, `+2 Righteous Fervor`, and granted skill **Venom of the Black Matriarch** with its effect. Resolve these from reusable catalog/source lookup data.
-- The four canonical baseline cards remain the acceptance set: [ITEM-CARD-BASELINE.md](ITEM-CARD-BASELINE.md). Once the skill data is available, compare all four against their references.
+- PRs #17–21 delivered Mythical naming, duplicate-description removal, character/resistance labels, and GrimTools-style stat ranges.
+- PR #23 added source-backed skill lookups and the Black Matriarch’s four skill bonuses and granted proc.
+- PR #24 ordered properties with offensive stats before defensive stats.
+- PR #25 labels flat fire damage as “Fire Damage” on item properties and granted-skill effects.
+- Production API version `d581b26` is live. The user checked the live cards and is happy with the result.
+- The four canonical cards in [ITEM-CARD-BASELINE.md](ITEM-CARD-BASELINE.md) remain the regression set. No further item-card work is currently queued.
+
+## Next feature — personal snapshots
+
+1. Define the snapshot upload and ownership contract: accepted export, identity, privacy, version/history behavior, and separation from shared catalog data.
+2. Check current VPS capacity and plan PostgreSQL persistence before changing production.
+3. Implement a small read-only upload/parse/preview slice, then expand to owned-item lookup, duplicates, and roll comparisons.
+4. Use the resulting workload for repeatable traffic and failure exercises; defer the Datadog trial until those are ready.
+5. Keep controlled MCP operations as a later, separately scoped track.
 
 ## Grafana access
 
@@ -71,15 +78,15 @@ If the browser cannot connect, make sure both commands are still running. The Ku
 
 ## Next-session restart point
 
-1. The live deployment for PR #21 is confirmed (`391688b`). Optionally compare the mobile card visually with the canonical Black Matriarch reference.
-2. Add source-backed skill/localization/controller lookup data and render the four skill bonuses plus granted-skill effect; keep all four canonical cards as regressions.
-3. Once the card baseline is complete, define the personal character/stash snapshot upload and ownership contract.
-4. Review current VPS capacity and plan PostgreSQL persistence after the snapshot contract is agreed.
-5. Keep Datadog deferred until there is a meaningful workload and repeatable failure scenarios to compare; keep phone Grafana access deferred until after the Datadog trial.
+1. Item-card fidelity is complete for this checkpoint; the user is happy with the live cards. PR #23–25 are merged, with production at `d581b26`.
+2. Define the personal character/stash snapshot upload and ownership contract.
+3. Review current VPS capacity and plan PostgreSQL persistence after the contract is agreed.
+4. Implement a small read-only upload/parse/preview slice before expanding inventory features.
+5. Use the resulting workload for repeatable traffic and failure scenarios, then compare Datadog with the open-source stack. Keep phone Grafana access deferred until after the Datadog trial.
 
 ## Current caveats
 
 - No PostgreSQL-backed personal inventory or snapshot import is implemented yet.
-- Black Matriarch skill bonuses and its granted-skill effect are not yet resolved on the card; source-backed lookup data is the next item-card chunk.
+- No further item-card defect is currently queued; the user accepted the live card presentation. The four canonical cards remain the regression set.
 - Grafana remains private; access uses the documented VPS port-forward and Windows SSH tunnel.
 - Phone Grafana access remains deferred until after the Datadog trial.

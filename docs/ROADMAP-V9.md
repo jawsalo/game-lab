@@ -1,11 +1,15 @@
 # Game Lab — V9 Roadmap
 
-**Status:** PHASE 2 IN PROGRESS; PHASE 3 COMPLETE; PHASE 4 COMPLETE — metrics, logs, traces, and database-span correlation verified; PHONE-APPROVED DEPLOYMENT VERIFIED; MOBILE ITEM-CARD FIXES VERIFIED ON PRODUCTION — October 26, 2026  
+**Status:** PHASE 2 IN PROGRESS; PHASE 3 COMPLETE; PHASE 4 COMPLETE — metrics, logs, traces, and database-span correlation verified; PHONE-APPROVED DEPLOYMENT VERIFIED; ITEM-CARD BASELINE COMPLETE AND VERIFIED ON PRODUCTION — October 26, 2026  
 **Supersedes:** V8  
 **Execution:** Continue with short, validated chunks from the current Phase 2 checkpoint.
 
 ## Mission
 Build a genuinely useful application on our existing K3s VPS, instrument it with vendor-neutral OpenTelemetry, run an open-source observability stack, introduce controlled MCP operations, then evaluate Datadog using real workloads and reproducible failures. Keep the system small, teachable, and portfolio-worthy.
+
+## Current priority sequence
+
+The app foundation and open-source observability stack are working. Item-card fidelity is now complete for this checkpoint. Next, define the personal character/stash snapshot contract, then implement a small read-only import slice with persistence. Once the app can produce meaningful, repeatable traffic, exercise it with controlled failure scenarios and compare the same investigations in Datadog. Keep Datadog deferred until that workload is ready. Phone-first controlled MCP operations remain a later, separately scoped track.
 
 ## Existing foundation (previously verified; recheck before work)
 - Ubuntu 24.04 VPS, single-node K3s v1.36.3+k3s1.
@@ -76,7 +80,7 @@ Unify application, Kubernetes, GitHub and observability context for guided inves
 4. **API metrics are confirmed end to end:** requests to `/api`, `/api/grim-dawn/catalog`, and `/api/grim-dawn/items` appeared in Prometheus as `http_server_duration_milliseconds_count`, labeled with `job="game-lab-api"` and HTTP 200.
 5. **Alloy remote-write endpoint was corrected** to use the Prometheus Service port 80, and Alloy was upgraded/restarted. The Prometheus metric query confirms application metrics are arriving.
 6. **Grafana dashboard and all telemetry signals are verified end to end** (October 26, 2026). The provisioned Game Lab dashboard shows API request rate, p95 latency, and 5xx rate. Loki returns API pod logs. A Tempo trace for `GET /api/grim-dawn/items` contains its SQLite `PRAGMA` and `SELECT` child spans, confirming trace correlation.
-7. **Phase 2 remains in progress:** personal character/stash snapshot contract, PostgreSQL persistence, ownership, parsing and duplicate detection remain. Small item-card fidelity fixes are the active work before returning to the larger snapshot feature.
+7. **Phase 2 remains in progress:** personal character/stash snapshot contract, PostgreSQL persistence, ownership, parsing and duplicate detection remain. Item-card fidelity is complete for now; snapshot design is the next feature.
 
 ### Mobile item-card checkpoint — October 26, 2026
 
@@ -87,7 +91,10 @@ Unify application, Kubernetes, GitHub and observability context for guided inves
 - **Production verified:** `/api` reports version `391688b`; the live `it9040` card payload contains the expected ranges and 5-second poison duration, and the live web asset contains the updated Cunning, Acid Retaliation, and duration-aware label logic.
 - The four canonical cards remain the acceptance set in [ITEM-CARD-BASELINE.md](ITEM-CARD-BASELINE.md). This skill-card chunk adds a generated, version-pinned lookup from the GrimTools 1.3.1.0 item database and English localization. It resolves skill data for 6,002 catalog items with source hashes recorded in the catalog provenance.
 - The Black Matriarch API card now resolves its four +2 bonuses (Cadence, Curse of Frailty, Nidalla’s Hidden Hand, Righteous Fervor) and its level-two Venom of the Black Matriarch proc: trigger, description, recharge, duration, poison damage, and physical resistance reduction. The mobile details view renders these as separate Skill Bonuses and Granted Skills sections.
-- **Next verification:** after both data and app PRs merge and deploy, verify the Black Matriarch card, then review Serenity, Blueprint: Relic - Serenity, and Dauntless against the four-card baseline. Keep broader skill and property-label ordering as follow-up polish; then return to the snapshot upload/ownership feature.
+- PR #23 added source-backed skill/localization data and resolved the Black Matriarch’s four +2 skill bonuses and Venom of the Black Matriarch proc.
+- PR #24 ordered card properties as character, offensive, defensive, retaliation, and skill groups. PR #25 translated `offensiveFireMin` to “Fire Damage” for item properties and granted skill effects.
+- **Production verified:** API version `d581b26` is live; the Black Matriarch card order and Mythical Combustion Band’s “Fire Damage” labels were checked on the site. The user is happy with the item cards; this milestone is complete for now.
+- Keep the four cards in [ITEM-CARD-BASELINE.md](ITEM-CARD-BASELINE.md) as the regression set. The next feature is the personal character/stash snapshot contract.
 
 ### Open-source observability verification — October 26, 2026
 - Merged PR #15 and explicitly upgraded the observability Helm releases from the VPS. Grafana remains private.
@@ -142,7 +149,9 @@ The OSS observability stack and the API-to-Alloy-to-Prometheus metrics path are 
 - Keep Grafana private; access it with the two-step port-forward and SSH tunnel documented in the session handoff.
 - The phone-approved PR-to-K3s deployment workflow is complete and verified. Preserve it as the default path for future production changes.
 - Open-source observability is complete for this checkpoint: dashboard, Loki logs, Tempo traces, and SQLite span correlation are verified.
-- Merge and deploy the source-backed skill lookup plus Black Matriarch card changes, verify the production card, then retest the other three canonical cards. After that, return to Phase 2: define the personal snapshot upload/ownership contract, check current VPS capacity, and plan PostgreSQL persistence before changing production.
+- Item-card work is complete for this checkpoint: PRs #23–25 are merged and the relevant production behavior is verified. The user is happy with the cards.
+- Next: define the personal snapshot upload/ownership contract; then check current VPS capacity and plan PostgreSQL persistence before changing production.
+- After a useful snapshot workload exists, add repeatable traffic and failure scenarios, then start the Datadog comparison. Keep Datadog deferred until those scenarios are ready.
 - Do not activate Datadog prematurely; wait for a meaningful workload and repeatable failure scenarios.
 
 *Time estimates are rough hands-on sessions, not deadlines.*
