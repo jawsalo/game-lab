@@ -8,6 +8,7 @@ from fastapi import APIRouter, HTTPException, Query
 
 from .catalog import CatalogUnavailableError, GrimDawnCatalog
 from .item_card import ItemCard, build_item_card
+from .skill_data import SkillDataUnavailableError
 
 router = APIRouter(prefix="/api/grim-dawn", tags=["grim-dawn"])
 catalog = GrimDawnCatalog()
@@ -100,4 +101,7 @@ def get_item_card(item_id: str) -> ItemCard:
 
     if item is None:
         raise HTTPException(status_code=404, detail="item not found")
-    return build_item_card(item)
+    try:
+        return build_item_card(item)
+    except SkillDataUnavailableError as error:
+        raise HTTPException(status_code=503, detail=str(error)) from error
