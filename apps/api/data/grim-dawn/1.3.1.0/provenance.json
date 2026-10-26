@@ -22,6 +22,7 @@
       "itemdbSha256": "a0bd08199415ca879fb4e1ef974084c3408f7f060ac3fe0d2073b48f892071a1",
       "localizationSha256": "9e6df63fd14d0854a9f3ba410dccf4d3acbd5e076b23199f2184b5f355717b3",
       "extractionMetadataSha256": "a6d0760ea2cdd4c64c3114e48c45ce668a6771c105020765db809e0b54c2118a"
-    }
+    },
+    "gitBlobSha": "b69edc69587b347ed2488f1036b321ee9fed3b59"
   }
 }
