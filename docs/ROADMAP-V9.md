@@ -1,6 +1,6 @@
 # Game Lab — V9 Roadmap
 
-**Status:** PHASE 2 IN PROGRESS; PHASE 3 COMPLETE; PHASE 4 COMPLETE — metrics, logs, traces, and database-span correlation verified; PHONE-APPROVED DEPLOYMENT VERIFIED; ITEM-CARD TRANSLATION IN PROGRESS — October 26, 2026  
+**Status:** PHASE 2 IN PROGRESS; PHASE 3 COMPLETE; PHASE 4 COMPLETE — metrics, logs, traces, and database-span correlation verified; PHONE-APPROVED DEPLOYMENT VERIFIED; MOBILE ITEM-CARD FIXES VERIFIED ON PRODUCTION — October 26, 2026  
 **Supersedes:** V8  
 **Execution:** Continue with short, validated chunks from the current Phase 2 checkpoint.
 
@@ -78,13 +78,15 @@ Unify application, Kubernetes, GitHub and observability context for guided inves
 6. **Grafana dashboard and all telemetry signals are verified end to end** (October 26, 2026). The provisioned Game Lab dashboard shows API request rate, p95 latency, and 5xx rate. Loki returns API pod logs. A Tempo trace for `GET /api/grim-dawn/items` contains its SQLite `PRAGMA` and `SELECT` child spans, confirming trace correlation.
 7. **Phase 2 remains in progress:** personal character/stash snapshot contract, PostgreSQL persistence, ownership, parsing and duplicate detection remain. Small item-card fidelity fixes are the active work before returning to the larger snapshot feature.
 
-### Item-card translation checkpoint — October 26, 2026
+### Mobile item-card checkpoint — October 26, 2026
 
-- PR #21 merged as `391688b` with GrimTools-style minimum/maximum rolls for variable equipment stats, corrected Black Matriarch labels, and Acid Retaliation.
-- The Black Matriarch poison source amount and duration are combined into `70/95 Poison Damage over 5 Seconds`.
-- API regression tests cover the baseline roll values; validation and both image-build workflows passed before merge.
-- **Live verification is still pending in this handoff.** After the VPS deployment workflow completes, check the Mythical Ring of the Black Matriarch card against the canonical baseline in [ITEM-CARD-BASELINE.md](ITEM-CARD-BASELINE.md).
-- Still unresolved on the card: the four +2 skill bonuses and the granted skill. The canonical baseline names them (Cadence, Curse of Frailty, Nidalla’s Hidden Hand, Righteous Fervor; Venom of the Black Matriarch), but the item catalog lacks the localization/skill/controller lookup data needed to resolve them generally. Next card chunk: add source-backed lookup data in the data pipeline and render these skill lines; do not hard-code a one-item translation.
+- PR #17 fixed Mythical-tier naming so the highest-level filter can return the correctly named Mythical item; the user verified the filter still behaves correctly.
+- PR #18 removed the duplicate flavor description from expanded item details; the user confirmed the card no longer repeats it.
+- PRs #19–20 added player-facing names for character stats and resistance types, including Cunning, Physique, Spirit, Health, and the damage-type resistances. The user verified the Cunning and resistance changes on mobile.
+- PR #21 merged as `391688b`, adding GrimTools-style min/max rolls for variable equipment stats and Acid Retaliation, and rendering the Black Matriarch poison stat as `70/95 Poison Damage over 5 Seconds`.
+- **Production verified:** `/api` reports version `391688b`; the live `it9040` card payload contains the expected ranges and 5-second poison duration, and the live web asset contains the updated Cunning, Acid Retaliation, and duration-aware label logic.
+- The four canonical cards remain the acceptance set in [ITEM-CARD-BASELINE.md](ITEM-CARD-BASELINE.md). Black Matriarch still lacks its four +2 skill bonuses (Cadence, Curse of Frailty, Nidalla’s Hidden Hand, Righteous Fervor) and the granted skill, Venom of the Black Matriarch, with its effect. The item table lacks reusable localization/skill/controller lookup data.
+- **Next card chunk:** add source-backed lookup data in the data pipeline and render the Black Matriarch skill lines, then retest all four canonical cards. Avoid one-item hard-coded translations. After that, return to the larger snapshot upload/ownership feature.
 
 ### Open-source observability verification — October 26, 2026
 - Merged PR #15 and explicitly upgraded the observability Helm releases from the VPS. Grafana remains private.
@@ -139,7 +141,7 @@ The OSS observability stack and the API-to-Alloy-to-Prometheus metrics path are 
 - Keep Grafana private; access it with the two-step port-forward and SSH tunnel documented in the session handoff.
 - The phone-approved PR-to-K3s deployment workflow is complete and verified. Preserve it as the default path for future production changes.
 - Open-source observability is complete for this checkpoint: dashboard, Loki logs, Tempo traces, and SQLite span correlation are verified.
-- First verify PR #21 on the live Black Matriarch card, then implement the source-backed skill lookup needed to complete the canonical card. After that, return to Phase 2: define the personal snapshot upload/ownership contract, check current VPS capacity, and plan PostgreSQL persistence before changing production.
+- Implement the source-backed skill lookup needed to complete the Black Matriarch card, then retest all four canonical items. After that, return to Phase 2: define the personal snapshot upload/ownership contract, check current VPS capacity, and plan PostgreSQL persistence before changing production.
 - Do not activate Datadog prematurely; wait for a meaningful workload and repeatable failure scenarios.
 
 *Time estimates are rough hands-on sessions, not deadlines.*
