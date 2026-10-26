@@ -3,6 +3,8 @@
 
 from __future__ import annotations
 
+import base64
+import gzip
 import hashlib
 import json
 import re
@@ -24,6 +26,90 @@ def require(value: object, expected: type, label: str) -> object:
     if not isinstance(value, expected) or isinstance(value, bool):
         fail(f"{label} must be {expected.__name__}")
     return value
+
+
+def validate_skill_lookup(manifest: dict[str, object], directory: Path) -> None:
+    lookup = manifest.get("skillLookup")
+    if not isinstance(lookup, dict):
+        fail(f"{directory.relative_to(ROOT)}: skill lookup provenance is missing")
+
+    filename = require(lookup.get("file"), str, "skillLookup.file")
+    if Path(filename).name != filename:
+        fail(f"{directory.relative_to(ROOT)}: skillLookup.file must be a filename")
+    if lookup.get("encoding") != "base64+gzip":
+        fail(f"{directory.relative_to(ROOT)}: unsupported skill lookup encoding")
+
+    expected_bytes = require(lookup.get("bytes"), int, "skillLookup.bytes")
+    expected_blob_sha = require(lookup.get("gitBlobSha"), str, "skillLookup.gitBlobSha")
+    skill_path = directory / filename
+    if not skill_path.is_file():
+        fail(f"{skill_path.relative_to(ROOT)}: generated skill lookup not found")
+
+    contents = skill_path.read_bytes()
+    if len(contents) != expected_bytes:
+        fail(f"{skill_path.relative_to(ROOT)}: skill lookup size mismatch")
+    git_blob = hashlib.sha1(
+        f"blob {len(contents)}".encode("ascii") + b"\\0" + contents
+    ).hexdigest()
+    if git_blob != expected_blob_sha:
+        fail(f"{skill_path.relative_to(ROOT)}: skill lookup blob checksum mismatch")
+
+    try:
+        decoded = base64.b64decode(contents.strip(), validate=True)
+        data = json.loads(gzip.decompress(decoded))
+    except (ValueError, OSError, gzip.BadGzipFile, json.JSONDecodeError) as error:
+        fail(f"{skill_path.relative_to(ROOT)}: cannot decode skill lookup: {error}")
+
+    if data.get("schemaVersion") != lookup.get("schemaVersion"):
+        fail(f"{skill_path.relative_to(ROOT)}: skill schema version mismatch")
+    if data.get("gameVersion") != manifest.get("gameVersion"):
+        fail(f"{skill_path.relative_to(ROOT)}: skill game version mismatch")
+    if data.get("itemCount") != manifest.get("recordCount"):
+        fail(f"{skill_path.relative_to(ROOT)}: skill item count mismatch")
+    items = data.get("items")
+    if not isinstance(items, dict) or len(items) != data.get("resolvedItemCount"):
+        fail(f"{skill_path.relative_to(ROOT)}: invalid resolved item map")
+    if data.get("unresolvedSkillReferences") != []:
+        fail(f"{skill_path.relative_to(ROOT)}: unresolved skill references remain")
+    if data.get("source") != lookup.get("sourceHashes"):
+        fail(f"{skill_path.relative_to(ROOT)}: skill source hashes mismatch")
+
+    canonical = items.get("it9040")
+    if not isinstance(canonical, dict):
+        fail(f"{skill_path.relative_to(ROOT)}: canonical it9040 skill data is missing")
+    bonuses = canonical.get("skillBonuses")
+    expected_bonuses = [
+        ("Cadence", 2),
+        ("Curse of Frailty", 2),
+        ("Nidalla's Hidden Hand", 2),
+        ("Righteous Fervor", 2),
+    ]
+    actual_bonuses = [
+        (entry.get("name"), entry.get("ranks"))
+        for entry in bonuses or []
+        if isinstance(entry, dict)
+    ]
+    if actual_bonuses != expected_bonuses:
+        fail(f"{skill_path.relative_to(ROOT)}: canonical skill bonuses mismatch")
+
+    granted = canonical.get("grantedSkills")
+    if not isinstance(granted, list) or len(granted) != 1:
+        fail(f"{skill_path.relative_to(ROOT)}: canonical granted skill mismatch")
+    proc = granted[0]
+    proc_properties = proc.get("properties")
+    if (
+        proc.get("name") != "Venom of the Black Matriarch"
+        or proc.get("description")
+        != "Inject your target with the deadly venom of the Black Matriarch."
+        or proc.get("chanceToRun") != 15
+        or proc.get("triggerType") != "AttackEnemy"
+        or not isinstance(proc_properties, dict)
+        or proc_properties.get("skillCooldownTime") != 0.5
+        or proc_properties.get("skillActiveDuration") != 5
+        or proc_properties.get("offensiveSlowPoisonMin") != [102, 112]
+        or proc_properties.get("defensivePhysical") != -10
+    ):
+        fail(f"{skill_path.relative_to(ROOT)}: canonical granted-skill effects mismatch")
 
 
 def validate_manifest(path: Path) -> None:
@@ -102,6 +188,8 @@ def validate_manifest(path: Path) -> None:
             f"{database_path.relative_to(ROOT)}: expected {record_count} rows, "
             f"found items={item_count}, FTS={fts_count}"
         )
+
+    validate_skill_lookup(manifest, path.parent)
 
     print(
         f"Validated Grim Dawn {version}: {record_count} items, "
