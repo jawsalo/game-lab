@@ -463,6 +463,31 @@ select:focus-visible {
   text-align: right;
 }
 
+.item-card__skills {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.item-card__skill {
+  min-width: 0;
+}
+
+.item-card__skill-name {
+  margin: 0 0 0.3rem;
+  color: #c4b5fd;
+  font-weight: 700;
+  overflow-wrap: anywhere;
+}
+
+.item-card__skill-description {
+  margin: 0.25rem 0 0.55rem;
+  color: #a8b3c7;
+}
+
+.item-card__skill-effects {
+  margin-top: 0;
+}
+
 .item-card__list,
 .item-card__recipe ul {
   margin: 0.35rem 0 0;

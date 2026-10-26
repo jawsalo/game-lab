@@ -143,6 +143,58 @@ class ItemCardTests(unittest.TestCase):
         self.assertNotIn("offensiveSlowPoisonDurationMin", properties)
         self.assertEqual(properties["offensiveSlowPoisonMin"]["durationSeconds"], 5)
 
+    def test_black_matriarch_skill_bonuses_and_granted_skill_resolve_from_pinned_data(self) -> None:
+        card = build_item_card(
+            {
+                "id": "it9040",
+                "name": "Mythical Ring of the Black Matriarch",
+                "group": "equipment",
+                "category": "ArmorJewelry_Ring",
+                "rarity": "Legendary",
+                "record": {
+                    "augmentSkillLevel1": 2,
+                    "augmentSkillLevel2": 2,
+                    "augmentSkillLevel3": 2,
+                    "augmentSkillLevel4": 2,
+                    "augmentSkillName1": "tagClass01SkillName01A",
+                    "augmentSkillName2": "tagClass03SkillName06A",
+                    "augmentSkillName3": "tagClass04SkillName05E",
+                    "augmentSkillName4": "tagGDX2Class09SkillName02A",
+                    "itemSkillAutoController": "ct11",
+                    "itemSkillLevelEq": 2,
+                    "itemSkillName": "sk468",
+                },
+            }
+        )
+
+        self.assertEqual(
+            [(bonus.name, bonus.ranks) for bonus in card.skill_bonuses],
+            [
+                ("Cadence", 2),
+                ("Curse of Frailty", 2),
+                ("Nidalla's Hidden Hand", 2),
+                ("Righteous Fervor", 2),
+            ],
+        )
+        self.assertEqual(len(card.granted_skills), 1)
+        granted = card.granted_skills[0]
+        self.assertEqual(granted.name, "Venom of the Black Matriarch")
+        self.assertEqual(granted.trigger, "(15% Chance on Attack)")
+        self.assertEqual(
+            granted.description,
+            "Inject your target with the deadly venom of the Black Matriarch.",
+        )
+        self.assertEqual(granted.recharge_seconds, 0.5)
+        self.assertEqual(granted.duration_seconds, 5)
+        self.assertEqual(
+            [(property.key, property.value, property.label) for property in granted.properties],
+            [
+                ("offensiveSlowPoisonMin", 112, "Poison Damage per Second"),
+                ("defensivePhysical", -10, "Physical Resistance"),
+            ],
+        )
+
+
     def test_recipe_includes_output_cost_and_alternative_ingredients(self) -> None:
         card = build_item_card(
             {

@@ -85,8 +85,9 @@ Unify application, Kubernetes, GitHub and observability context for guided inves
 - PRs #19–20 added player-facing names for character stats and resistance types, including Cunning, Physique, Spirit, Health, and the damage-type resistances. The user verified the Cunning and resistance changes on mobile.
 - PR #21 merged as `391688b`, adding GrimTools-style min/max rolls for variable equipment stats and Acid Retaliation, and rendering the Black Matriarch poison stat as `70/95 Poison Damage over 5 Seconds`.
 - **Production verified:** `/api` reports version `391688b`; the live `it9040` card payload contains the expected ranges and 5-second poison duration, and the live web asset contains the updated Cunning, Acid Retaliation, and duration-aware label logic.
-- The four canonical cards remain the acceptance set in [ITEM-CARD-BASELINE.md](ITEM-CARD-BASELINE.md). Black Matriarch still lacks its four +2 skill bonuses (Cadence, Curse of Frailty, Nidalla’s Hidden Hand, Righteous Fervor) and the granted skill, Venom of the Black Matriarch, with its effect. The item table lacks reusable localization/skill/controller lookup data.
-- **Next card chunk:** add source-backed lookup data in the data pipeline and render the Black Matriarch skill lines, then retest all four canonical cards. Avoid one-item hard-coded translations. After that, return to the larger snapshot upload/ownership feature.
+- The four canonical cards remain the acceptance set in [ITEM-CARD-BASELINE.md](ITEM-CARD-BASELINE.md). This skill-card chunk adds a generated, version-pinned lookup from the GrimTools 1.3.1.0 item database and English localization. It resolves skill data for 6,002 catalog items with source hashes recorded in the catalog provenance.
+- The Black Matriarch API card now resolves its four +2 bonuses (Cadence, Curse of Frailty, Nidalla’s Hidden Hand, Righteous Fervor) and its level-two Venom of the Black Matriarch proc: trigger, description, recharge, duration, poison damage, and physical resistance reduction. The mobile details view renders these as separate Skill Bonuses and Granted Skills sections.
+- **Next verification:** after both data and app PRs merge and deploy, verify the Black Matriarch card, then review Serenity, Blueprint: Relic - Serenity, and Dauntless against the four-card baseline. Keep broader skill and property-label ordering as follow-up polish; then return to the snapshot upload/ownership feature.
 
 ### Open-source observability verification — October 26, 2026
 - Merged PR #15 and explicitly upgraded the observability Helm releases from the VPS. Grafana remains private.
@@ -141,7 +142,7 @@ The OSS observability stack and the API-to-Alloy-to-Prometheus metrics path are 
 - Keep Grafana private; access it with the two-step port-forward and SSH tunnel documented in the session handoff.
 - The phone-approved PR-to-K3s deployment workflow is complete and verified. Preserve it as the default path for future production changes.
 - Open-source observability is complete for this checkpoint: dashboard, Loki logs, Tempo traces, and SQLite span correlation are verified.
-- Implement the source-backed skill lookup needed to complete the Black Matriarch card, then retest all four canonical items. After that, return to Phase 2: define the personal snapshot upload/ownership contract, check current VPS capacity, and plan PostgreSQL persistence before changing production.
+- Merge and deploy the source-backed skill lookup plus Black Matriarch card changes, verify the production card, then retest the other three canonical cards. After that, return to Phase 2: define the personal snapshot upload/ownership contract, check current VPS capacity, and plan PostgreSQL persistence before changing production.
 - Do not activate Datadog prematurely; wait for a meaningful workload and repeatable failure scenarios.
 
 *Time estimates are rough hands-on sessions, not deadlines.*

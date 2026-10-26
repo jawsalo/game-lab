@@ -187,6 +187,19 @@ This card demonstrates why a card cannot filter stats only by `character`, `defe
 
 This card demonstrates shield-specific values, multiple damage conversions, retaliation values, skill bonuses, and skills with item-specific modifiers. The display should group these clearly instead of flattening every numeric source field into one undifferentiated property list.
 
+## Skill-resolution implementation checkpoint
+
+The active item-card change uses the canonical Black Matriarch record (`it9040`) to verify that the source-backed lookup displays:
+
+- +2 to Cadence
+- +2 to Curse of Frailty
+- +2 to Nidalla’s Hidden Hand
+- +2 to Righteous Fervor
+- Venom of the Black Matriarch (15% Chance on Attack)
+- Its localized description, 0.5-second recharge, 5-second duration, 112 Poison Damage per Second, and -10% Physical Resistance
+
+The generated sidecar preserves source tags and IDs, localized text, controller data, rank values, and skill properties. This is a first reusable resolution layer; skills with item-specific modifiers and fuller card ordering still need comparison against Serenity and Dauntless.
+
 ## Display-order pattern to test
 
 Across the examples, use this as the initial ordering model:
@@ -209,6 +222,6 @@ This is a baseline, not a final UI mandate. If source fields cannot yet be resol
 - Keep the raw catalog record available for inspection; the display card is a projection, not the database itself.
 - Add structured support for retaliation and granted skills before trying to solve them solely with frontend labels.
 - Use translation/formatting maps for human-readable stat labels and units, while keeping original source keys alongside the rendered label.
-- Skill/controller IDs need versioned lookup data before their names can be displayed reliably.
+- Skill bonus tags and granted-skill/controller IDs are resolved from the generated, version-pinned `item-skills.json.gz.b64` sidecar. Its source hashes and catalog version are recorded in the adjacent provenance manifest; card code keeps the original item record untouched.
 - Recipes should resolve ingredient and output item IDs to catalog names where possible, while retaining IDs for stable linking.
 - Keep exact game wording, ordering, punctuation, percentages, and variant ranges as reference evidence. The screenshots are authoritative when this transcription is ambiguous.
