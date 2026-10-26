@@ -34,17 +34,38 @@ const PROPERTY_LABELS = {
   defensiveCold: "Cold Resistance",
   defensiveElementalResistance: "Elemental Resistance",
   defensiveFire: "Fire Resistance",
-  defensiveLife: "Health",
+  defensiveLife: "Vitality Resistance",
+  defensiveLifeMaxResist: "Max Vitality Resistance",
   defensiveLightning: "Lightning Resistance",
   defensivePhysical: "Physical Resistance",
   defensivePierce: "Pierce Resistance",
   defensivePoison: "Poison & Acid Resistance",
   defensiveProtection: "Armor",
   defensiveVitality: "Vitality Resistance",
+  offensiveLifeLeechMin: "Attack Damage converted to Health",
   offensivePhysicalMin: "Physical Damage (minimum)",
   offensivePhysicalMax: "Physical Damage (maximum)",
+  offensivePhysicalModifier: "Physical Damage",
+  offensivePoisonModifier: "Acid Damage",
+  offensiveSlowPhysicalModifier: "Internal Trauma Damage",
+  offensiveSlowPoisonModifier: "Poison Damage",
+  retaliationPoisonMin: "Acid Retaliation",
   skillCooldownReduction: "Recharge Reduction",
 };
+const RESISTANCE_PROPERTY_KEYS = new Set([
+  "defensiveAether",
+  "defensiveBleeding",
+  "defensiveChaos",
+  "defensiveCold",
+  "defensiveElementalResistance",
+  "defensiveFire",
+  "defensiveLife",
+  "defensiveLightning",
+  "defensivePhysical",
+  "defensivePierce",
+  "defensivePoison",
+  "defensiveVitality",
+]);
 let nextDetailsId = 0;
 let latestSearch = 0;
 
@@ -152,12 +173,24 @@ function propertyLabel(property) {
 }
 
 function propertyValue(property) {
-  const value = numberFormatter.format(property.value);
-  const signedValue = property.value > 0 ? `+${value}` : value;
   const isPercent = property.key !== "defensiveProtection"
     && (property.key.startsWith("defensive") || property.key.endsWith("Modifier")
-      || property.key === "skillCooldownReduction");
-  return isPercent ? `${signedValue}%` : signedValue;
+      || property.key === "skillCooldownReduction"
+      || property.key === "offensiveLifeLeechMin");
+  const hasRange = Number.isFinite(property.minValue)
+    && Number.isFinite(property.maxValue)
+    && property.minValue !== property.maxValue;
+  const values = hasRange
+    ? [property.minValue, property.maxValue]
+    : [property.value];
+  const includePlus = property.key !== "offensiveLifeLeechMin"
+    && !property.key.startsWith("retaliation")
+    && !RESISTANCE_PROPERTY_KEYS.has(property.key);
+  const formatted = values.map((value) => {
+    const number = numberFormatter.format(value);
+    return value > 0 && includePlus ? `+${number}` : number;
+  }).join("/");
+  return isPercent ? `${formatted}%` : formatted;
 }
 
 function addSectionHeading(parent, text) {
