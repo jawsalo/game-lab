@@ -35,6 +35,39 @@ class GrimDawnCatalogTests(unittest.TestCase):
     def test_get_item_returns_none_for_unknown_id(self) -> None:
         self.assertIsNone(self.catalog.get_item("not-an-item"))
 
+    def test_mythical_item_prefix_is_restored_from_raw_record(self) -> None:
+        standard = self.catalog.get_item("it1027")
+        mythical = self.catalog.get_item("it9040")
+        self.assertIsNotNone(standard)
+        self.assertIsNotNone(mythical)
+        assert standard is not None
+        assert mythical is not None
+
+        self.assertEqual(standard["itemLevel"], 65)
+        self.assertEqual(standard["name"], "Ring of the Black Matriarch")
+        self.assertNotIn("itemStyleTag", standard["record"])
+
+        self.assertEqual(mythical["itemLevel"], 94)
+        self.assertEqual(
+            mythical["record"]["itemStyleTag"],
+            "tagStyleUniqueTier3",
+        )
+        self.assertEqual(
+            mythical["name"],
+            "Mythical Ring of the Black Matriarch",
+        )
+
+        highest = self.catalog.search_items(
+            query="Black Matriarch",
+            highest_level_only=True,
+        )
+        self.assertEqual(highest["total"], 1)
+        self.assertEqual(highest["items"][0]["id"], "it9040")
+        self.assertEqual(
+            highest["items"][0]["name"],
+            "Mythical Ring of the Black Matriarch",
+        )
+
     def test_full_text_search_finds_component_and_recipe(self) -> None:
         result = self.catalog.search_items(query="Cracked Lodestone")
         self.assertEqual(result["total"], 2)
