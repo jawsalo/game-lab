@@ -95,6 +95,38 @@ class ItemCardTests(unittest.TestCase):
         self.assertNotIn("record", payload)
         self.assertNotIn("mods", payload)
 
+    def test_fire_damage_label_is_friendly_for_item_and_granted_skill(self) -> None:
+        card = build_item_card(
+            {
+                "id": "it7920",
+                "name": "Mythical Combustion Band",
+                "group": "equipment",
+                "category": "ArmorJewelry_Ring",
+                "record": {"offensiveFireMin": 14},
+            },
+            resolved_skill_data={
+                "grantedSkills": [
+                    {
+                        "name": "Combustion",
+                        "properties": {"offensiveFireMin": 92},
+                    }
+                ]
+            },
+        )
+
+        item_property = next(
+            prop for prop in card.properties if prop.key == "offensiveFireMin"
+        )
+        self.assertEqual(item_property.label, "Fire Damage")
+        self.assertEqual((item_property.minimum, item_property.maximum), (11, 16))
+        self.assertEqual(
+            [
+                (prop.key, prop.value, prop.label)
+                for prop in card.granted_skills[0].properties
+            ],
+            [("offensiveFireMin", 92, "Fire Damage")],
+        )
+
     def test_black_matriarch_item_ranges_match_grimtools(self) -> None:
         card = build_item_card(
             {
