@@ -75,10 +75,10 @@ kubectl -n observability create secret generic grafana-admin \
   --dry-run=client -o yaml | kubectl apply -f -
 unset GRAFANA_ADMIN_PASSWORD
 
-kubectl create configmap game-lab-dashboard \\
-  --from-file=game-lab-overview.json=observability/dashboards/game-lab-overview.json \\
-  --namespace observability --dry-run=client -o yaml \\
-  | kubectl label --local -f - grafana_dashboard=1 -o yaml \\
+kubectl create configmap game-lab-dashboard \
+  --from-file=game-lab-overview.json=observability/dashboards/game-lab-overview.json \
+  --namespace observability --dry-run=client -o yaml \
+  | kubectl label --local -f - grafana_dashboard=1 -o yaml \
   | kubectl apply -f -
 
 helm upgrade --install prometheus prometheus-community/prometheus \
