@@ -152,10 +152,15 @@ function addSectionHeading(parent, text) {
   parent.append(heading);
 }
 
-function renderItemDetails(card) {
+function renderItemDetails(card, summaryDescription) {
   const fragment = document.createDocumentFragment();
+  const detailDescription = Array.isArray(card.description)
+    ? card.description.map((segment) => segment.text).join("")
+    : "";
 
-  if (Array.isArray(card.description) && card.description.length > 0) {
+  // The summary already shows the item's flavor text; keep details focused on stats.
+  if (Array.isArray(card.description) && card.description.length > 0
+      && detailDescription !== summaryDescription) {
     const description = document.createElement("p");
     description.className = "item-card__description";
     renderDescription(description, card.description);
@@ -264,7 +269,10 @@ async function toggleItemDetails(button, panel, item) {
     }
 
     const card = await response.json();
-    panel.replaceChildren(renderItemDetails(card));
+    const summaryDescription = parseDescription(item.description)
+      .map((segment) => segment.text)
+      .join("");
+    panel.replaceChildren(renderItemDetails(card, summaryDescription));
     panel.dataset.loaded = "true";
     button.textContent = "Hide item details";
   } catch (error) {
