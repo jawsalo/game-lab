@@ -1,6 +1,6 @@
 # Game Lab — V9 Roadmap
 
-**Status:** PHASE 2 IN PROGRESS; PHASE 3 COMPLETE; PHASE 4 STACK DEPLOYED / DASHBOARD AND LOG-TRACE VALIDATION PENDING; PHONE-APPROVED DEPLOYMENT VERIFIED — October 26, 2026  
+**Status:** PHASE 2 IN PROGRESS; PHASE 3 COMPLETE; PHASE 4 COMPLETE — metrics, logs, traces, and database-span correlation verified; PHONE-APPROVED DEPLOYMENT VERIFIED — October 26, 2026  
 **Supersedes:** V8  
 **Execution:** Continue with short, validated chunks from the current Phase 2 checkpoint.
 
@@ -75,8 +75,15 @@ Unify application, Kubernetes, GitHub and observability context for guided inves
 3. **Open-source stack is deployed:** Prometheus, Grafana, Loki, Tempo, and Alloy are running in the separate `observability` namespace. Grafana remains private.
 4. **API metrics are confirmed end to end:** requests to `/api`, `/api/grim-dawn/catalog`, and `/api/grim-dawn/items` appeared in Prometheus as `http_server_duration_milliseconds_count`, labeled with `job="game-lab-api"` and HTTP 200.
 5. **Alloy remote-write endpoint was corrected** to use the Prometheus Service port 80, and Alloy was upgraded/restarted. The Prometheus metric query confirms application metrics are arriving.
-6. **Grafana access is working** through a VPS Kubernetes port-forward plus an SSH tunnel. PR #15 stages a provisioned Game Lab dashboard and documents Loki/Tempo checks; CI is green, but it is still awaiting review and has not been applied to the cluster. Logs and traces still need an end-user verification pass.
+6. **Grafana dashboard and all telemetry signals are verified end to end** (October 26, 2026). The provisioned Game Lab dashboard shows API request rate, p95 latency, and 5xx rate. Loki returns API pod logs. A Tempo trace for `GET /api/grim-dawn/items` contains its SQLite `PRAGMA` and `SELECT` child spans, confirming trace correlation.
 7. **Phase 2 remains in progress:** personal character/stash snapshot contract, PostgreSQL persistence, ownership, parsing and duplicate detection remain.
+
+### Open-source observability verification — October 26, 2026
+- Merged PR #15 and explicitly upgraded the observability Helm releases from the VPS. Grafana remains private.
+- Prometheus metrics are visible in the provisioned Grafana dashboard; the screenshot showed `/api` traffic, about 4.7 ms p95 latency, and 0% 5xx at that time.
+- Loki returned API pod logs, including successful 200 requests to the API, catalog, and item search routes.
+- Tempo returned a `GET /api/grim-dawn/items` trace with six spans: the request, two HTTP send spans, one SQLite `PRAGMA`, and two SQLite `SELECT` spans. The database spans are children of the request trace.
+- Dashboard, logs, traces, and database-span correlation are now verified. Continue Phase 2 with the snapshot upload and ownership contract before implementing persistence.
 
 ## Progress — October 18, 2026
 - Deployed the mobile-first web shell and FastAPI service at `games.phobosandeimos.com`.
@@ -123,7 +130,7 @@ The OSS observability stack is deployed and the API-to-Alloy-to-Prometheus metri
 ## Resume checklist
 - Keep Grafana private; access it with the two-step port-forward and SSH tunnel documented in the session handoff.
 - The phone-approved PR-to-K3s deployment workflow is complete and verified. Preserve it as the default path for future production changes.
-- Next observability task: build a beginner-friendly Game Lab dashboard, then verify logs and traces from Grafana.
+- Open-source observability is complete for this checkpoint: dashboard, Loki logs, Tempo traces, and SQLite span correlation are verified.
 - Then return to Phase 2: define the personal snapshot upload/ownership contract, check current VPS capacity, and plan PostgreSQL persistence before changing production.
 - Do not activate Datadog prematurely; wait for a meaningful workload and repeatable failure scenarios.
 
