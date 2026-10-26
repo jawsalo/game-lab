@@ -122,6 +122,20 @@ class ItemCardTests(unittest.TestCase):
             prop.key: prop.dict(by_alias=True, exclude_none=True)
             for prop in card.properties
         }
+        self.assertEqual(
+            list(properties),
+            [
+                "characterAttackSpeedModifier",
+                "characterDexterity",
+                "offensiveLifeLeechMin",
+                "offensivePhysicalModifier",
+                "offensiveSlowPoisonMin",
+                "defensiveLife",
+                "defensiveLifeMaxResist",
+                "defensivePierce",
+                "retaliationPoisonMin",
+            ],
+        )
 
         expected_ranges = {
             "characterAttackSpeedModifier": (4, 6),

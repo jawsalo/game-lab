@@ -10,6 +10,13 @@ from pydantic import BaseModel, Field
 
 DESCRIPTION_TOKEN_RE = re.compile(r"\^([nwo])")
 PROPERTY_PREFIXES = ("character", "defensive", "offensive", "retaliation", "skill")
+PROPERTY_DISPLAY_PRIORITY = {
+    "character": 0,
+    "offensive": 1,
+    "defensive": 2,
+    "retaliation": 3,
+    "skill": 4,
+}
 VARIABLE_PROPERTY_PREFIXES = ("character", "defensive", "offensive", "retaliation")
 FIXED_VALUE_PROPERTIES = {
     "characterAttackSpeed",
@@ -199,7 +206,15 @@ def _numeric_properties(
     )
 
     result: list[ItemProperty] = []
-    for key, value in sorted(record.items()):
+    def property_sort_key(entry: tuple[str, Any]) -> tuple[int, str]:
+        key = entry[0]
+        category = next(
+            (prefix for prefix in PROPERTY_DISPLAY_PRIORITY if key.startswith(prefix)),
+            None,
+        )
+        return PROPERTY_DISPLAY_PRIORITY.get(category, len(PROPERTY_DISPLAY_PRIORITY)), key
+
+    for key, value in sorted(record.items(), key=property_sort_key):
         if (
             not key.startswith(PROPERTY_PREFIXES)
             or key in {"conversionInType", "conversionOutType", "conversionPercentage"}
