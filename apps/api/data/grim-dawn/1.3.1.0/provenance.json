@@ -9,5 +9,14 @@
     "file": "items.sqlite",
     "bytes": 11640832,
     "sha256": "ed3edbf2d8dd7ec6333bc777c38eafdc5b9905993755b99c2fec868ebfb16b4b"
+  },
+  "skillLookup": {
+    "file": "item-skills.json.gz.b64",
+    "encoding": "base64+gzip",
+    "bytes": 435429,
+    "sourceRepository": "jawsalo/grimtools-data",
+    "sourceCommit": "9770595784fe1eb444868989b7815b7971be7724",
+    "sourcePath": "data/1.3.1.0/catalog/item-skills.json.gz.b64",
+    "schemaVersion": 1
   }
 }
