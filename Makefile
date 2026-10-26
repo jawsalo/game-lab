@@ -7,7 +7,6 @@ CHART := deploy/chart
 validate:
 	python3 scripts/validate.py
 	python3 scripts/validate-grim-dawn-catalog.py
-	python3 -m unittest scripts.tests.test_grafana_dashboard -v
 	python3 -m unittest discover -s scripts/tests -v
 	python3 -m unittest discover -s apps/api/tests -v
 
