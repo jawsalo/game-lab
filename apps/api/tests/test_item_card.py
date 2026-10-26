@@ -118,7 +118,7 @@ class ItemCardTests(unittest.TestCase):
             prop for prop in card.properties if prop.key == "offensiveFireMin"
         )
         self.assertEqual(item_property.label, "Fire Damage")
-        self.assertEqual((item_property.minimum, item_property.maximum), (11, 16))
+        self.assertEqual(item_property.value, 14)
         self.assertEqual(
             [
                 (prop.key, prop.value, prop.label)
