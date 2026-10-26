@@ -6,9 +6,11 @@
 
 ## Stopping point
 
-The phone-approved PR-to-VPS path is live and has completed its first production deployment. The **“Only show highest-level version”** catalog option is deployed, and the user verified that it works for Monster Infrequents and Legendaries.
+The phone-approved PR-to-VPS path is live and has completed production deployments. The **“Only show highest-level version”** catalog option was verified for Monster Infrequents and Legendaries. Grafana metrics, Loki logs, Tempo traces, and SQLite span correlation are also verified end to end.
 
-Session 4 completed the Grafana dashboard and verified metrics, logs, traces, and SQLite span correlation. The open-source observability stack is now working end to end. Resume with the Phase 2 character/stash snapshot upload and ownership contract; do not start PostgreSQL implementation until the contract is agreed.
+The latest application change is PR #21, merged as `391688b`. It adds GrimTools-style stat ranges and fixes several Black Matriarch labels, including its combined poison damage-over-time line. Check the GitHub **Verify production deployment** run and the live item card before treating this merge as verified in production.
+
+The current card gap is the four +2 skill bonuses and granted skill. Their canonical names are known from the baseline, but the catalog lacks source-backed skill/localization/controller lookups. Resume with those lookups; after the Black Matriarch baseline is complete, return to the Phase 2 snapshot upload/ownership contract before starting PostgreSQL implementation.
 
 ## Verified
 
@@ -38,6 +40,15 @@ Session 4 completed the Grafana dashboard and verified metrics, logs, traces, an
 - Tempo returned a `GET /api/grim-dawn/items` trace with six spans: the HTTP request, two HTTP send spans, one SQLite `PRAGMA`, and two SQLite `SELECT` spans. The SQLite spans appear under the same request trace, confirming correlation.
 - Metrics, logs, traces, and database-span correlation are verified end to end.
 
+## Latest item-card progress — October 26, 2026
+
+- PR #21 merged as `391688b` (`Show GrimTools stat ranges on item cards`).
+- The API calculates minimum and maximum rolls for variable equipment properties and includes `retaliation…` stats. Web labels now map the Black Matriarch’s familiar stats to Cunning, Health, Vitality Resistance, Pierce Resistance, and Acid Retaliation.
+- Its source `offensiveSlowPoisonMin` and duration fields render together as `70/95 Poison Damage over 5 Seconds`.
+- The five item-card unit tests and the Validate plus Build application images workflows passed before merge.
+- Still missing from the rendered card: `+2 Cadence`, `+2 Curse of Frailty`, `+2 Nidalla’s Hidden Hand`, `+2 Righteous Fervor`, and the granted skill **Venom of the Black Matriarch** with its effect. These need reusable source data, not item-specific hard-coded names.
+- The four canonical baseline cards remain the acceptance set: [ITEM-CARD-BASELINE.md](ITEM-CARD-BASELINE.md). For this chunk, compare the Black Matriarch against its GrimTools reference after confirming the production deployment.
+
 ## Grafana access
 
 Keep both forwarding processes running while using Grafana.
@@ -57,13 +68,16 @@ If the browser cannot connect, make sure both commands are still running. The Ku
 
 ## Next-session restart point
 
-1. Define the personal character/stash snapshot upload and ownership contract.
-2. Review current VPS capacity and plan PostgreSQL persistence after the contract is agreed.
-3. Keep Datadog deferred until there is a meaningful workload and repeatable failure scenarios to compare.
-4. Keep phone access to Grafana deferred until after the Datadog trial.
+1. Check the merge commit’s **Verify production deployment** result, then compare the live Black Matriarch card with its canonical GrimTools reference.
+2. Add source-backed skill/localization/controller lookup data and render the four skill bonuses plus granted-skill effect; keep the four canonical cards as regressions.
+3. Once the card baseline is complete, define the personal character/stash snapshot upload and ownership contract.
+4. Review current VPS capacity and plan PostgreSQL persistence after the snapshot contract is agreed.
+5. Keep Datadog deferred until there is a meaningful workload and repeatable failure scenarios to compare; keep phone Grafana access deferred until after the Datadog trial.
 
 ## Current caveats
 
 - No PostgreSQL-backed personal inventory or snapshot import is implemented yet.
+- Black Matriarch skill bonuses and its granted-skill effect are not yet resolved on the card; source-backed lookup data is the next item-card chunk.
+- Production verification for PR #21 has not yet been recorded in this handoff.
 - Grafana remains private; access uses the documented VPS port-forward and Windows SSH tunnel.
 - Phone Grafana access remains deferred until after the Datadog trial.
