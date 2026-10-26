@@ -169,6 +169,10 @@ function resultCard(item) {
 }
 
 function propertyLabel(property) {
+  if (property.key === "offensiveSlowPoisonMin"
+      && Number.isFinite(property.durationSeconds)) {
+    return `Poison Damage over ${numberFormatter.format(property.durationSeconds)} Seconds`;
+  }
   return PROPERTY_LABELS[property.key] || friendlyLabel(property.key);
 }
 
@@ -184,6 +188,7 @@ function propertyValue(property) {
     ? [property.minValue, property.maxValue]
     : [property.value];
   const includePlus = property.key !== "offensiveLifeLeechMin"
+    && property.key !== "offensiveSlowPoisonMin"
     && !property.key.startsWith("retaliation")
     && !RESISTANCE_PROPERTY_KEYS.has(property.key);
   const formatted = values.map((value) => {
