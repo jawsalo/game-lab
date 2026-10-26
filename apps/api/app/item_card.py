@@ -68,6 +68,7 @@ class ItemProperty(BaseModel):
     value: int | float
     minimum: int | float | None = Field(default=None, alias="minValue")
     maximum: int | float | None = Field(default=None, alias="maxValue")
+    duration_seconds: int | float | None = Field(default=None, alias="durationSeconds")
 
 
 class ItemConversion(BaseModel):
@@ -177,6 +178,9 @@ def _numeric_properties(
         ):
             continue
 
+        if key == "offensiveSlowPoisonDurationMin":
+            continue
+
         property_data: dict[str, Any] = {"key": key, "value": value}
         is_variable = (
             is_equipment
@@ -190,11 +194,19 @@ def _numeric_properties(
                 if key.startswith("offensive") and key not in ZERO_SCALE_PROPERTIES
                 else 0
             )
-            property_data["minValue"], property_data["maxValue"] = _roll_bounds(
+            minimum, maximum = _roll_bounds(
                 value,
                 scale=property_scale,
                 jitter=jitter,
             )
+            if key == "offensiveSlowPoisonMin":
+                duration = record.get("offensiveSlowPoisonDurationMin")
+                if isinstance(duration, (int, float)) and not isinstance(duration, bool):
+                    minimum *= duration
+                    maximum *= duration
+                    property_data["durationSeconds"] = duration
+            property_data["minValue"] = minimum
+            property_data["maxValue"] = maximum
         result.append(ItemProperty(**property_data))
     return result
 
