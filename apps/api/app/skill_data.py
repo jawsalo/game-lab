@@ -6,6 +6,7 @@ import base64
 import gzip
 import hashlib
 import json
+import zlib
 from functools import lru_cache
 from pathlib import Path
 from typing import Any
@@ -24,7 +25,7 @@ class SkillDataUnavailableError(RuntimeError):
 
 
 def _git_blob_sha1(contents: bytes) -> str:
-    header = f"blob {len(contents)}\\0".encode("ascii")
+    header = f"blob {len(contents)}".encode("ascii") + bytes([0])
     return hashlib.sha1(header + contents).hexdigest()
 
 
@@ -51,7 +52,7 @@ def _load_skill_data() -> dict[str, Any]:
     try:
         encoded = base64.b64decode(contents.strip(), validate=True)
         data = json.loads(gzip.decompress(encoded))
-    except (ValueError, OSError, gzip.BadGzipFile, json.JSONDecodeError) as error:
+    except (ValueError, OSError, zlib.error, json.JSONDecodeError) as error:
         raise SkillDataUnavailableError("skill lookup data is invalid") from error
 
     if (
