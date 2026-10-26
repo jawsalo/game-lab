@@ -190,7 +190,7 @@ def _numeric_properties(
                 if key.startswith("offensive") and key not in ZERO_SCALE_PROPERTIES
                 else 0
             )
-            property_data["minimum"], property_data["maximum"] = _roll_bounds(
+            property_data["minValue"], property_data["maxValue"] = _roll_bounds(
                 value,
                 scale=property_scale,
                 jitter=jitter,
