@@ -8,7 +8,7 @@
 
 The phone-approved PR-to-VPS path is live and has completed its first production deployment. The **“Only show highest-level version”** catalog option is deployed, and the user verified that it works for Monster Infrequents and Legendaries.
 
-This is a clean stopping point. Tomorrow, resume with the beginner-friendly Grafana dashboard and then verify the Loki logs and Tempo traces. The deployment workflow is operational; no setup or manual deploy needs to be repeated.
+Session 4 completed the Grafana dashboard and verified metrics, logs, traces, and SQLite span correlation. The open-source observability stack is now working end to end. Resume with the Phase 2 character/stash snapshot upload and ownership contract; do not start PostgreSQL implementation until the contract is agreed.
 
 ## Verified
 
@@ -30,24 +30,13 @@ This is a clean stopping point. Tomorrow, resume with the beginner-friendly Graf
 - Use the ordinary PR review/merge path for future changes. Keep the timer enabled. Troubleshooting commands are in [PULL-DEPLOY.md](PULL-DEPLOY.md).
 
 
-## Session 4 progress — October 26, 2026
+## Session 4 completed — October 26, 2026
 
-- PR #15 adds a provisioned **Game Lab Overview** dashboard with API request
-  rate, p95 response time, and 5xx percentage. It enables the Grafana
-  dashboard sidecar, updates the observability deployment script to apply the
-  dashboard ConfigMap, and documents how to verify Loki and Tempo.
-- All four required PR checks passed. PR #15 is open for review; no cluster
-  changes have been made.
-- This PR does not change the Game Lab app image. After it is merged, the
-  observability stack needs an explicit VPS upgrade. Check node capacity, then
-  run `bash scripts/deploy-observability.sh` from the updated checkout and
-  confirm the script's `deploy` prompt. Enter the existing Grafana admin
-  password.
-- After the upgrade, inspect the dashboard, query Loki with
-  `{namespace="game-lab", container="api"}`, and search Tempo for service
-  `game-lab-api`. The dashboard and log/trace queries are not verified in
-  Grafana yet.
-- Keep Datadog and phone Grafana access deferred until after the Datadog trial.
+- PR #15 merged as `319e530`; all required checks passed. The updated observability releases were explicitly deployed from the VPS. Grafana remains private.
+- The **Game Lab Overview** dashboard is visible under **Dashboards → Game Lab**. It shows API request rate, p95 response time, and 5xx percentage; the screenshot showed active `/api` traffic, approximately 4.7 ms p95, and 0% 5xx at that time.
+- Loki returned API pod logs, including successful 200 requests to `/api`, the catalog, and item search.
+- Tempo returned a `GET /api/grim-dawn/items` trace with six spans: the HTTP request, two HTTP send spans, one SQLite `PRAGMA`, and two SQLite `SELECT` spans. The SQLite spans appear under the same request trace, confirming correlation.
+- Metrics, logs, traces, and database-span correlation are verified end to end.
 
 ## Grafana access
 
@@ -68,14 +57,13 @@ If the browser cannot connect, make sure both commands are still running. The Ku
 
 ## Next-session restart point
 
-1. **Make Grafana understandable:** create a beginner-friendly Game Lab dashboard with request rate, response latency, and error rate. Use the Prometheus source already receiving API metrics.
-2. **Verify the other signals:** use Grafana Explore to find Game Lab logs in Loki, then confirm API traces in Tempo. Record any missing configuration before changing it.
-3. **Return to Phase 2:** define the character/stash snapshot upload and ownership contract before implementing PostgreSQL persistence or parsing.
-4. Keep Datadog deferred until there is a meaningful workload and repeatable failure scenarios to compare.
+1. Define the personal character/stash snapshot upload and ownership contract.
+2. Review current VPS capacity and plan PostgreSQL persistence after the contract is agreed.
+3. Keep Datadog deferred until there is a meaningful workload and repeatable failure scenarios to compare.
+4. Keep phone access to Grafana deferred until after the Datadog trial.
 
 ## Current caveats
 
-- A friendly Game Lab dashboard has not been created.
-- Prometheus metrics are verified. Logs and traces are deployed as part of the stack but have not yet been confirmed through the user's Grafana workflow.
 - No PostgreSQL-backed personal inventory or snapshot import is implemented yet.
-- Do not expose Grafana publicly as part of dashboard setup.
+- Grafana remains private; access uses the documented VPS port-forward and Windows SSH tunnel.
+- Phone Grafana access remains deferred until after the Datadog trial.
