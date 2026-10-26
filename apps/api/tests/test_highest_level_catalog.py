@@ -29,7 +29,8 @@ class HighestLevelCatalogTests(unittest.TestCase):
                 level_requirement INTEGER,
                 item_level INTEGER,
                 bitmap TEXT,
-                mods_json TEXT NOT NULL
+                mods_json TEXT NOT NULL,
+                record_json TEXT NOT NULL DEFAULT '{}'
             )
             """
         )

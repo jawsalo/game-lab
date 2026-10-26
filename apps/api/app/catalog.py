@@ -20,6 +20,11 @@ DEFAULT_DATABASE_PATH = (
 DATABASE_ENVIRONMENT_VARIABLE = "GRIM_DAWN_DATABASE_PATH"
 SEARCH_TOKEN_RE = re.compile(r"[\w]+", re.UNICODE)
 
+ITEM_STYLE_NAME_PREFIXES = {
+    "tagStyleUniqueTier2": "Empowered",
+    "tagStyleUniqueTier3": "Mythical",
+}
+
 
 class CatalogUnavailableError(RuntimeError):
     """Raised when the pinned catalog cannot be opened or queried."""
@@ -49,10 +54,24 @@ def _execute(
     return cursor
 
 
+def _display_name(name: str | None, record: dict[str, Any]) -> str | None:
+    """Restore localized item-tier prefixes retained in the raw record."""
+    style_tag = record.get("itemStyleTag")
+    prefix = (
+        ITEM_STYLE_NAME_PREFIXES.get(style_tag)
+        if isinstance(style_tag, str)
+        else None
+    )
+    if not name or not prefix or name.casefold().startswith(f"{prefix.casefold()} "):
+        return name
+    return f"{prefix} {name}"
+
+
 def _item_summary(row: sqlite3.Row) -> dict[str, Any]:
+    record = json.loads(row["record_json"])
     return {
         "id": row["id"],
-        "name": row["name"],
+        "name": _display_name(row["name"], record),
         "description": row["description"],
         "group": row["item_group"],
         "category": row["category"],
@@ -305,7 +324,8 @@ class GrimDawnCatalog:
                         items.id, items.name, items.description,
                         items.item_group, items.category, items.slot,
                         items.rarity, items.level_requirement,
-                        items.item_level, items.bitmap, items.mods_json
+                        items.item_level, items.bitmap, items.mods_json,
+                        items.record_json
                     {from_sql}
                     ORDER BY {order_sql}
                     LIMIT ? OFFSET ?
