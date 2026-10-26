@@ -169,6 +169,7 @@ function resultCard(item) {
 }
 
 function propertyLabel(property) {
+  if (typeof property.label === "string" && property.label) return property.label;
   if (property.key === "offensiveSlowPoisonMin"
       && Number.isFinite(property.durationSeconds)) {
     return `Poison Damage over ${numberFormatter.format(property.durationSeconds)} Seconds`;
@@ -232,6 +233,67 @@ function renderItemDetails(card, summaryDescription) {
       list.append(term, value);
     });
     fragment.append(list);
+  }
+
+  if (Array.isArray(card.skillBonuses) && card.skillBonuses.length > 0) {
+    addSectionHeading(fragment, "Skill Bonuses");
+    const bonuses = document.createElement("ul");
+    bonuses.className = "item-card__list";
+    card.skillBonuses.forEach((bonus) => {
+      const entry = document.createElement("li");
+      entry.textContent = `+${numberFormatter.format(bonus.ranks)} to ${bonus.name}`;
+      bonuses.append(entry);
+    });
+    fragment.append(bonuses);
+  }
+
+  if (Array.isArray(card.grantedSkills) && card.grantedSkills.length > 0) {
+    addSectionHeading(fragment, "Granted Skills");
+    const skills = document.createElement("div");
+    skills.className = "item-card__skills";
+    card.grantedSkills.forEach((skill) => {
+      const block = document.createElement("section");
+      block.className = "item-card__skill";
+
+      const name = document.createElement("p");
+      name.className = "item-card__skill-name";
+      name.textContent = skill.trigger
+        ? `${skill.name} ${skill.trigger}`
+        : skill.name;
+      block.append(name);
+
+      if (skill.description) {
+        const description = document.createElement("p");
+        description.className = "item-card__skill-description";
+        description.textContent = skill.description;
+        block.append(description);
+      }
+
+      const lines = [];
+      if (Number.isFinite(skill.rechargeSeconds)) {
+        lines.push(`${numberFormatter.format(skill.rechargeSeconds)} Second Skill Recharge`);
+      }
+      if (Number.isFinite(skill.durationSeconds)) {
+        lines.push(`${numberFormatter.format(skill.durationSeconds)} Second Duration`);
+      }
+      if (Array.isArray(skill.properties)) {
+        skill.properties.forEach((property) => {
+          lines.push(`${propertyValue(property)} ${propertyLabel(property)}`);
+        });
+      }
+      if (lines.length > 0) {
+        const effects = document.createElement("ul");
+        effects.className = "item-card__list item-card__skill-effects";
+        lines.forEach((line) => {
+          const effect = document.createElement("li");
+          effect.textContent = line;
+          effects.append(effect);
+        });
+        block.append(effects);
+      }
+      skills.append(block);
+    });
+    fragment.append(skills);
   }
 
   if (Array.isArray(card.conversions) && card.conversions.length > 0) {
