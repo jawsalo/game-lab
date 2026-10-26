@@ -8,9 +8,11 @@
 
 The phone-approved PR-to-VPS path is live and has completed production deployments. The **“Only show highest-level version”** catalog option was verified for Monster Infrequents and Legendaries. Grafana metrics, Loki logs, Tempo traces, and SQLite span correlation are also verified end to end.
 
-The latest application change is PR #21, merged as `391688b`. It adds GrimTools-style stat ranges and fixes several Black Matriarch labels, including its combined poison damage-over-time line. Check the GitHub **Verify production deployment** run and the live item card before treating this merge as verified in production.
+PR #21 merged as `391688b`, and its mobile item-card changes are now confirmed live: the production API reports `391688b`, the `it9040` card endpoint contains the expected roll ranges and 5-second poison damage, and the web asset has the updated display labels. The live-site check confirmed the merge is deployed.
 
-The current card gap is the four +2 skill bonuses and granted skill. Their canonical names are known from the baseline, but the catalog lacks source-backed skill/localization/controller lookups. Resume with those lookups; after the Black Matriarch baseline is complete, return to the Phase 2 snapshot upload/ownership contract before starting PostgreSQL implementation.
+Mobile item-card work also includes PR #17’s Mythical naming fix, PR #18’s duplicate-description fix, and PRs #19–20’s stat/resistance label translations. The user verified these mobile changes as they landed. The four canonical cards remain the regression set.
+
+The current card gap is the four +2 skill bonuses and granted skill. Their names are given by the canonical baseline, but the catalog lacks source-backed skill/localization/controller lookups. Resume with reusable source lookups; after the Black Matriarch baseline is complete, return to the Phase 2 snapshot upload/ownership contract before starting PostgreSQL implementation.
 
 ## Verified
 
@@ -40,14 +42,15 @@ The current card gap is the four +2 skill bonuses and granted skill. Their canon
 - Tempo returned a `GET /api/grim-dawn/items` trace with six spans: the HTTP request, two HTTP send spans, one SQLite `PRAGMA`, and two SQLite `SELECT` spans. The SQLite spans appear under the same request trace, confirming correlation.
 - Metrics, logs, traces, and database-span correlation are verified end to end.
 
-## Latest item-card progress — October 26, 2026
+## Mobile item-card progress — October 26, 2026
 
-- PR #21 merged as `391688b` (`Show GrimTools stat ranges on item cards`).
-- The API calculates minimum and maximum rolls for variable equipment properties and includes `retaliation…` stats. Web labels now map the Black Matriarch’s familiar stats to Cunning, Health, Vitality Resistance, Pierce Resistance, and Acid Retaliation.
-- Its source `offensiveSlowPoisonMin` and duration fields render together as `70/95 Poison Damage over 5 Seconds`.
-- The five item-card unit tests and the Validate plus Build application images workflows passed before merge.
-- Still missing from the rendered card: `+2 Cadence`, `+2 Curse of Frailty`, `+2 Nidalla’s Hidden Hand`, `+2 Righteous Fervor`, and the granted skill **Venom of the Black Matriarch** with its effect. These need reusable source data, not item-specific hard-coded names.
-- The four canonical baseline cards remain the acceptance set: [ITEM-CARD-BASELINE.md](ITEM-CARD-BASELINE.md). For this chunk, compare the Black Matriarch against its GrimTools reference after confirming the production deployment.
+- PR #17 fixed Mythical-tier item names; the user confirmed this still works with the highest-level filter.
+- PR #18 removed duplicate flavor text from expanded details; the user confirmed the fix.
+- PRs #19–20 translated character-stat and resistance labels. The user verified Cunning, Physique/Spirit, and resistance names on mobile.
+- PR #21 (`391688b`) added GrimTools-style roll ranges, Acid Retaliation, and the combined `70/95 Poison Damage over 5 Seconds` line. The live API reports `391688b`, and its item-card response plus web app asset contain the updated behavior.
+- The five item-card unit tests, Validate workflow, and Build application images workflow passed before merge.
+- Remaining Black Matriarch card gap: `+2 Cadence`, `+2 Curse of Frailty`, `+2 Nidalla’s Hidden Hand`, `+2 Righteous Fervor`, and granted skill **Venom of the Black Matriarch** with its effect. Resolve these from reusable catalog/source lookup data.
+- The four canonical baseline cards remain the acceptance set: [ITEM-CARD-BASELINE.md](ITEM-CARD-BASELINE.md). Once the skill data is available, compare all four against their references.
 
 ## Grafana access
 
@@ -68,8 +71,8 @@ If the browser cannot connect, make sure both commands are still running. The Ku
 
 ## Next-session restart point
 
-1. Check the merge commit’s **Verify production deployment** result, then compare the live Black Matriarch card with its canonical GrimTools reference.
-2. Add source-backed skill/localization/controller lookup data and render the four skill bonuses plus granted-skill effect; keep the four canonical cards as regressions.
+1. The live deployment for PR #21 is confirmed (`391688b`). Optionally compare the mobile card visually with the canonical Black Matriarch reference.
+2. Add source-backed skill/localization/controller lookup data and render the four skill bonuses plus granted-skill effect; keep all four canonical cards as regressions.
 3. Once the card baseline is complete, define the personal character/stash snapshot upload and ownership contract.
 4. Review current VPS capacity and plan PostgreSQL persistence after the snapshot contract is agreed.
 5. Keep Datadog deferred until there is a meaningful workload and repeatable failure scenarios to compare; keep phone Grafana access deferred until after the Datadog trial.
@@ -78,6 +81,5 @@ If the browser cannot connect, make sure both commands are still running. The Ku
 
 - No PostgreSQL-backed personal inventory or snapshot import is implemented yet.
 - Black Matriarch skill bonuses and its granted-skill effect are not yet resolved on the card; source-backed lookup data is the next item-card chunk.
-- Production verification for PR #21 has not yet been recorded in this handoff.
 - Grafana remains private; access uses the documented VPS port-forward and Windows SSH tunnel.
 - Phone Grafana access remains deferred until after the Datadog trial.
