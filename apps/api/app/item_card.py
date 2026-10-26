@@ -54,8 +54,8 @@ ZERO_SCALE_PROPERTIES = {
 FIXED_SUFFIX_RE = re.compile(r"(ReqReduction|DurationMin|DurationMax|Chance|MaxResist|Global|XOR)$")
 
 SKILL_PROPERTY_PRIORITY = {
-    "defensivePhysical": 0,
-    "offensiveSlowPoisonMin": 1,
+    "offensiveSlowPoisonMin": 0,
+    "defensivePhysical": 1,
 }
 SKILL_PROPERTY_LABELS = {
     "defensivePhysical": "Physical Resistance",
