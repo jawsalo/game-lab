@@ -57,7 +57,11 @@ def _execute(
 def _display_name(name: str | None, record: dict[str, Any]) -> str | None:
     """Restore localized item-tier prefixes retained in the raw record."""
     style_tag = record.get("itemStyleTag")
-    prefix = ITEM_STYLE_NAME_PREFIXES.get(style_tag)
+    prefix = (
+        ITEM_STYLE_NAME_PREFIXES.get(style_tag)
+        if isinstance(style_tag, str)
+        else None
+    )
     if not name or not prefix or name.casefold().startswith(f"{prefix.casefold()} "):
         return name
     return f"{prefix} {name}"
