@@ -42,6 +42,51 @@ Alloy accepts OTLP/gRPC on port 4317 and OTLP/HTTP on port 4318 inside the clust
 
 The application export endpoint is deliberately not set by this stack deployment. After the stack is healthy, configure the API's OTLP endpoint as `alloy.observability.svc.cluster.local:4317` in the Game Lab Helm values and deploy the instrumented API image. That later app deployment is the point at which application telemetry begins flowing.
 
+## Game Lab dashboard
+
+The Grafana Helm values enable the dashboard sidecar. The deployment script
+creates a labeled ConfigMap from
+[`dashboards/game-lab-overview.json`](dashboards/game-lab-overview.json), and
+Grafana imports it into the **Game Lab** folder. The dashboard contains:
+
+- Request rate by API route, using the verified
+  `http_server_duration_milliseconds_count` metric.
+- 95th percentile API response time, using the corresponding histogram buckets.
+- Percentage of API requests returning HTTP 5xx.
+
+After this change is merged, update the repository checkout on the VPS and run
+`bash scripts/deploy-observability.sh`. The script repeats the capacity check
+and confirmation before touching the cluster. Enter the existing Grafana admin
+password when prompted. This upgrades the observability Helm releases and
+applies the dashboard ConfigMap; it does not deploy the application.
+
+In Grafana, open **Dashboards → Game Lab → Game Lab Overview**. Set the time
+range to **Last 1 hour** and make a few requests to the Game Lab site. The
+dashboard refreshes every 30 seconds. A quiet app can show little or no request
+traffic; allow one scrape interval after making requests. The 5xx panel stays
+at zero when no errors have been recorded.
+
+## Verify logs and traces
+
+In Grafana **Explore**, choose **Loki** and run:
+
+```logql
+{namespace="game-lab", container="api"}
+```
+
+This searches API container output collected from Kubernetes pod logs. If it is
+empty, make a few API requests and retry after several seconds. Confirm Alloy
+is running and check its logs if new pod output still does not arrive.
+
+Then choose **Tempo**, open its **Search** view, and filter for service
+`game-lab-api`. Make a request to the API first if the search has no recent
+results. Open a trace to inspect its request span and, where present, nested
+SQLite spans. Metrics, logs, and traces are separate signals at this stage;
+this check confirms that each is arriving, not yet that log lines are linked to
+traces.
+
+Keep Grafana private. Do not add public ingress as part of dashboard setup.
+
 ## Verify
 
 ```sh
