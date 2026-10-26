@@ -69,6 +69,7 @@ class ItemProperty(BaseModel):
     minimum: int | float | None = Field(default=None, alias="minValue")
     maximum: int | float | None = Field(default=None, alias="maxValue")
     duration_seconds: int | float | None = Field(default=None, alias="durationSeconds")
+    label: str | None = None
 
 
 class ItemConversion(BaseModel):
@@ -95,6 +96,24 @@ class ItemRecipe(BaseModel):
     ingredients: list[RecipeIngredient]
 
 
+class ItemSkillBonus(BaseModel):
+    """A localized bonus to an existing character skill."""
+
+    name: str
+    ranks: int
+
+
+class GrantedSkill(BaseModel):
+    """A skill granted by an item, including its trigger and effects."""
+
+    name: str
+    trigger: str | None = None
+    description: str | None = None
+    recharge_seconds: int | float | None = Field(default=None, alias="rechargeSeconds")
+    duration_seconds: int | float | None = Field(default=None, alias="durationSeconds")
+    properties: list[ItemProperty] = Field(default_factory=list)
+
+
 class ItemCard(BaseModel):
     """Stable API representation for displaying a catalog item."""
 
@@ -110,6 +129,8 @@ class ItemCard(BaseModel):
     description: list[DescriptionSegment] | None = None
     expansions: list[str] = Field(default_factory=list)
     properties: list[ItemProperty] = Field(default_factory=list)
+    skill_bonuses: list[ItemSkillBonus] = Field(default_factory=list, alias="skillBonuses")
+    granted_skills: list[GrantedSkill] = Field(default_factory=list, alias="grantedSkills")
     conversions: list[ItemConversion] = Field(default_factory=list)
     recipe: ItemRecipe | None = None
 
@@ -267,11 +288,115 @@ def _recipe(record: dict[str, Any]) -> ItemRecipe | None:
     )
 
 
-def build_item_card(item: dict[str, Any]) -> ItemCard:
+def _skill_bonuses(data: dict[str, Any]) -> list[ItemSkillBonus]:
+    bonuses: list[ItemSkillBonus] = []
+    for entry in data.get("skillBonuses", []):
+        name = entry.get("name")
+        ranks = entry.get("ranks")
+        if (
+            isinstance(name, str)
+            and name
+            and isinstance(ranks, int)
+            and not isinstance(ranks, bool)
+        ):
+            bonuses.append(ItemSkillBonus(name=name, ranks=ranks))
+    return bonuses
+
+
+def _skill_effect_properties(granted_skill: dict[str, Any]) -> list[ItemProperty]:
+    raw_properties = granted_skill.get("properties")
+    if not isinstance(raw_properties, dict):
+        return []
+
+    level = granted_skill.get("level")
+    result: list[ItemProperty] = []
+    for key, raw_value in sorted(
+        raw_properties.items(),
+        key=lambda pair: (SKILL_PROPERTY_PRIORITY.get(pair[0], 100), pair[0]),
+    ):
+        if key in {"skillCooldownTime", "skillActiveDuration", "skillMaxLevel"}:
+            continue
+        value = raw_value
+        if isinstance(value, list):
+            if not isinstance(level, int) or isinstance(level, bool) or level < 1:
+                continue
+            if not value:
+                continue
+            value = value[min(level - 1, len(value) - 1)]
+        if (
+            not isinstance(value, (int, float))
+            or isinstance(value, bool)
+        ):
+            continue
+        result.append(
+            ItemProperty(
+                key=key,
+                value=value,
+                label=SKILL_PROPERTY_LABELS.get(key),
+            )
+        )
+    return result
+
+
+def _granted_skills(data: dict[str, Any]) -> list[GrantedSkill]:
+    result: list[GrantedSkill] = []
+    for entry in data.get("grantedSkills", []):
+        name = entry.get("name")
+        if not isinstance(name, str) or not name:
+            continue
+
+        trigger = entry.get("triggerText")
+        chance = entry.get("chanceToRun")
+        if isinstance(trigger, str) and isinstance(chance, (int, float)):
+            formatted_chance = f"{chance:g}" if isinstance(chance, float) else str(chance)
+            trigger = trigger.replace("{%d0}", formatted_chance).replace(
+                "%d0", formatted_chance
+            ).strip()
+        else:
+            trigger = None
+
+        properties = entry.get("properties")
+        recharge = (
+            properties.get("skillCooldownTime")
+            if isinstance(properties, dict)
+            else None
+        )
+        duration = (
+            properties.get("skillActiveDuration")
+            if isinstance(properties, dict)
+            else None
+        )
+        if not isinstance(recharge, (int, float)) or isinstance(recharge, bool):
+            recharge = None
+        if not isinstance(duration, (int, float)) or isinstance(duration, bool):
+            duration = None
+
+        description = entry.get("description")
+        result.append(
+            GrantedSkill(
+                name=name,
+                trigger=trigger,
+                description=description if isinstance(description, str) else None,
+                rechargeSeconds=recharge,
+                durationSeconds=duration,
+                properties=_skill_effect_properties(entry),
+            )
+        )
+    return result
+
+
+def build_item_card(\n    item: dict[str, Any],\n    resolved_skill_data: dict[str, Any] | None = None,\n) -> ItemCard:
     """Map a catalog item to a display contract without exposing raw record data."""
     record = item.get("record")
     if not isinstance(record, dict):
         record = {}
+
+    if resolved_skill_data is None:
+        from .skill_data import skill_data_for_item
+
+        resolved_skill_data = skill_data_for_item(item["id"])
+    if not isinstance(resolved_skill_data, dict):
+        resolved_skill_data = {}
 
     return ItemCard(
         id=item["id"],
@@ -286,6 +411,8 @@ def build_item_card(item: dict[str, Any]) -> ItemCard:
         description=_description_segments(item.get("description")),
         expansions=item.get("mods") or [],
         properties=_numeric_properties(record, item.get("group")),
+        skillBonuses=_skill_bonuses(resolved_skill_data),
+        grantedSkills=_granted_skills(resolved_skill_data),
         conversions=_conversion(record),
         recipe=_recipe(record),
     )
