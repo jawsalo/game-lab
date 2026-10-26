@@ -17,6 +17,15 @@ resources:
   limits:
     cpu: 500m
     memory: 512Mi
+sidecar:
+  dashboards:
+    enabled: true
+    label: grafana_dashboard
+    labelValue: "1"
+    searchNamespace: observability
+    provider:
+      folder: Game Lab
+      allowUiUpdates: false
 datasources:
   datasources.yaml:
     apiVersion: 1

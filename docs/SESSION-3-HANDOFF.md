@@ -1,6 +1,6 @@
 # Game Lab V9 — Session 3 Handoff
 
-**Updated:** October 25, 2026  
+**Updated:** October 26, 2026  
 **Repository:** `jawsalo/game-lab`  
 **Roadmap:** [ROADMAP-V9.md](ROADMAP-V9.md)
 
@@ -29,6 +29,25 @@ This is a clean stopping point. Tomorrow, resume with the beginner-friendly Graf
 - The user checked the live catalog and confirmed **“Only show highest-level version”** works for Monster Infrequents and Legendaries.
 - Use the ordinary PR review/merge path for future changes. Keep the timer enabled. Troubleshooting commands are in [PULL-DEPLOY.md](PULL-DEPLOY.md).
 
+
+## Session 4 progress — October 26, 2026
+
+- PR #15 adds a provisioned **Game Lab Overview** dashboard with API request
+  rate, p95 response time, and 5xx percentage. It enables the Grafana
+  dashboard sidecar, updates the observability deployment script to apply the
+  dashboard ConfigMap, and documents how to verify Loki and Tempo.
+- All four required PR checks passed. PR #15 is open for review; no cluster
+  changes have been made.
+- This PR does not change the Game Lab app image. After it is merged, the
+  observability stack needs an explicit VPS upgrade. Check node capacity, then
+  run `bash scripts/deploy-observability.sh` from the updated checkout and
+  confirm the script's `deploy` prompt. Enter the existing Grafana admin
+  password.
+- After the upgrade, inspect the dashboard, query Loki with
+  `{namespace="game-lab", container="api"}`, and search Tempo for service
+  `game-lab-api`. The dashboard and log/trace queries are not verified in
+  Grafana yet.
+- Keep Datadog and phone Grafana access deferred until after the Datadog trial.
 
 ## Grafana access
 
