@@ -66,6 +66,7 @@ SKILL_PROPERTY_PRIORITY = {
 }
 SKILL_PROPERTY_LABELS = {
     "defensivePhysical": "Physical Resistance",
+    "offensiveFireMin": "Fire Damage",
     "offensiveSlowPoisonMin": "Poison Damage per Second",
 }
 
@@ -227,6 +228,9 @@ def _numeric_properties(
             continue
 
         property_data: dict[str, Any] = {"key": key, "value": value}
+        label = PROPERTY_LABELS.get(key)
+        if label:
+            property_data["label"] = label
         is_variable = (
             is_equipment
             and key.startswith(VARIABLE_PROPERTY_PREFIXES)
@@ -361,7 +365,7 @@ def _skill_effect_properties(granted_skill: dict[str, Any]) -> list[ItemProperty
             ItemProperty(
                 key=key,
                 value=value,
-                label=SKILL_PROPERTY_LABELS.get(key),
+                label=PROPERTY_LABELS.get(key),
             )
         )
     return result
