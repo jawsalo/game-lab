@@ -112,6 +112,8 @@ class ItemCardTests(unittest.TestCase):
                     "defensivePierce": 33,
                     "offensiveLifeLeechMin": 2,
                     "offensivePhysicalModifier": 76,
+                    "offensiveSlowPoisonMin": 12,
+                    "offensiveSlowPoisonDurationMin": 5,
                     "retaliationPoisonMin": 440,
                 },
             }
@@ -128,6 +130,7 @@ class ItemCardTests(unittest.TestCase):
             "defensivePierce": (27, 39),
             "offensiveLifeLeechMin": (1, 3),
             "offensivePhysicalModifier": (85, 127),
+            "offensiveSlowPoisonMin": (70, 95),
             "retaliationPoisonMin": (352, 528),
         }
         for key, expected in expected_ranges.items():
@@ -137,6 +140,8 @@ class ItemCardTests(unittest.TestCase):
                     expected,
                 )
         self.assertNotIn("minValue", properties["defensiveLifeMaxResist"])
+        self.assertNotIn("offensiveSlowPoisonDurationMin", properties)
+        self.assertEqual(properties["offensiveSlowPoisonMin"]["durationSeconds"], 5)
 
     def test_recipe_includes_output_cost_and_alternative_ingredients(self) -> None:
         card = build_item_card(
