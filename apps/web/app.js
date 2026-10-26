@@ -188,7 +188,8 @@ function propertyValue(property) {
   const values = hasRange
     ? [property.minValue, property.maxValue]
     : [property.value];
-  const includePlus = property.key !== "offensiveLifeLeechMin"
+  const includePlus = property.key !== "offensiveFireMin"
+    && property.key !== "offensiveLifeLeechMin"
     && property.key !== "offensiveSlowPoisonMin"
     && !property.key.startsWith("retaliation")
     && !RESISTANCE_PROPERTY_KEYS.has(property.key);
