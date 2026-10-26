@@ -49,7 +49,7 @@ def validate_skill_lookup(manifest: dict[str, object], directory: Path) -> None:
     if len(contents) != expected_bytes:
         fail(f"{skill_path.relative_to(ROOT)}: skill lookup size mismatch")
     git_blob = hashlib.sha1(
-        f"blob {len(contents)}".encode("ascii") + b"\\0" + contents
+        f"blob {len(contents)}".encode("ascii") + b"\0" + contents
     ).hexdigest()
     if git_blob != expected_blob_sha:
         fail(f"{skill_path.relative_to(ROOT)}: skill lookup blob checksum mismatch")
