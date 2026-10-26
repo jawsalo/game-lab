@@ -1,6 +1,6 @@
 # Game Lab — V9 Roadmap
 
-**Status:** PHASE 2 IN PROGRESS; PHASE 3 COMPLETE; PHASE 4 STACK DEPLOYED / DASHBOARD AND LOG-TRACE VALIDATION PENDING; PHONE-APPROVED DEPLOYMENT VERIFIED — October 25, 2026  
+**Status:** PHASE 2 IN PROGRESS; PHASE 3 COMPLETE; PHASE 4 STACK DEPLOYED / DASHBOARD AND LOG-TRACE VALIDATION PENDING; PHONE-APPROVED DEPLOYMENT VERIFIED — October 26, 2026  
 **Supersedes:** V8  
 **Execution:** Continue with short, validated chunks from the current Phase 2 checkpoint.
 
@@ -75,7 +75,7 @@ Unify application, Kubernetes, GitHub and observability context for guided inves
 3. **Open-source stack is deployed:** Prometheus, Grafana, Loki, Tempo, and Alloy are running in the separate `observability` namespace. Grafana remains private.
 4. **API metrics are confirmed end to end:** requests to `/api`, `/api/grim-dawn/catalog`, and `/api/grim-dawn/items` appeared in Prometheus as `http_server_duration_milliseconds_count`, labeled with `job="game-lab-api"` and HTTP 200.
 5. **Alloy remote-write endpoint was corrected** to use the Prometheus Service port 80, and Alloy was upgraded/restarted. The Prometheus metric query confirms application metrics are arriving.
-6. **Grafana access is working** through a VPS Kubernetes port-forward plus an SSH tunnel. A readable Game Lab dashboard has not been built yet. Logs and traces still need an end-user verification pass.
+6. **Grafana access is working** through a VPS Kubernetes port-forward plus an SSH tunnel. PR #15 stages a provisioned Game Lab dashboard and documents Loki/Tempo checks; CI is green, but it is still awaiting review and has not been applied to the cluster. Logs and traces still need an end-user verification pass.
 7. **Phase 2 remains in progress:** personal character/stash snapshot contract, PostgreSQL persistence, ownership, parsing and duplicate detection remain.
 
 ## Progress — October 18, 2026
