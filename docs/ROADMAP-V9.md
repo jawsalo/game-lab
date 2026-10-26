@@ -1,6 +1,6 @@
 # Game Lab — V9 Roadmap
 
-**Status:** PHASE 2 IN PROGRESS; PHASE 3 COMPLETE; PHASE 4 COMPLETE — metrics, logs, traces, and database-span correlation verified; PHONE-APPROVED DEPLOYMENT VERIFIED — October 26, 2026  
+**Status:** PHASE 2 IN PROGRESS; PHASE 3 COMPLETE; PHASE 4 COMPLETE — metrics, logs, traces, and database-span correlation verified; PHONE-APPROVED DEPLOYMENT VERIFIED; ITEM-CARD TRANSLATION IN PROGRESS — October 26, 2026  
 **Supersedes:** V8  
 **Execution:** Continue with short, validated chunks from the current Phase 2 checkpoint.
 
@@ -76,7 +76,15 @@ Unify application, Kubernetes, GitHub and observability context for guided inves
 4. **API metrics are confirmed end to end:** requests to `/api`, `/api/grim-dawn/catalog`, and `/api/grim-dawn/items` appeared in Prometheus as `http_server_duration_milliseconds_count`, labeled with `job="game-lab-api"` and HTTP 200.
 5. **Alloy remote-write endpoint was corrected** to use the Prometheus Service port 80, and Alloy was upgraded/restarted. The Prometheus metric query confirms application metrics are arriving.
 6. **Grafana dashboard and all telemetry signals are verified end to end** (October 26, 2026). The provisioned Game Lab dashboard shows API request rate, p95 latency, and 5xx rate. Loki returns API pod logs. A Tempo trace for `GET /api/grim-dawn/items` contains its SQLite `PRAGMA` and `SELECT` child spans, confirming trace correlation.
-7. **Phase 2 remains in progress:** personal character/stash snapshot contract, PostgreSQL persistence, ownership, parsing and duplicate detection remain.
+7. **Phase 2 remains in progress:** personal character/stash snapshot contract, PostgreSQL persistence, ownership, parsing and duplicate detection remain. Small item-card fidelity fixes are the active work before returning to the larger snapshot feature.
+
+### Item-card translation checkpoint — October 26, 2026
+
+- PR #21 merged as `391688b` with GrimTools-style minimum/maximum rolls for variable equipment stats, corrected Black Matriarch labels, and Acid Retaliation.
+- The Black Matriarch poison source amount and duration are combined into `70/95 Poison Damage over 5 Seconds`.
+- API regression tests cover the baseline roll values; validation and both image-build workflows passed before merge.
+- **Live verification is still pending in this handoff.** After the VPS deployment workflow completes, check the Mythical Ring of the Black Matriarch card against the canonical baseline in [ITEM-CARD-BASELINE.md](ITEM-CARD-BASELINE.md).
+- Still unresolved on the card: the four +2 skill bonuses and the granted skill. The canonical baseline names them (Cadence, Curse of Frailty, Nidalla’s Hidden Hand, Righteous Fervor; Venom of the Black Matriarch), but the item catalog lacks the localization/skill/controller lookup data needed to resolve them generally. Next card chunk: add source-backed lookup data in the data pipeline and render these skill lines; do not hard-code a one-item translation.
 
 ### Open-source observability verification — October 26, 2026
 - Merged PR #15 and explicitly upgraded the observability Helm releases from the VPS. Grafana remains private.
@@ -119,7 +127,7 @@ Unify application, Kubernetes, GitHub and observability context for guided inves
 - Queried Prometheus and confirmed three successful requests each for `/api`, `/api/grim-dawn/catalog`, and `/api/grim-dawn/items`.
 
 ### Session 3 stopping point — October 21, 2026
-The OSS observability stack is deployed and the API-to-Alloy-to-Prometheus metrics path is verified. The user signed in to Grafana and intentionally stopped before dashboard building. See [Session 3 handoff](SESSION-3-HANDOFF.md) for access steps and next actions.
+The OSS observability stack and the API-to-Alloy-to-Prometheus metrics path are verified. The user has accessed Grafana and the provisioned dashboard, logs, traces, and SQLite span correlation are working. See [Session 3 handoff](SESSION-3-HANDOFF.md) for access steps and current next actions.
 
 ## Succession-readiness checkpoint — October 21, 2026
 
@@ -131,7 +139,7 @@ The OSS observability stack is deployed and the API-to-Alloy-to-Prometheus metri
 - Keep Grafana private; access it with the two-step port-forward and SSH tunnel documented in the session handoff.
 - The phone-approved PR-to-K3s deployment workflow is complete and verified. Preserve it as the default path for future production changes.
 - Open-source observability is complete for this checkpoint: dashboard, Loki logs, Tempo traces, and SQLite span correlation are verified.
-- Then return to Phase 2: define the personal snapshot upload/ownership contract, check current VPS capacity, and plan PostgreSQL persistence before changing production.
+- First verify PR #21 on the live Black Matriarch card, then implement the source-backed skill lookup needed to complete the canonical card. After that, return to Phase 2: define the personal snapshot upload/ownership contract, check current VPS capacity, and plan PostgreSQL persistence before changing production.
 - Do not activate Datadog prematurely; wait for a meaningful workload and repeatable failure scenarios.
 
 *Time estimates are rough hands-on sessions, not deadlines.*
