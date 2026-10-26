@@ -385,7 +385,10 @@ def _granted_skills(data: dict[str, Any]) -> list[GrantedSkill]:
     return result
 
 
-def build_item_card(\n    item: dict[str, Any],\n    resolved_skill_data: dict[str, Any] | None = None,\n) -> ItemCard:
+def build_item_card(
+    item: dict[str, Any],
+    resolved_skill_data: dict[str, Any] | None = None,
+) -> ItemCard:
     """Map a catalog item to a display contract without exposing raw record data."""
     record = item.get("record")
     if not isinstance(record, dict):
