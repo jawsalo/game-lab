@@ -20,11 +20,13 @@ const DESCRIPTION_STYLES = {
 const PROPERTY_LABELS = {
   characterAttackSpeedModifier: "Attack Speed",
   characterDefensiveAbility: "Defensive Ability",
+  characterDexterity: "Cunning",
   characterLife: "Health",
   characterLifeModifier: "Health",
   characterManaRegen: "Energy Regeneration",
   characterOffensiveAbility: "Offensive Ability",
   characterSpellCastSpeedModifier: "Cast Speed",
+  defensiveLife: "Health",
   defensiveProtection: "Armor",
   offensivePhysicalMin: "Physical Damage (minimum)",
   offensivePhysicalMax: "Physical Damage (maximum)",
