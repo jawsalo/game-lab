@@ -121,26 +121,26 @@ Top-level fields:
 - Levels/art: `levelRequirement`, `itemLevel`, `bitmap`
 - `description`: nullable array of `{text, style}` segments
 - `expansions`: expansion IDs copied from source `mods`
-- `properties`: array of `{key, value}` numeric gameplay properties
+- `properties`: array of numeric gameplay properties with the stable source key, source value, and calculated minimum/maximum when the equipment stat can roll
 - `conversions`: array of `{from, to, percentage}`
 - `recipe`: nullable crafting recipe object
 
 ### Properties
 
-The mapper includes numeric fields whose source key begins with `character`, `defensive`, `offensive`, or `skill`. It sorts them by key for deterministic responses. Booleans are excluded even though Python treats booleans as integers. The three conversion fields are excluded from properties because they are represented separately. Other source fields (levels, affix limits, rarity, bitmap, recipe fields, etc.) are not numeric gameplay properties and do not appear here.
+The mapper includes numeric fields whose source key begins with `character`, `defensive`, `offensive`, `retaliation`, or `skill`. It sorts them by key for deterministic responses. Booleans are excluded even though Python treats booleans as integers. The three conversion fields are excluded from properties because they are represented separately. Equipment properties include `minValue` and `maxValue` when the game rolls a range; fixed values omit those fields. For the Black Matriarch, the source `offensiveSlowPoisonMin` and `offensiveSlowPoisonDurationMin` are combined into one damage-over-time property with `durationSeconds`. Other source fields (levels, affix limits, rarity, bitmap, recipe fields, etc.) are not numeric gameplay properties and do not appear here.
 
-**Known omission:** the prefix rule also drops real gameplay stats that use other prefixes. Notably, `retaliation…` keys (e.g. `retaliationPoisonMin`) and granted skills (`augmentSkill…`, `itemSkill…`) are absent from cards. A catalog scan reported `retaliationPoisonMin` on 408 equipment records; rerun that count against the pinned artifact before treating it as current. A card is therefore not a complete stat list; use the full item endpoint (`record`) when completeness matters. Example: Ring of the Black Matriarch (`it9040`) was observed with poison retaliation and four +2 skill bonuses in its record that do not appear on its card; verify the current record before relying on the exact values.
+**Known omission:** granted-skill bonuses and granted skills (`augmentSkill…`, `itemSkill…`) are absent from cards because their names and effects require localization and skill/controller lookup data that is not in the item table. A card is therefore not yet a complete stat list; use the full item endpoint (`record`) when completeness matters. Example: Ring of the Black Matriarch (`it9040`) has four +2 skill bonuses and a granted skill that remain unresolved until the catalog includes those lookup tables.
 
 Example:
 
 ```json
 "properties": [
-  {"key": "characterLife", "value": 300},
-  {"key": "defensiveAether", "value": 25}
+  {"key": "characterLife", "value": 300, "minValue": 240, "maxValue": 360},
+  {"key": "defensiveAether", "value": 25, "minValue": 20, "maxValue": 30}
 ]
 ```
 
-These keys are intentionally not renamed to presentation labels. A future UI label/dictionary layer can translate them without losing the source key.
+The API retains stable source keys while the web UI translates them to player-facing labels. Range fields let the UI show the variable roll interval without replacing the original source value.
 
 ### Conversions
 
