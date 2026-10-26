@@ -323,7 +323,12 @@ def _skill_effect_properties(granted_skill: dict[str, Any]) -> list[ItemProperty
         raw_properties.items(),
         key=lambda pair: (SKILL_PROPERTY_PRIORITY.get(pair[0], 100), pair[0]),
     ):
-        if key in {"skillCooldownTime", "skillActiveDuration", "skillMaxLevel"}:
+        if key in {
+            "offensiveSlowPoisonDurationMin",
+            "skillCooldownTime",
+            "skillActiveDuration",
+            "skillMaxLevel",
+        }:
             continue
         value = raw_value
         if isinstance(value, list):
