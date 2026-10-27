@@ -36,6 +36,14 @@ Before accepting real uploads, select a parser with a clear license and verify i
 - Do not log file contents, item-instance payloads, account secrets, or uploaded filenames containing personal paths.
 - Keep private snapshot records out of the shared catalog and its readiness/search endpoints.
 
+## Parser spike findings (October 27, 2026)
+
+A read-only inspection of the owner's Grim Dawn 1.3.1.1 character and shared-stash files with gd-edit confirmed that the parser can open these files and expose item instances, locations, stack counts, item names, and source DBR paths. Item instances also expose separate affix, component, augment, and seed fields when present. The source files were not modified or added to this repository.
+
+The inspected game build is 1.3.1.1. Crate's [official 1.3.1.0 + Hotfixes notes](https://forums.crateentertainment.com/t/grim-dawn-version-1-3-1-0-hotfixes/160806) describe 1.3.1.1 as a crash fix for players without Fangs of Asterkarn. The pinned catalog is 1.3.1.0 and contains the 1.3.1 item data; use it for this hotfix build, while retaining the exact game build reported by the parser in snapshot metadata.
+
+The parser's item basename is a game DBR path (for example, records/items/.../*.dbr). The catalog identifies records with GrimTools IDs such as it11751 and preserves the compact item record, but its current schema does not expose the DBR path. Therefore parsing is demonstrated, while reliable catalog identity resolution is not. Do not use a name-only match as a confirmed identity. The next mapping gate is a versioned, generated DBR-path-to-catalog-ID crosswalk with uniqueness checks and fixtures from the parser; ambiguous or absent paths remain unresolved. Never commit the owner's save files or item inventory output as fixtures.
+
 ## Snapshot and identity semantics
 
 - One user-confirmed import represents a point-in-time snapshot of the selected character and/or stash files.
