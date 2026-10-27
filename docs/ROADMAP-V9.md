@@ -9,7 +9,7 @@ Build a genuinely useful application on our existing K3s VPS, instrument it with
 
 ## Current priority sequence
 
-The app foundation and open-source observability stack are working. Item-card fidelity is now complete for this checkpoint. Next, define the personal character/stash snapshot contract, then implement a small read-only import slice with persistence. Once the app can produce meaningful, repeatable traffic, exercise it with controlled failure scenarios and compare the same investigations in Datadog. Keep Datadog deferred until that workload is ready. Phone-first controlled MCP operations remain a later, separately scoped track.
+The app foundation and open-source observability stack are working. Item-card fidelity is complete for this checkpoint. The first snapshot input is Grim Dawn character and stash save files; the import contract and implementation gates are in [SNAPSHOT-IMPORT-CONTRACT.md](SNAPSHOT-IMPORT-CONTRACT.md). Verify a maintained, licensed parser against 1.3.1.0 fixtures and design owner authentication before accepting uploads. Then check live VPS capacity and implement bounded, temporary upload, read-only preview, and PostgreSQL persistence. Once the app can produce meaningful, repeatable traffic, exercise it with controlled failure scenarios and compare the same investigations in Datadog. Keep Datadog deferred until that workload is ready. Phone-first controlled MCP operations remain a later, separately scoped track.
 
 ## Existing foundation (previously verified; recheck before work)
 - Ubuntu 24.04 VPS, single-node K3s v1.36.3+k3s1.
@@ -80,7 +80,7 @@ Unify application, Kubernetes, GitHub and observability context for guided inves
 4. **API metrics are confirmed end to end:** requests to `/api`, `/api/grim-dawn/catalog`, and `/api/grim-dawn/items` appeared in Prometheus as `http_server_duration_milliseconds_count`, labeled with `job="game-lab-api"` and HTTP 200.
 5. **Alloy remote-write endpoint was corrected** to use the Prometheus Service port 80, and Alloy was upgraded/restarted. The Prometheus metric query confirms application metrics are arriving.
 6. **Grafana dashboard and all telemetry signals are verified end to end** (October 26, 2026). The provisioned Game Lab dashboard shows API request rate, p95 latency, and 5xx rate. Loki returns API pod logs. A Tempo trace for `GET /api/grim-dawn/items` contains its SQLite `PRAGMA` and `SELECT` child spans, confirming trace correlation.
-7. **Phase 2 remains in progress:** personal character/stash snapshot contract, PostgreSQL persistence, ownership, parsing and duplicate detection remain. Item-card fidelity is complete for now; snapshot design is the next feature.
+7. **Phase 2 remains in progress:** the user selected Grim Dawn character/stash save files as the snapshot input. The proposed contract and compatibility/security gates are in [SNAPSHOT-IMPORT-CONTRACT.md](SNAPSHOT-IMPORT-CONTRACT.md). Parser validation, owner authentication, PostgreSQL persistence, ownership and duplicate detection remain. Item-card fidelity is complete for now.
 
 ### Mobile item-card checkpoint — October 26, 2026
 
@@ -150,7 +150,7 @@ The OSS observability stack and the API-to-Alloy-to-Prometheus metrics path are 
 - The phone-approved PR-to-K3s deployment workflow is complete and verified. Preserve it as the default path for future production changes.
 - Open-source observability is complete for this checkpoint: dashboard, Loki logs, Tempo traces, and SQLite span correlation are verified.
 - Item-card work is complete for this checkpoint: PRs #23–25 are merged and the relevant production behavior is verified. The user is happy with the cards.
-- Next: define the personal snapshot upload/ownership contract; then check current VPS capacity and plan PostgreSQL persistence before changing production.
+- Next: implement the save-file snapshot contract in [SNAPSHOT-IMPORT-CONTRACT.md](SNAPSHOT-IMPORT-CONTRACT.md): verify parser compatibility with Grim Dawn 1.3.1.0 fixtures, design owner authentication and upload limits, check current VPS capacity, then build preview and PostgreSQL persistence.
 - After a useful snapshot workload exists, add repeatable traffic and failure scenarios, then start the Datadog comparison. Keep Datadog deferred until those scenarios are ready.
 - Do not activate Datadog prematurely; wait for a meaningful workload and repeatable failure scenarios.
 
