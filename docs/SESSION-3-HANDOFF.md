@@ -12,7 +12,7 @@ Item-card fidelity is complete for this checkpoint. PR #23 added source-backed s
 
 The user verified the updated cards on the live site and is happy with them. Production API version is `d581b26`. Keep the four cards in [ITEM-CARD-BASELINE.md](ITEM-CARD-BASELINE.md) as the regression set; the card milestone is done for now.
 
-The next feature is personal character/stash snapshot upload. Define the upload, ownership, privacy, and snapshot-version contract before implementing persistence.
+The next feature is personal character/stash snapshot upload. The user selected native Grim Dawn character/stash save files as the input. The detailed upload, privacy, ownership, and history contract is in [SNAPSHOT-IMPORT-CONTRACT.md](SNAPSHOT-IMPORT-CONTRACT.md).
 
 ## Verified
 
@@ -53,9 +53,10 @@ The next feature is personal character/stash snapshot upload. Define the upload,
 
 ## Next feature — personal snapshots
 
-1. Define the snapshot upload and ownership contract: accepted export, identity, privacy, version/history behavior, and separation from shared catalog data.
-2. Check current VPS capacity and plan PostgreSQL persistence before changing production.
-3. Implement a small read-only upload/parse/preview slice, then expand to owned-item lookup, duplicates, and roll comparisons.
+1. Verify a maintained, licensed save-file parser against 1.3.1.0 character and stash fixtures; reject unsupported versions rather than guessing.
+2. Design single-owner authentication and bounded temporary upload handling before exposing private snapshot endpoints.
+3. Check current VPS capacity and plan PostgreSQL persistence; keep the shared catalog in immutable SQLite.
+4. Implement read-only parse/preview and explicit snapshot confirmation, then expand to owned-item lookup, duplicates, and roll comparisons.
 4. Use the resulting workload for repeatable traffic and failure exercises; defer the Datadog trial until those are ready.
 5. Keep controlled MCP operations as a later, separately scoped track.
 
@@ -79,10 +80,8 @@ If the browser cannot connect, make sure both commands are still running. The Ku
 ## Next-session restart point
 
 1. Item-card fidelity is complete for this checkpoint; the user is happy with the live cards. PR #23–25 are merged, with production at `d581b26`.
-2. Define the personal character/stash snapshot upload and ownership contract.
-3. Review current VPS capacity and plan PostgreSQL persistence after the contract is agreed.
-4. Implement a small read-only upload/parse/preview slice before expanding inventory features.
-5. Use the resulting workload for repeatable traffic and failure scenarios, then compare Datadog with the open-source stack. Keep phone Grafana access deferred until after the Datadog trial.
+2. Follow [SNAPSHOT-IMPORT-CONTRACT.md](SNAPSHOT-IMPORT-CONTRACT.md): verify parser compatibility with 1.3.1.0 fixtures, add owner authentication and bounded uploads, check VPS capacity, then implement read-only preview and PostgreSQL persistence.
+3. Use the resulting workload for repeatable traffic and failure scenarios, then compare Datadog with the open-source stack. Keep phone Grafana access deferred until after the Datadog trial.
 
 ## Current caveats
 
