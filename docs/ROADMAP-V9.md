@@ -9,7 +9,7 @@ Build a genuinely useful application on our existing K3s VPS, instrument it with
 
 ## Current priority sequence
 
-The app foundation and open-source observability stack are working. Item-card fidelity is complete for this checkpoint. The first snapshot input is Grim Dawn character and stash save files; the import contract and implementation gates are in [SNAPSHOT-IMPORT-CONTRACT.md](SNAPSHOT-IMPORT-CONTRACT.md). Verify a maintained, licensed parser against 1.3.1.0 fixtures and design owner authentication before accepting uploads. Then check live VPS capacity and implement bounded, temporary upload, read-only preview, and PostgreSQL persistence. Once the app can produce meaningful, repeatable traffic, exercise it with controlled failure scenarios and compare the same investigations in Datadog. Keep Datadog deferred until that workload is ready. Phone-first controlled MCP operations remain a later, separately scoped track.
+The app foundation and open-source observability stack are working. Item-card fidelity is complete for this checkpoint. The first snapshot input is Grim Dawn character and stash save files; the import contract and current crosswalk checkpoint are in [SNAPSHOT-IMPORT-CONTRACT.md](SNAPSHOT-IMPORT-CONTRACT.md), with the hands-on restart steps in [SESSION-4-HANDOFF.md](SESSION-4-HANDOFF.md). Verify a maintained, licensed parser against 1.3.1.0 fixtures and design owner authentication before accepting uploads. Then check live VPS capacity and implement bounded, temporary upload, read-only preview, and PostgreSQL persistence. Once the app can produce meaningful, repeatable traffic, exercise it with controlled failure scenarios and compare the same investigations in Datadog. Keep Datadog deferred until that workload is ready. Phone-first controlled MCP operations remain a later, separately scoped track.
 
 ## Existing foundation (previously verified; recheck before work)
 - Ubuntu 24.04 VPS, single-node K3s v1.36.3+k3s1.
@@ -150,7 +150,7 @@ The OSS observability stack and the API-to-Alloy-to-Prometheus metrics path are 
 - The phone-approved PR-to-K3s deployment workflow is complete and verified. Preserve it as the default path for future production changes.
 - Open-source observability is complete for this checkpoint: dashboard, Loki logs, Tempo traces, and SQLite span correlation are verified.
 - Item-card work is complete for this checkpoint: PRs #23–25 are merged and the relevant production behavior is verified. The user is happy with the cards.
-- Next: implement the save-file snapshot contract in [SNAPSHOT-IMPORT-CONTRACT.md](SNAPSHOT-IMPORT-CONTRACT.md): verify parser compatibility with Grim Dawn 1.3.1.0 fixtures, design owner authentication and upload limits, check current VPS capacity, then build preview and PostgreSQL persistence.
+- Next: resume the DBR-path-to-catalog-ID crosswalk investigation using [SESSION-4-HANDOFF.md](SESSION-4-HANDOFF.md). The live catalog/API and parser findings are recorded in [SNAPSHOT-IMPORT-CONTRACT.md](SNAPSHOT-IMPORT-CONTRACT.md). After identity resolution, continue parser compatibility, owner authentication and upload limits, capacity review, preview, and PostgreSQL persistence.
 - After a useful snapshot workload exists, add repeatable traffic and failure scenarios, then start the Datadog comparison. Keep Datadog deferred until those scenarios are ready.
 - Do not activate Datadog prematurely; wait for a meaningful workload and repeatable failure scenarios.
 
