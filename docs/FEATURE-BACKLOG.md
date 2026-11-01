@@ -10,7 +10,13 @@ This backlog captures feature requests as the user provides their requirements. 
 
 ## Feature requests
 
-No new feature requests have been entered yet. Add them here when the user provides requirements.
+### 1. Split the catalog filter into Rarity and Slot
+
+- **Device:** Mobile-friendly
+- **Status:** Proposed
+- **Problem and desired behavior:** Replace the current combined group dropdown with separate **Rarity** and **Slot** dropdowns, so a user can combine them—for example, select **Rare** and **1H Ranged** to see only items matching both.
+- **Acceptance criteria:** The catalog presents separate rarity and slot selectors; selecting both narrows results to items matching both selected values.
+- **Dependencies or notes:** Keep the existing catalog group behavior in mind when defining the filter options and API parameters. The example uses the user's wording “1h range”; map it to the catalog's actual slot/category value during implementation.
 
 ### Request template
 
