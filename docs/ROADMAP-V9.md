@@ -7,6 +7,10 @@
 ## Mission
 Build a genuinely useful application on our existing K3s VPS, instrument it with vendor-neutral OpenTelemetry, run an open-source observability stack, introduce controlled MCP operations, then evaluate Datadog using real workloads and reproducible failures. Keep the system small, teachable, and portfolio-worthy.
 
+## Feature backlog
+
+User-requested features are tracked with mobile, PC, or mixed effort labels in [FEATURE-BACKLOG.md](FEATURE-BACKLOG.md). Add feature requirements as the user provides them; the backlog also carries forward the paused, PC-required DBR crosswalk investigation.
+
 ## Current priority sequence
 
 The app foundation and open-source observability stack are working. Item-card fidelity is complete for this checkpoint. The first snapshot input is Grim Dawn character and stash save files; the import contract and current crosswalk checkpoint are in [SNAPSHOT-IMPORT-CONTRACT.md](SNAPSHOT-IMPORT-CONTRACT.md), with the hands-on restart steps in [SESSION-4-HANDOFF.md](SESSION-4-HANDOFF.md). Verify a maintained, licensed parser against 1.3.1.0 fixtures and design owner authentication before accepting uploads. Then check live VPS capacity and implement bounded, temporary upload, read-only preview, and PostgreSQL persistence. Once the app can produce meaningful, repeatable traffic, exercise it with controlled failure scenarios and compare the same investigations in Datadog. Keep Datadog deferred until that workload is ready. Phone-first controlled MCP operations remain a later, separately scoped track.
