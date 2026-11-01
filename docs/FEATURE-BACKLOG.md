@@ -10,7 +10,29 @@ This backlog captures feature requests as the user provides their requirements. 
 
 ## Feature requests
 
-No new feature requests have been entered yet. Add them here when the user provides requirements.
+### 1. Add independent Equipment and Slot filters
+
+- **Device:** Mobile-friendly
+- **Status:** Proposed
+- **Problem and desired behavior:** The catalog already has a **Rarity** filter. The **Equipment** option currently lives in the **Groups** dropdown; make Equipment its own filter and add a **Slot** filter. Keep the existing Rarity filter.
+- **Acceptance criteria:** Users can combine Equipment, Rarity, and Slot filters. For example, selecting **Equipment**, **Rare**, and **1H Ranged** shows only equipment matching all three selections.
+- **Dependencies or notes:** Keep non-equipment groups available through the Groups filter. Map the user's wording “1h range” to the catalog's actual slot/category value during implementation.
+
+### 2. Add creator attribution and non-affiliation notice to the site footer
+
+- **Device:** Mobile-friendly
+- **Status:** Proposed
+- **Problem and desired behavior:** Add a concise signature at the bottom of the site so it is clear the project is the user's work when shared with potential employers, and clarify that the project is independent of the game's publisher.
+- **Acceptance criteria:** The footer identifies the creator as **John Salo**, includes a copyright mark and automatically current year, states that the site is **not affiliated with Crate Entertainment**, and remains readable on mobile.
+- **Dependencies or notes:** Suggested wording: “Built by John Salo · © [current year] · Not affiliated with Crate Entertainment.” Keep it factual and professional; no contact details are requested.
+
+### 3. Filter equipment by item stat
+
+- **Device:** PC-required (tentative; reassess when scoped)
+- **Status:** Proposed; deferred for later
+- **Problem and desired behavior:** Add a filter based on an item's stat, so a user can search for a slot or type of item and a stat together—for example, gloves with Vitality Damage—and see only applicable items.
+- **Acceptance criteria:** A user can combine an item type or slot (such as **Gloves**) with a stat (such as **Vitality Damage**) and get only matching catalog items.
+- **Dependencies or notes:** Build on the separate Equipment and Slot filters. Determine how stat names and values are indexed across item details before implementation; reassess whether the work truly needs a PC when planned.
 
 ### Request template
 
