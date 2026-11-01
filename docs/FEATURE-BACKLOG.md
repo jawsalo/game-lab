@@ -10,13 +10,13 @@ This backlog captures feature requests as the user provides their requirements. 
 
 ## Feature requests
 
-### 1. Split the catalog filter into Rarity and Slot
+### 1. Add independent Equipment and Slot filters
 
 - **Device:** Mobile-friendly
 - **Status:** Proposed
-- **Problem and desired behavior:** Replace the current combined group dropdown with separate **Rarity** and **Slot** dropdowns, so a user can combine them—for example, select **Rare** and **1H Ranged** to see only items matching both.
-- **Acceptance criteria:** The catalog presents separate rarity and slot selectors; selecting both narrows results to items matching both selected values.
-- **Dependencies or notes:** Keep the existing catalog group behavior in mind when defining the filter options and API parameters. The example uses the user's wording “1h range”; map it to the catalog's actual slot/category value during implementation.
+- **Problem and desired behavior:** The catalog already has a **Rarity** filter. The **Equipment** option currently lives in the **Groups** dropdown; make Equipment its own filter and add a **Slot** filter. Keep the existing Rarity filter.
+- **Acceptance criteria:** Users can combine Equipment, Rarity, and Slot filters. For example, selecting **Equipment**, **Rare**, and **1H Ranged** shows only equipment matching all three selections.
+- **Dependencies or notes:** Keep non-equipment groups available through the Groups filter. Map the user's wording “1h range” to the catalog's actual slot/category value during implementation.
 
 ### Request template
 
