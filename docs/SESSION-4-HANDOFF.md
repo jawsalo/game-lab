@@ -17,16 +17,16 @@ The current blocker is resolving an item instance's game DBR path to its stable 
   - Apoclypton's Gaze: `records/items/gearhead/d309_head.dbr` → `it14668`.
   - Bloodfang Oil: `records/items/crafting/consumables/oil_bleed01.dbr` → `it310`.
 - gd-edit's caster directory query returned 418 records, and a 42-line batch (query plus 41 `qshow` commands) completed inside the already-loaded interactive program.
-- The output was not captured to a file. Separate Java batch launches and PowerShell transcription stalled at the character picker. Do not repeat those attempts.
-- No save files were changed; no private save or inventory output should be committed.
+- The query output was later preserved in the user's Library as `gd-edit-caster-part-04-output.txt` through `gd-edit-caster-part-09-output.txt`. I checked the headings across all six files: they contain 898 occurrences with overlap, which deduplicate to exactly 418 unique caster DBR paths. Parts 04–06 are cumulative captures; parts 07–09 contain later/overlapping captures.
+- The separate `Pasted text(20261031-013530).txt` contains catalog-side property output for 77 entries across 15 repeated caster-weapon names. No generated crosswalk file is in the repo yet.
+- The original launcher and transcription failures are still relevant: do not repeat those attempts. No save files were changed; no private save or inventory output should be committed.
 
 ## First task next session
 
-1. Reopen gd-edit normally and load the already-selected game database.
-2. Find an export method that works from the interactive session, or use a different read-only ARZ/DBR reader. Avoid launching another separate `-f/-b` process or transcript.
-3. Prove output capture on a small query (about 10 records) before exporting the 418 caster records.
-4. Create the versioned DBR path → catalog ID crosswalk and report unique, missing, and ambiguous mappings separately. Validate with the two positive examples above.
-5. Once the identity mapping gate passes, continue parser compatibility, owner authentication, upload limits, read-only preview, and persistence in the order documented in [the snapshot import contract](SNAPSHOT-IMPORT-CONTRACT.md).
+1. Use the six saved Library output files; do not rerun the 418-record export.
+2. Parse and deduplicate the 418 source records by DBR path, then compare them with the saved catalog-side output. Build a versioned DBR path → catalog ID crosswalk and report unique, missing, and ambiguous mappings separately. Validate with the two positive examples above.
+3. Continue with only the still-flagged non-caster collision groups (recipes/formulas and quest items); do not scan or hand-review all 8,695 catalog records again.
+4. Once the identity mapping gate passes, continue parser compatibility, owner authentication, upload limits, read-only preview, and persistence in the order documented in [the snapshot import contract](SNAPSHOT-IMPORT-CONTRACT.md).
 
 ## Roadmap
 
