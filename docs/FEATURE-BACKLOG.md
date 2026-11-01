@@ -18,6 +18,14 @@ This backlog captures feature requests as the user provides their requirements. 
 - **Acceptance criteria:** Users can combine Equipment, Rarity, and Slot filters. For example, selecting **Equipment**, **Rare**, and **1H Ranged** shows only equipment matching all three selections.
 - **Dependencies or notes:** Keep non-equipment groups available through the Groups filter. Map the user's wording “1h range” to the catalog's actual slot/category value during implementation.
 
+### 2. Add creator attribution to the site footer
+
+- **Device:** Mobile-friendly
+- **Status:** Proposed
+- **Problem and desired behavior:** Add a concise signature at the bottom of the site so it is clear the project is the user's work when shared with potential employers.
+- **Acceptance criteria:** The footer identifies the creator as **John Salo**, includes a copyright mark and automatically current year, and remains readable on mobile.
+- **Dependencies or notes:** Suggested form: “Built by John Salo · © [current year]”. Keep it factual and professional; no contact details are requested.
+
 ### Request template
 
 - **Title:**
