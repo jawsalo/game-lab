@@ -149,12 +149,16 @@ The OSS observability stack and the API-to-Alloy-to-Prometheus metrics path are 
 - Added its entry point to the repository README.
 - Provider snapshots, off-host backups, disaster recovery, DNS/registrar recovery, and alternate successor access remain unverified. Do not describe the project as recoverable until restoration has been tested.
 
+## Snapshot identity-mapping checkpoint — November 2, 2026
+
+The first DBR-to-catalog mapping seed is documented in [DBR-CATALOG-CROSSWALK.md](DBR-CATALOG-CROSSWALK.md): 77 generic caster records mapped uniquely among 418 captured caster DBRs, plus targeted recipe, formula, quest, and positive-control mappings. The other 341 caster DBRs and broader catalog coverage remain unresolved. The snapshot importer is still behind the parser/license/version, owner-authentication, bounded-upload, and read-only preview gates in [SNAPSHOT-IMPORT-CONTRACT.md](SNAPSHOT-IMPORT-CONTRACT.md). No inventory or save files belong in Git.
+
 ## Resume checklist
 - Keep Grafana private; access it with the two-step port-forward and SSH tunnel documented in the session handoff.
 - The phone-approved PR-to-K3s deployment workflow is complete and verified. Preserve it as the default path for future production changes.
 - Open-source observability is complete for this checkpoint: dashboard, Loki logs, Tempo traces, and SQLite span correlation are verified.
 - Item-card work is complete for this checkpoint: PRs #23–25 are merged and the relevant production behavior is verified. The user is happy with the cards.
-- Next: resume the DBR-path-to-catalog-ID crosswalk investigation using [SESSION-4-HANDOFF.md](SESSION-4-HANDOFF.md). The live catalog/API and parser findings are recorded in [SNAPSHOT-IMPORT-CONTRACT.md](SNAPSHOT-IMPORT-CONTRACT.md). After identity resolution, continue parser compatibility, owner authentication and upload limits, capacity review, preview, and PostgreSQL persistence.
+- Next: extend the partial DBR-path-to-catalog-ID crosswalk in [DBR-CATALOG-CROSSWALK.md](DBR-CATALOG-CROSSWALK.md), then continue parser compatibility, owner authentication and upload limits, capacity review, read-only preview, and PostgreSQL persistence. The current restart point is [SESSION-4-HANDOFF.md](SESSION-4-HANDOFF.md).
 - After a useful snapshot workload exists, add repeatable traffic and failure scenarios, then start the Datadog comparison. Keep Datadog deferred until those scenarios are ready.
 - Do not activate Datadog prematurely; wait for a meaningful workload and repeatable failure scenarios.
 
