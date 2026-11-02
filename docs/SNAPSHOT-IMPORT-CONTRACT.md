@@ -46,21 +46,24 @@ A follow-up gd-edit database-record inspection confirmed that the game DBR recor
 
 The parser's item basename is a game DBR path (for example, records/items/.../*.dbr). The catalog identifies records with GrimTools IDs such as it11751 and preserves the compact item record, but its current schema does not expose the DBR path. Therefore parsing is demonstrated, while reliable catalog identity resolution is not. Do not use a name-only match as a confirmed identity. The next mapping gate is a versioned, generated DBR-path-to-catalog-ID crosswalk with uniqueness checks and fixtures from the parser; ambiguous or absent paths remain unresolved. Never commit the owner's save files or item inventory output as fixtures.
 
-### Crosswalk investigation checkpoint (October 28, 2026)
+### Crosswalk investigation checkpoint (November 2, 2026)
 
-The catalog/API sorting issue was fixed in PR #31 by providing writable temporary storage to SQLite. The live API now returns the requested page at offset 1100 (100 records); a direct read-only SQLite check reported `integrity_check: ok` and 8,695 rows. The earlier HTTP 503 was a temporary-sort-storage failure, not catalog corruption.
+The catalog/API sorting issue was fixed in PR #31; read-only SQLite integrity is `ok`, and the 8,695-row catalog remains pinned to Grim Dawn 1.3.1.0. The user's game build is 1.3.1.1, a hotfix build that did not add item data.
 
-A full scan of all 8,695 API records grouped by a coarse fingerprint (normalized name, category, rarity, level requirement, item level, and bitmap) produced 24 collision groups. Inspection showed these are real variants, not duplicate identities: Arcane Wand records differ in base elemental damage (Fire, Life, Chaos, Aether), and Aetherial Missive records differ in crafting cost and ingredients. Do not use that coarse fingerprint as a unique key.
+A coarse scan of all 8,695 catalog rows found 24 fingerprint collision groups. Investigation of the repeated-name cases showed meaningful variants: caster weapons differ in damage properties; formula records can share a name/icon while differing in ingredients, outputs, or unlock data; quest reports can share a name/icon while containing different text. The coarse fingerprint is useful for finding candidates, never as a unique identity key.
 
-The source ingestion path retains GrimTools `it...` IDs and full item properties, but neither the source data nor the current SQLite/API schema exposes the game's DBR source path. Two confirmed sample correspondences remain useful as spot checks:
+The saved gd-edit exports contain 978 overlapping heading occurrences across eight output chunks, which deduplicate to 418 unique records in `records/items/gearweapons/caster/`. Comparing the saved catalog-side output for 77 IDs across 15 generic caster weapon names against those DBRs yielded 77 unique mappings using resolved `itemNameTag`, `itemLevel`, and the complete exported set of `offensive*` properties. The remaining 341 caster paths are not mapped, and the overall catalog crosswalk is incomplete.
 
-- `records/items/gearhead/d309_head.dbr` — Apoclypton's Gaze — catalog ID `it14668`.
-- `records/items/crafting/consumables/oil_bleed01.dbr` — Bloodfang Oil — catalog ID `it310`.
+The new [versioned crosswalk seed](DBR-CATALOG-CROSSWALK.md) records those 77 mappings, additional targeted recipe/quest mappings, evidence, and limits. It also preserves the positive checks:
 
-A gd-edit query for `records/items/gearweapons/caster` returned 418 records. Running a batch containing the query and 41 `qshow` commands inside an already-loaded interactive gd-edit session completed successfully. Attempts to capture output through separate Java `-f/-b` launches or PowerShell transcription stalled at the character picker; the transcript captured only the picker. The 418-record result was not saved to an export file, so no mapping artifact exists yet.
+- `records/items/gearhead/d309_head.dbr` — Apoclypton's Gaze — `it14668`.
+- `records/items/crafting/consumables/oil_bleed01.dbr` — Bloodfang Oil — `it310`.
 
-**Next session:** find a supported way to export DBR query output from the working interactive session, or use another read-only ARZ/DBR reader. First prove capture with a small sample (about 10 records), then export the caster directory. Build a versioned DBR-path-to-catalog-ID crosswalk with explicit unique, missing, and ambiguous results; use the two known correspondences as positive checks. Do not repeat the stuck launcher/transcript approach, and do not commit save files or private inventory output. No source save was modified, and no application or data-pipeline code was changed during this investigation.
- 
+Do not commit save files, raw private inventory exports, or unrelated terminal output. The crosswalk document contains only the verified mapping data needed for the next stage.
+
+**Next:** keep expanding coverage from the seed set with a reproducible export that contains no save/inventory data; report unique, ambiguous, and missing mappings separately. Then finish parser license/version compatibility, owner authentication, bounded upload and preview gates before persistence.
+
+
 ## Snapshot and identity semantics
 
 - One user-confirmed import represents a point-in-time snapshot of the selected character and/or stash files.
