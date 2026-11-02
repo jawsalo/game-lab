@@ -115,3 +115,5 @@ systemctl --user disable --now game-lab-pull-deploy.timer
   deployment-verification job. It does not perform unattended remediation.
 - This changes repository automation only. It does not install or enable the
   timer on the VPS; setup is a separate, explicit operator step.
+
+When checking a pull request, expand the workflow groups to see the four required job-level checks listed above. The PR-only image builds should pass; the `Publish` job is skipped by design.
