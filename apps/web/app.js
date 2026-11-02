@@ -430,7 +430,7 @@ async function searchCatalog(event) {
   if (query) parameters.set("q", query);
   if (searchGroup.value && !searchEquipment.value) parameters.set("group", searchGroup.value);
   if (searchRarity.value) parameters.set("rarity", searchRarity.value);
-  if (searchEquipment.value && equipmentGroupValue) parameters.set("group", equipmentGroupValue);
+  if (searchEquipment.value) parameters.set("group", equipmentGroupValue || "equipment");
   if (searchSlot.value) parameters.set("slot", searchSlot.value);
   if (highestLevelOnly.checked) parameters.set("highestLevelOnly", "true");
   parameters.set("limit", "30");
@@ -491,6 +491,7 @@ async function checkPlatform() {
     catalogMeta.textContent =
       `Grim Dawn ${catalog.gameVersion} · ${numberFormatter.format(catalog.recordCount)} searchable records`;
 
+    searchSlot.replaceChildren(new Option("All slots", ""));
     Object.entries(catalog.slots || {}).forEach(([slot, count]) => {
       if (!slot) return;
       const option = document.createElement("option");
@@ -502,7 +503,7 @@ async function checkPlatform() {
     equipmentGroupValue = Object.keys(catalog.groups).find(
       (group) => group.toLowerCase() === "equipment",
     ) || "";
-    searchEquipment.disabled = !equipmentGroupValue;
+    searchEquipment.disabled = false;
 
     Object.entries(catalog.groups).forEach(([group, count]) => {
       const option = document.createElement("option");
