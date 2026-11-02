@@ -13,7 +13,7 @@ This backlog captures feature requests as the user provides their requirements. 
 ### 1. Add independent Equipment and Slot filters
 
 - **Device:** Mobile-friendly
-- **Status:** Proposed
+- **Status:** Done — merged and mobile-verified November 2, 2026
 - **Problem and desired behavior:** The catalog already has a **Rarity** filter. The **Equipment** option currently lives in the **Groups** dropdown; make Equipment its own filter and add a **Slot** filter. Keep the existing Rarity filter.
 - **Acceptance criteria:** Users can combine Equipment, Rarity, and Slot filters. For example, selecting **Equipment**, **Rare**, and **1H Ranged** shows only equipment matching all three selections.
 - **Dependencies or notes:** Keep non-equipment groups available through the Groups filter. Map the user's wording “1h range” to the catalog's actual slot/category value during implementation.
@@ -21,7 +21,7 @@ This backlog captures feature requests as the user provides their requirements. 
 ### 2. Add creator attribution and non-affiliation notice to the site footer
 
 - **Device:** Mobile-friendly
-- **Status:** Proposed
+- **Status:** Done — merged and mobile-verified November 2, 2026
 - **Problem and desired behavior:** Add a concise signature at the bottom of the site so it is clear the project is the user's work when shared with potential employers, and clarify that the project is independent of the game's publisher.
 - **Acceptance criteria:** The footer identifies the creator as **John Salo**, includes a copyright mark and automatically current year, states that the site is **not affiliated with Crate Entertainment**, and remains readable on mobile.
 - **Dependencies or notes:** Suggested wording: “Built by John Salo · © [current year] · Not affiliated with Crate Entertainment.” Keep it factual and professional; no contact details are requested.
@@ -101,7 +101,7 @@ This backlog captures feature requests as the user provides their requirements. 
 ### 12. Remove raw Grim Dawn formatting tokens from displayed item names
 
 - **Device:** Mobile-friendly
-- **Status:** Proposed
+- **Status:** Done — merged and mobile-verified November 2, 2026
 - **Problem and desired behavior:** Some item names display a literal `^k` prefix in Game Lab, including `^kSymbol of Solael` (`it2904`) and `^kTitan Plating` (`it8916`), both components in the supplied mobile screenshot. Show the clean localized names without leaking game text-control codes.
 - **Acceptance criteria:** Display `Symbol of Solael` and `Titan Plating` without the `^k` prefix in search results and item details where applicable; audit other names and item groups for verified formatting tokens; preserve actual name text, search behavior, and intentional formatting; add regression tests for affected records.
 - **Dependencies or notes:** Inspect the pinned catalog name fields, API display-name handling, and frontend formatting before choosing the correction layer. Do not blindly remove arbitrary caret sequences or assume only components are affected.
