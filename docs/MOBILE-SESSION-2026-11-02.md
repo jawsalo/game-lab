@@ -1,7 +1,7 @@
 # Game Lab — Mobile Session Handoff (November 2, 2026)
 
 ## Production checkpoint
-- Repo: `jawsalo/game-lab`; production: https://games.phobosandeimos.com
+- Repo: `jawsalo/game-lab`; production: the HTTPS application endpoint configured in `deploy/environments/production.yaml`
 - User-reviewed GitHub PRs merge to protected `main`; VPS pull-deploy timer checks roughly every five minutes.
 - Last screenshot-confirmed production API identifier: `efd56da`.
 - This was a phone-only development and verification session; no manual VPS intervention was required.
