@@ -98,6 +98,14 @@ This backlog captures feature requests as the user provides their requirements. 
 - **Acceptance criteria:** List remote branches and associated PR/merge status; identify merged branches eligible for deletion; preserve `main`, protected branches, and all unmerged or active work; delete only confirmed-safe stale branches after review; verify the remaining branch list. Where appropriate, evaluate GitHub's automatic deletion of head branches after merge.
 - **Dependencies or notes:** Start with a read-only audit. Never bulk-delete by age or name alone. Branch deletion is a separate explicitly approved action, not authorized by adding this backlog item.
 
+### 12. Remove raw Grim Dawn formatting tokens from displayed item names
+
+- **Device:** Mobile-friendly
+- **Status:** Proposed
+- **Problem and desired behavior:** Some item names display a literal `^k` prefix in Game Lab, including `^kSymbol of Solael` (`it2904`) and `^kTitan Plating` (`it8916`), both components in the supplied mobile screenshot. Show the clean localized names without leaking game text-control codes.
+- **Acceptance criteria:** Display `Symbol of Solael` and `Titan Plating` without the `^k` prefix in search results and item details where applicable; audit other names and item groups for verified formatting tokens; preserve actual name text, search behavior, and intentional formatting; add regression tests for affected records.
+- **Dependencies or notes:** Inspect the pinned catalog name fields, API display-name handling, and frontend formatting before choosing the correction layer. Do not blindly remove arbitrary caret sequences or assume only components are affected.
+
 ### Request template
 
 - **Title:**
