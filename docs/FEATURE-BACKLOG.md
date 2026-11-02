@@ -106,6 +106,14 @@ This backlog captures feature requests as the user provides their requirements. 
 - **Acceptance criteria:** Display `Symbol of Solael` and `Titan Plating` without the `^k` prefix in search results and item details where applicable; audit other names and item groups for verified formatting tokens; preserve actual name text, search behavior, and intentional formatting; add regression tests for affected records.
 - **Dependencies or notes:** Inspect the pinned catalog name fields, API display-name handling, and frontend formatting before choosing the correction layer. Do not blindly remove arbitrary caret sequences or assume only components are affected.
 
+### 13. Add pagination controls to catalog search results
+
+- **Device:** Mobile-friendly
+- **Status:** Proposed
+- **Problem and desired behavior:** Catalog search currently displays only the first 30 matching items with no visible way to reach the rest. A mobile screenshot shows `Showing 30 of 270 matching records` for Equipment-only + Head + highest-level version, but no next-page control.
+- **Acceptance criteria:** Provide accessible, mobile-friendly Next and Previous controls (or equivalent) to browse all matches in stable pages; display the current range and total count; disable navigation at the beginning and end; preserve all active search terms, Equipment/Group, Slot, Rarity, and highest-level settings between pages; reset to page one when a new search or Clear occurs; avoid duplicate/skipped records.
+- **Dependencies or notes:** Inspect the existing API `limit`/`offset` pagination before implementation. Test the screenshot's 270-result case as well as fewer than 30 results and an exact multiple of 30.
+
 ### Request template
 
 - **Title:**
