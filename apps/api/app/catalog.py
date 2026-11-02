@@ -20,6 +20,8 @@ DEFAULT_DATABASE_PATH = (
 DATABASE_ENVIRONMENT_VARIABLE = "GRIM_DAWN_DATABASE_PATH"
 SEARCH_TOKEN_RE = re.compile(r"[\w]+", re.UNICODE)
 
+NAME_COLOR_PREFIX_RE = re.compile(r"^(?:\^[a-zA-Z])+")
+
 ITEM_STYLE_NAME_PREFIXES = {
     "tagStyleUniqueTier2": "Empowered",
     "tagStyleUniqueTier3": "Mythical",
@@ -56,6 +58,8 @@ def _execute(
 
 def _display_name(name: str | None, record: dict[str, Any]) -> str | None:
     """Restore localized item-tier prefixes retained in the raw record."""
+    if name:
+        name = NAME_COLOR_PREFIX_RE.sub("", name)
     style_tag = record.get("itemStyleTag")
     prefix = (
         ITEM_STYLE_NAME_PREFIXES.get(style_tag)
