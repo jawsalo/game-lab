@@ -6,6 +6,8 @@ const searchForm = document.querySelector("#catalog-search");
 const searchQuery = document.querySelector("#search-query");
 const searchGroup = document.querySelector("#search-group");
 const searchRarity = document.querySelector("#search-rarity");
+const searchEquipment = document.querySelector("#search-equipment");
+const searchSlot = document.querySelector("#search-slot");
 const highestLevelOnly = document.querySelector("#highest-level-only");
 const searchReset = document.querySelector("#search-reset");
 const searchStatus = document.querySelector("#search-status");
@@ -425,8 +427,10 @@ async function searchCatalog(event) {
   const query = searchQuery.value.trim();
 
   if (query) parameters.set("q", query);
-  if (searchGroup.value) parameters.set("group", searchGroup.value);
+  if (searchGroup.value && !searchEquipment.value) parameters.set("group", searchGroup.value);
   if (searchRarity.value) parameters.set("rarity", searchRarity.value);
+  if (searchEquipment.value) parameters.set("group", searchEquipment.value);
+  if (searchSlot.value) parameters.set("slot", searchSlot.value);
   if (highestLevelOnly.checked) parameters.set("highestLevelOnly", "true");
   parameters.set("limit", "30");
 
@@ -485,11 +489,23 @@ async function checkPlatform() {
     catalogMeta.textContent =
       `Grim Dawn ${catalog.gameVersion} · ${numberFormatter.format(catalog.recordCount)} searchable records`;
 
+    Object.entries(catalog.slots || {}).forEach(([slot, count]) => {
+      if (!slot) return;
+      const option = document.createElement("option");
+      option.value = slot;
+      option.textContent = `${slot} (${numberFormatter.format(count)})`;
+      searchSlot.append(option);
+    });
+
     Object.entries(catalog.groups).forEach(([group, count]) => {
       const option = document.createElement("option");
       option.value = group;
       option.textContent = `${friendlyLabel(group)} (${numberFormatter.format(count)})`;
       searchGroup.append(option);
+    });
+    searchEquipment.addEventListener("change", () => {
+      if (searchEquipment.value) searchGroup.value = "";
+      searchGroup.disabled = Boolean(searchEquipment.value);
     });
   } catch (error) {
     statusDot.className = "status__dot status__dot--offline";
