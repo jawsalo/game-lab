@@ -4,7 +4,7 @@ from __future__ import annotations
 
 import unittest
 
-from apps.api.app.catalog import GrimDawnCatalog
+from apps.api.app.catalog import GrimDawnCatalog, _display_name
 
 
 class GrimDawnCatalogTests(unittest.TestCase):
@@ -33,6 +33,26 @@ class GrimDawnCatalogTests(unittest.TestCase):
         self.assertEqual(item["name"], "Serenity")
         self.assertEqual(item["group"], "equipment")
         self.assertEqual(item["slot"], "Relic")
+
+    def test_name_color_tokens_are_removed_without_changing_text(self) -> None:
+        self.assertEqual(_display_name("^kSymbol of Solael", {}), "Symbol of Solael")
+        self.assertEqual(_display_name("^kTitan Plating", {}), "Titan Plating")
+        self.assertEqual(_display_name("^k^bExample", {}), "Example")
+        self.assertEqual(_display_name("Caret ^k in name", {}), "Caret ^k in name")
+        self.assertEqual(
+            _display_name("^kRing", {"itemStyleTag": "tagStyleUniqueTier3"}),
+            "Mythical Ring",
+        )
+
+    def test_affected_component_names_are_clean(self) -> None:
+        for item_id, expected in (
+            ("it2904", "Symbol of Solael"),
+            ("it8916", "Titan Plating"),
+        ):
+            item = self.catalog.get_item(item_id)
+            self.assertIsNotNone(item)
+            assert item is not None
+            self.assertEqual(item["name"], expected)
 
     def test_get_item_returns_none_for_unknown_id(self) -> None:
         self.assertIsNone(self.catalog.get_item("not-an-item"))
