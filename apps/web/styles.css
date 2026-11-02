@@ -158,6 +158,13 @@ footer {
   font-size: 0.8rem;
 }
 
+.footer__attribution {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  line-height: 1.5;
+}
+
 @media (max-width: 42rem) {
   .shell {
     padding-top: 2.5rem;
