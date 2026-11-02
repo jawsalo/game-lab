@@ -58,6 +58,38 @@ This backlog captures feature requests as the user provides their requirements. 
 - **Acceptance criteria:** Display `Physical Retaliation` with the existing `1,200/1,800` values; leave `Retaliation Physical Modifier` as a separate percentage-based stat, and do not change calculations or source values.
 - **Dependencies or notes:** Apply the label through the shared item-property translation layer where appropriate. User supplied mobile screenshot.
 
+### 7. Render item-granted skill modifiers on cards
+
+- **Device:** Mixed
+- **Status:** Proposed
+- **Problem and desired behavior:** The supplied Dauntless shield (`it14449`) GrimTools screenshot shows skill-specific modifiers that are not visible in the provided Game Lab card screenshots. These may be omitted from the card rather than merely mislabeled.
+- **Acceptance criteria:** Verify and display source-backed modifiers under their affected skills, including Counter Strike (8% retaliation damage added to attack), Vindictive Flame (recharge reduction, retaliation damage added to attack, flat physical damage, Fire-to-Physical conversion), and Curse of Frailty (attack speed and physical resistance modifiers). Avoid duplicating ordinary skill bonuses.
+- **Dependencies or notes:** First check the complete card payload and source data; screenshots do not prove the entire card lacks these sections. May require source extraction and API work. Preserve actual signed values and semantics.
+
+### 8. Audit shield block values and recovery display
+
+- **Device:** Mixed
+- **Status:** Proposed
+- **Problem and desired behavior:** GrimTools shows Dauntless blocking 930 damage with 34% block chance and 0.6-second block recovery. Game Lab shows `Defensive Block +744/+1,116%` and `Defensive Block Chance +34%`, but the provided screenshots do not show block recovery.
+- **Acceptance criteria:** Verify whether `744/1,116` is a flat blocked-damage roll range rather than a percentage, render it with the correct unit and readable label, preserve 34% block chance, and show the 0.6-second recovery if available in the canonical source.
+- **Dependencies or notes:** Do not equate the GrimTools 930 representative value with the range endpoints; inspect source semantics and card API before changing values. May require catalog/API fixes.
+
+### 9. Audit player-facing item-property labels and base damage
+
+- **Device:** Mixed
+- **Status:** Proposed
+- **Problem and desired behavior:** Dauntless shows `Offensive Slow Fire Modifier +100/+151%` in Game Lab where GrimTools presents `+100/+151% Burn Damage`. Game Lab also shows `Physical Damage (minimum) +190/+285`, while GrimTools separately shows `170 Physical Damage` as shield base damage.
+- **Acceptance criteria:** Confirm source-property identities, replace internal labels with accurate player-facing terms (including Burn Damage when validated), and display base shield damage separately from unrelated item modifiers where appropriate. Maintain correct roll formatting and do not conflate different stats.
+- **Dependencies or notes:** Use the pinned 1.3.1.0 data and Dauntless `it14449` as a regression case; inspect other items for shared translation issues. Treat the 170 versus 190/285 discrepancy as an investigation, not a confirmed numeric defect.
+
+### 10. Add item acquisition and blueprint vendor information
+
+- **Device:** Mixed
+- **Status:** Proposed
+- **Problem and desired behavior:** GrimTools shows Dauntless as crafted from Blueprint: Dauntless, and identifies Kurn faction and Atka of the Iron Clan (Kurnhold) as the blueprint vendor. The visible Game Lab card only shows `Expansion data: gdx3`.
+- **Acceptance criteria:** Where verified source data exists, show crafting origin, faction/reputation requirement, and named vendor/location on the relevant item and/or blueprint cards; handle missing acquisition metadata explicitly without invented sources.
+- **Dependencies or notes:** Determine whether vendor/faction acquisition data exists in the current catalog or needs a separate source-backed mapping. Screenshot reference is GrimTools 1.3.1.0; mobile-readable presentation required.
+
 ### Request template
 
 - **Title:**
