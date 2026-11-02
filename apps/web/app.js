@@ -70,6 +70,7 @@ const RESISTANCE_PROPERTY_KEYS = new Set([
 ]);
 let nextDetailsId = 0;
 let latestSearch = 0;
+let equipmentGroupValue = "";
 
 function friendlyLabel(value) {
   return value
@@ -429,7 +430,7 @@ async function searchCatalog(event) {
   if (query) parameters.set("q", query);
   if (searchGroup.value && !searchEquipment.value) parameters.set("group", searchGroup.value);
   if (searchRarity.value) parameters.set("rarity", searchRarity.value);
-  if (searchEquipment.value) parameters.set("group", searchEquipment.value);
+  if (searchEquipment.value && equipmentGroupValue) parameters.set("group", equipmentGroupValue);
   if (searchSlot.value) parameters.set("slot", searchSlot.value);
   if (highestLevelOnly.checked) parameters.set("highestLevelOnly", "true");
   parameters.set("limit", "30");
@@ -459,6 +460,7 @@ async function searchCatalog(event) {
 
 function resetSearch() {
   window.setTimeout(() => {
+    searchGroup.disabled = false;
     latestSearch += 1;
     searchResults.replaceChildren();
     searchStatus.textContent = "Enter a name or choose a filter to begin.";
@@ -496,6 +498,11 @@ async function checkPlatform() {
       option.textContent = `${slot} (${numberFormatter.format(count)})`;
       searchSlot.append(option);
     });
+
+    equipmentGroupValue = Object.keys(catalog.groups).find(
+      (group) => group.toLowerCase() === "equipment",
+    ) || "";
+    searchEquipment.disabled = !equipmentGroupValue;
 
     Object.entries(catalog.groups).forEach(([group, count]) => {
       const option = document.createElement("option");

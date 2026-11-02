@@ -166,7 +166,7 @@ class GrimDawnCatalog:
                         """
                         SELECT slot, COUNT(*)
                         FROM items
-                        WHERE item_group = 'equipment' AND slot IS NOT NULL AND slot != ''
+                        WHERE LOWER(item_group) = 'equipment' AND slot IS NOT NULL AND slot != ''
                         GROUP BY slot
                         ORDER BY slot
                         """
