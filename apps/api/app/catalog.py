@@ -161,6 +161,17 @@ class GrimDawnCatalog:
                         """
                     )
                 )
+                slots = dict(
+                    _execute(connection,
+                        """
+                        SELECT slot, COUNT(*)
+                        FROM items
+                        WHERE item_group = 'equipment' AND slot IS NOT NULL AND slot != ''
+                        GROUP BY slot
+                        ORDER BY slot
+                        """
+                    )
+                )
                 categories = dict(
                     _execute(connection, 
                         """
@@ -180,6 +191,7 @@ class GrimDawnCatalog:
             "recordCount": int(metadata["record_count"]),
             "groups": groups,
             "categories": categories,
+            "slots": slots,
         }
 
     def get_item(self, item_id: str) -> dict[str, Any] | None:
