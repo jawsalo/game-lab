@@ -90,6 +90,14 @@ This backlog captures feature requests as the user provides their requirements. 
 - **Acceptance criteria:** Where verified source data exists, show crafting origin, faction/reputation requirement, and named vendor/location on the relevant item and/or blueprint cards; handle missing acquisition metadata explicitly without invented sources.
 - **Dependencies or notes:** Determine whether vendor/faction acquisition data exists in the current catalog or needs a separate source-backed mapping. Screenshot reference is GrimTools 1.3.1.0; mobile-readable presentation required.
 
+### 11. Audit and clean up stale Git branches
+
+- **Device:** Mobile-friendly
+- **Status:** Proposed
+- **Problem and desired behavior:** The repository has accumulated feature and fix branches from merged pull requests. Identify branches that are no longer needed and remove them safely to keep GitHub navigation manageable.
+- **Acceptance criteria:** List remote branches and associated PR/merge status; identify merged branches eligible for deletion; preserve `main`, protected branches, and all unmerged or active work; delete only confirmed-safe stale branches after review; verify the remaining branch list. Where appropriate, evaluate GitHub's automatic deletion of head branches after merge.
+- **Dependencies or notes:** Start with a read-only audit. Never bulk-delete by age or name alone. Branch deletion is a separate explicitly approved action, not authorized by adding this backlog item.
+
 ### Request template
 
 - **Title:**
