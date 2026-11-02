@@ -23,6 +23,8 @@ class GrimDawnCatalogTests(unittest.TestCase):
         self.assertEqual(metadata["recordCount"], 8695)
         self.assertEqual(metadata["groups"]["equipment"], 6762)
         self.assertEqual(metadata["groups"]["component"], 107)
+        self.assertGreater(metadata["slots"].get("Relic", 0), 0)
+        self.assertGreater(metadata["slots"].get("Shield", 0), 0)
 
     def test_get_item_returns_stable_record(self) -> None:
         item = self.catalog.get_item("it11751")
@@ -94,6 +96,23 @@ class GrimDawnCatalogTests(unittest.TestCase):
         self.assertTrue(
             all(item["slot"] == "Relic" for item in result["items"])
         )
+
+    def test_equipment_group_excludes_lore(self) -> None:
+        result = self.catalog.search_items(item_group="equipment", limit=30)
+        self.assertEqual(result["total"], 6762)
+        self.assertTrue(all(item["group"] == "equipment" for item in result["items"]))
+
+    def test_equipment_slot_and_rarity_combination(self) -> None:
+        result = self.catalog.search_items(
+            item_group="equipment", slot="Shield", rarity="Rare", limit=30
+        )
+        self.assertGreater(result["total"], 0)
+        self.assertTrue(all(
+            item["group"] == "equipment"
+            and item["slot"] == "Shield"
+            and item["rarity"] == "Rare"
+            for item in result["items"]
+        ))
 
     def test_pagination_is_bounded_and_stable(self) -> None:
         first = self.catalog.search_items(item_group="equipment", limit=2)
