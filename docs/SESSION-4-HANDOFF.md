@@ -1,33 +1,33 @@
 # Game Lab Session 4 Handoff — Snapshot Crosswalk
 
-**Checkpoint date:** October 28, 2026  
-**Project stage:** Phase 2, snapshot parser and catalog identity mapping.
+**Checkpoint date:** November 2, 2026  
+**Project stage:** Phase 2, Grim Dawn snapshot identity mapping.
 
 ## Current state
 
-The app, Grim Dawn 1.3.1.0 catalog (8,695 records), and open-source observability stack remain in place. PR #31 fixed SQLite temporary sort storage. The public API successfully returned a 100-record page at offset 1100; SQLite integrity was confirmed as `ok`.
+The app, pinned Grim Dawn 1.3.1.0 catalog (8,695 records), and open-source observability stack remain in place. PR #31 fixed SQLite temporary sort storage; a direct read-only integrity check returned `ok`. The user's game build is 1.3.1.1, a hotfix without item-data changes.
 
-The current blocker is resolving an item instance's game DBR path to its stable GrimTools catalog ID. The catalog pipeline preserves `it...` IDs and item properties, but not the DBR path, so name-only or coarse fingerprint matching cannot establish identity.
+The parser opens the user's game files and exposes item instances and DBR paths. Stable catalog identity mapping is now proven for a seed set, but the complete crosswalk is not done. Full evidence and the mappings are in [DBR-CATALOG-CROSSWALK.md](DBR-CATALOG-CROSSWALK.md).
 
-## Findings from this session
+## Crosswalk progress
 
-- Full scan covered all 8,695 catalog records.
-- A coarse fingerprint produced 24 collision groups. These were meaningful variants, not catalog poisoning: Arcane Wand records vary in elemental base damage; Aetherial Missive recipes vary in crafting cost and reagents.
-- Confirmed positive mapping checks:
-  - Apoclypton's Gaze: `records/items/gearhead/d309_head.dbr` → `it14668`.
-  - Bloodfang Oil: `records/items/crafting/consumables/oil_bleed01.dbr` → `it310`.
-- gd-edit's caster directory query returned 418 records, and a 42-line batch (query plus 41 `qshow` commands) completed inside the already-loaded interactive program.
-- The query output was later preserved in the user's Library as `gd-edit-caster-part-04-output.txt` through `gd-edit-caster-part-09-output.txt`. I checked the headings across all six files: they contain 898 occurrences with overlap, which deduplicate to exactly 418 unique caster DBR paths. Parts 04–06 are cumulative captures; parts 07–09 contain later/overlapping captures.
-- The separate `Pasted text(20261031-013530).txt` contains catalog-side property output for 77 entries across 15 repeated caster-weapon names. No generated crosswalk file is in the repo yet.
-- The original launcher and transcription failures are still relevant: do not repeat those attempts. No save files were changed; no private save or inventory output should be committed.
+- The saved gd-edit exports contain 978 overlapping path headings across eight output chunks. They deduplicate to 418 unique records in `records/items/gearweapons/caster/`.
+- The saved catalog query contains 77 IDs across 15 repeated generic caster names. All 77 matched exactly one caster DBR when resolved `itemNameTag`, `itemLevel`, and the full exported `offensive*` property set were compared.
+- The other 341 caster DBR paths remain unmapped. Other item categories are not exhaustively covered.
+- Targeted non-caster cases were checked, including the Aetherial Missive/Mutagen/Wendigo Spirit recipes, three Beronath’s Celestial Horn formulas, Bolstered potion formulas, Dagallon recipes, and Wayfinder Reports. The crosswalk labels default-item rows without a distinct DBR as unresolved instead of inventing a path.
+- The earlier 24 coarse-fingerprint collision groups are meaningful variants or shared-name/icon cases, not proof that the catalog data is poisoned. The coarse fingerprint is not a unique identity key.
+- Positive controls remain: Apoclypton's Gaze `d309_head.dbr` → `it14668`; Bloodfang Oil `oil_bleed01.dbr` → `it310`.
 
-## First task next session
+## Next work
 
-1. Use the six saved Library output files; do not rerun the 418-record export.
-2. Parse and deduplicate the 418 source records by DBR path, then compare them with the saved catalog-side output. Build a versioned DBR path → catalog ID crosswalk and report unique, missing, and ambiguous mappings separately. Validate with the two positive examples above.
-3. Continue with only the still-flagged non-caster collision groups (recipes/formulas and quest items); do not scan or hand-review all 8,695 catalog records again.
-4. Once the identity mapping gate passes, continue parser compatibility, owner authentication, upload limits, read-only preview, and persistence in the order documented in [the snapshot import contract](SNAPSHOT-IMPORT-CONTRACT.md).
+1. Extend the mapping beyond the 77-entry seed, using reproducible source exports that contain no character or stash inventory data.
+2. Track unique, ambiguous, and missing matches separately; do not infer an identity from name alone.
+3. Finish parser license/version compatibility and validate against 1.3.1.0 fixtures.
+4. Before accepting uploads, implement owner authentication, bounded temporary upload, and a read-only parse preview as specified in [the snapshot import contract](SNAPSHOT-IMPORT-CONTRACT.md).
+5. Check live VPS capacity before selecting persistence/storage details.
 
-## Roadmap
+## Privacy and workflow
 
-See [ROADMAP-V9.md](ROADMAP-V9.md) for the broader project sequence. Datadog remains deferred until the app has a useful snapshot workload and repeatable failure scenarios.
+Do not repeat the failed launcher/transcription attempts. Do not commit save files, raw private inventory exports, or unrelated terminal output. No save was modified and no application or pipeline code changed in this investigation.
+
+See [ROADMAP-V9.md](ROADMAP-V9.md) for the wider priority order. Datadog remains deferred until the app has a useful snapshot workload and repeatable failure scenarios.
