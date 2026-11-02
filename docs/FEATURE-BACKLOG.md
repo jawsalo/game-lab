@@ -34,6 +34,30 @@ This backlog captures feature requests as the user provides their requirements. 
 - **Acceptance criteria:** A user can combine an item type or slot (such as **Gloves**) with a stat (such as **Vitality Damage**) and get only matching catalog items.
 - **Dependencies or notes:** Build on the separate Equipment and Slot filters. Determine how stat names and values are indexed across item details before implementation; reassess whether the work truly needs a PC when planned.
 
+### 4. Show all item damage conversions on cards
+
+- **Device:** Mobile-friendly
+- **Status:** Proposed
+- **Problem and desired behavior:** Dauntless shield (`it14449`) shows only `45% Chaos to Physical` under Conversions in Game Lab, whereas the GrimTools 1.3.1.0 reference shows two variable-roll conversions: `36/54% Chaos Damage converted to Physical Damage` and `36/54% Acid Damage converted to Physical Damage`.
+- **Acceptance criteria:** Both conversion types appear in the Dauntless item details with correct damage directions and source-backed min/max values; other item conversions remain correct.
+- **Dependencies or notes:** Diagnose whether the missing Acid conversion originates in catalog extraction, structured card API, or frontend rendering. Do not infer a conversion from the screenshot alone; validate against the pinned source data. User supplied side-by-side mobile screenshots.
+
+### 5. Render crafting recipes with readable ingredient names and alternatives
+
+- **Device:** Mobile-friendly
+- **Status:** Proposed
+- **Problem and desired behavior:** Blueprint: Dauntless (`it14332`) currently shows raw catalog IDs for the crafted output and ingredient entries, including a long `or` chain. The GrimTools reference displays named ingredients and quantities.
+- **Acceptance criteria:** Show `Dauntless` as the crafted output and readable ingredient names with quantities; group mutually exclusive alternatives clearly and retain the crafting cost. For the Dauntless example, compare against Bloodbound Guardian, Juggernaut, Fervor, and Chains of Oleron as displayed by GrimTools.
+- **Dependencies or notes:** Resolve references through canonical catalog data, distinguish ingredient alternatives from simultaneous requirements, and preserve an explicit fallback for unresolved IDs. Verify exact recipe structure before changing presentation. User supplied side-by-side mobile screenshots.
+
+### 6. Rename Retaliation Physical Min to Physical Retaliation
+
+- **Device:** Mobile-friendly
+- **Status:** Proposed
+- **Problem and desired behavior:** Dauntless shield (`it14449`) shows `Retaliation Physical Min` on its item card, while the player-facing name should be `Physical Retaliation`.
+- **Acceptance criteria:** Display `Physical Retaliation` with the existing `1,200/1,800` values; leave `Retaliation Physical Modifier` as a separate percentage-based stat, and do not change calculations or source values.
+- **Dependencies or notes:** Apply the label through the shared item-property translation layer where appropriate. User supplied mobile screenshot.
+
 ### Request template
 
 - **Title:**
