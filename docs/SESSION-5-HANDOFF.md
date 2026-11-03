@@ -1,6 +1,6 @@
 # Game Lab Session 5 Handoff — Parser Smoke Test Complete
 
-**Checkpoint:** November 3, 2026  
+**Checkpoint:** November 2, 2026  
 **Repository:** jawsalo/game-lab, main  
 **Project stage:** Phase 2 — personal character/stash snapshots  
 **Status:** The local read-only parser integration and its PowerShell smoke check both passed. Stop here for tonight.
