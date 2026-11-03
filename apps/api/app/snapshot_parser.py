@@ -105,10 +105,10 @@ class SnapshotParser:
                     timeout=self.timeout_seconds,
                     check=False,
                 )
-        except subprocess.TimeoutExpired as error:
-            raise SnapshotParserError("Save parsing exceeded the time limit") from error
-        except (OSError, UnicodeError) as error:
-            raise SnapshotParserError("Read-only parser could not be started") from error
+        except subprocess.TimeoutExpired:
+            raise SnapshotParserError("Save parsing exceeded the time limit") from None
+        except (OSError, UnicodeError):
+            raise SnapshotParserError("Read-only parser could not be started") from None
 
         if completed.returncode != 0:
             # The child's stderr may contain user paths or parser internals.
@@ -124,4 +124,4 @@ class SnapshotParser:
                 return project_character(parsed)
             return project_shared_stash(parsed)
         except (json.JSONDecodeError, SnapshotProjectionError) as error:
-            raise SnapshotParserError("Parser returned an invalid result") from error
+            raise SnapshotParserError("Parser returned an invalid result") from None
