@@ -50,12 +50,12 @@ This is a successful local parser invocation test. It does not prove compatibili
 
 On the Windows PC, in a fresh PowerShell window:
 
-    Set-Location "$env:USERPROFILEDesktopgame-lab"
+    Set-Location "$env:USERPROFILE/Desktop/game-lab"
     git pull --ff-only
 
 Python and Git are already installed; .venv is already created. To rerun the read-only smoke check after parser changes, use:
 
-    powershell.exe -NoProfile -ExecutionPolicy Bypass -File .scriptssmoke-snapshot-parser.ps1 -JavaExecutable "<path to java.exe>" -GdEditJar "<path to gd-edit-standalone.jar>" -CharacterSave "<path to player.gdc>" -SharedStash "<path to transfer.gst>"
+    powershell.exe -NoProfile -ExecutionPolicy Bypass -File ./scripts/smoke-snapshot-parser.ps1 -JavaExecutable "<path to java.exe>" -GdEditJar "<path to gd-edit-standalone.jar>" -CharacterSave "<path to player.gdc>" -SharedStash "<path to transfer.gst>"
 
 Use the user's local paths interactively; do not replace the placeholders with private paths in repository documentation. The script suppresses parser stderr and prints only an aggregate summary.
 
