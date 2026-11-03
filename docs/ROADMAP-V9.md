@@ -153,7 +153,7 @@ The OSS observability stack and the API-to-Alloy-to-Prometheus metrics path are 
 
 The first DBR-to-catalog mapping seed is documented in [DBR-CATALOG-CROSSWALK.md](DBR-CATALOG-CROSSWALK.md): 77 generic caster records mapped uniquely among 418 captured caster DBRs, plus targeted recipe, formula, quest, and positive-control mappings. The other 341 caster DBRs and broader catalog coverage remain unresolved. The snapshot importer is still behind the parser/license/version, owner-authentication, bounded-upload, and read-only preview gates in [SNAPSHOT-IMPORT-CONTRACT.md](SNAPSHOT-IMPORT-CONTRACT.md). No inventory or save files belong in Git.
 
-## Snapshot parser local verification checkpoint — November 3, 2026
+## Snapshot parser local verification checkpoint — November 2, 2026
 
 - PR #51 merged the read-only gd-edit worker boundary and Python SnapshotParser; PR #52 merged the Windows PowerShell smoke script. The user's local main was pulled and reported up to date.
 - On the user's Windows PC, Python 3.13.17 and Git 2.55.0.windows.5 were installed. A repo-local .venv was created and the single declared requirement, PyYAML 6.0.3, installed successfully. No project-specific package installation remains for this parser check.
@@ -162,7 +162,7 @@ The first DBR-to-catalog mapping seed is documented in [DBR-CATALOG-CROSSWALK.md
   - Character: format version 8; 153 projected item instances.
   - Shared stash: format version 11; 210 projected item instances.
 - Direct invocation of the PowerShell script was initially blocked by the machine's script execution policy. Running it in a child PowerShell process with -ExecutionPolicy Bypass succeeded; this did not change persistent policy.
-- The smoke script prints only source type, format version, and aggregate item count. The source save files were read-only and were not modified. No personal file path, character name, item name, individual records, or counts were added to this repository.
+- The smoke script prints only source type, format version, and aggregate item count. The source save files were read-only and were not modified. Only aggregate count summaries are recorded; no personal file paths, character names, item names, or individual records were added to this repository.
 - This verifies the parser invocation and output projection against these particular local files. It is not a clean, independently licensed Grim Dawn 1.3.1.0 fixture test, it does not establish coverage for every supported save, and it does not prove catalog identity resolution. The game's reported build is 1.3.1.1; the catalog is pinned to 1.3.1.0 because that hotfix did not add item data.
 - The handoff and remaining gates are detailed in SESSION-5-HANDOFF.md and SNAPSHOT-IMPORT-CONTRACT.md.
 
