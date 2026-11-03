@@ -23,7 +23,7 @@ class SnapshotProjectionTests(unittest.TestCase):
                     "basename": "records/items/gearhead/example.dbr",
                     "prefix-name": "records/items/lootaffixes/prefix.dbr",
                     "stack-count": 1,
-                    "seed": 73,
+                    "seed": -73,
                     "attached": True,
                     "private-debug-field": "must not escape",
                 },
@@ -83,7 +83,7 @@ class SnapshotProjectionTests(unittest.TestCase):
                 "location": {"type": "equipped", "slotIndex": 0},
                 "prefixRecord": "records/items/lootaffixes/prefix.dbr",
                 "stackCount": 1,
-                "seed": 73,
+                "seed": -73,
             },
         )
         self.assertEqual(
