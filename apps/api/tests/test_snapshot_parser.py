@@ -18,7 +18,7 @@ class SnapshotParserTests(unittest.TestCase):
             parser_jar="gd-edit-test.jar",
             worker_source_dir="worker-src",
             timeout_seconds=2,
-            max_input_bytes=8,
+            max_input_bytes=10,
             max_output_bytes=4096,
         )
 
@@ -68,7 +68,7 @@ class SnapshotParserTests(unittest.TestCase):
         self.assertIn("-Xmx384m", command)
         self.assertIn("clojure.main", command)
         self.assertIn("game-lab.snapshot-worker", command)
-        self.assertIn("private-uuid", json.dumps(result))
+        self.assertNotIn("private-uuid", json.dumps(result))
         self.assertNotIn("/private/player.gdc", json.dumps(result))
         self.assertNotIn("private-field", json.dumps(result))
 
@@ -113,7 +113,7 @@ class SnapshotParserTests(unittest.TestCase):
             for source_type, payload in (
                 ("unknown", b"x"),
                 ("character", b""),
-                ("character", b"123456789"),
+                ("character", b"12345678901"),
             ):
                 with self.subTest(source_type=source_type, payload=payload):
                     with self.assertRaises(SnapshotParserError):
