@@ -32,10 +32,11 @@ ITEM_TEXT_FIELDS = {
 }
 ITEM_INT_FIELDS = {
     "stackCount": ("stack-count", 1),
-    "seed": ("seed", 0),
-    "relicSeed": ("relic-seed", 0),
+    # The parser reads these as signed int32 values; do not reject valid high-bit seeds.
+    "seed": ("seed", None),
+    "relicSeed": ("relic-seed", None),
     "relicCompletionLevel": ("relic-completion-level", 0),
-    "augmentSeed": ("augment-seed", 0),
+    "augmentSeed": ("augment-seed", None),
     "seedRerollCount": ("seed-reroll-count", 0),
     "affixRerollCount": ("affix-reroll-count", 0),
 }
@@ -53,9 +54,13 @@ def _sequence(value: Any, field: str) -> Sequence[Any]:
     return value
 
 
-def _integer(value: Any, field: str, *, minimum: int = 0) -> int:
-    if type(value) is not int or value < minimum:
-        raise SnapshotProjectionError(f"{field} must be an integer >= {minimum}")
+def _integer(value: Any, field: str, *, minimum: int | None = 0) -> int:
+    if type(value) is not int or (minimum is not None and value < minimum):
+        if minimum is None:
+            message = "must be an integer"
+        else:
+            message = f"must be an integer >= {minimum}"
+        raise SnapshotProjectionError(f"{field} {message}")
     return value
 
 
