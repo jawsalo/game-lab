@@ -1,6 +1,6 @@
 # Grim Dawn Character and Stash Snapshot Import Contract
 
-**Status:** Direction selected October 27, 2026; parser and security gates remain before implementation  
+**Status:** Parser selected; user-save read-only smoke test passed November 3, 2026; clean fixtures and security gates remain before implementation  
 **Product goal:** Let the owner search personal character and stash snapshots against the shared Grim Dawn catalog, identify owned copies, and compare snapshots over time.
 
 ## Input decision
@@ -116,6 +116,8 @@ Source inspection found these read entry points:
 - The character item layout and stash item layout gate the Fangs-era item fields on format version 11.
 
 These entry points parse encrypted save structures into maps. They do not resolve item DBR paths to Game Lab catalog IDs; that remains a separate, versioned crosswalk operation. Their returned structures also include metadata such as source paths, so a service must construct an explicit allowlisted preview object rather than serialize or log the parser's full map.
+
+A direct runtime smoke test on November 3, 2026 invoked the standalone gd-edit 0.2.586 JAR through `clojure.main` and called only these read functions against the user's unmodified local files. The character reader returned data-format version 8 and a non-empty inventory; the transfer-stash reader returned format version 11 and non-empty stash data. The local command printed only format versions and aggregate counts. No save files, local paths, character names, item names, individual records, or counts were added to this repository. This confirms the invocation path and parser output shape for these particular files; it does not replace clean, reproducible fixture coverage.
 
 This establishes source-level feasibility for an isolated JVM parser boundary, but **does not yet prove** a production-ready integration. Game Lab's API is Python/FastAPI, so the next implementation spike should invoke only the read-only parser functions through a narrowly scoped worker or sidecar and return a minimal JSON projection. Do not include gd-edit's interactive editor, save-writing commands, or Grim Dawn's full game database in that boundary. Apply upload size, time, memory, and temporary-file limits; delete temporary inputs after parsing; never log raw bytes, instance payloads, or local paths.
 
