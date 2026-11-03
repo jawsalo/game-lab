@@ -114,6 +114,14 @@ This backlog captures feature requests as the user provides their requirements. 
 - **Acceptance criteria:** Provide accessible, mobile-friendly Next and Previous controls (or equivalent) to browse all matches in stable pages; display the current range and total count; disable navigation at the beginning and end; preserve all active search terms, Equipment/Group, Slot, Rarity, and highest-level settings between pages; reset to page one when a new search or Clear occurs; avoid duplicate/skipped records.
 - **Dependencies or notes:** Inspect the existing API `limit`/`offset` pagination before implementation. Test the screenshot's 270-result case as well as fewer than 30 results and an exact multiple of 30.
 
+### 14. Restore desktop GitHub pull request merging
+
+- **Device:** PC-required
+- **Status:** Proposed; deferred by the user
+- **Problem and desired behavior:** On PC, the pull request page's **Merge status** control remains unavailable instead of becoming the merge action when the PR is ready. The same PR was successfully merged from mobile. The cause is unknown; do not assume the repository rules or checks are the problem.
+- **Acceptance criteria:** Reproduce this on a ready PR from the PC; identify why the desktop merge action is unavailable; restore normal PC merging without weakening required PR checks or main-branch protections; verify a ready test PR can be merged from PC.
+- **Dependencies or notes:** The user reported on November 3, 2026 that PR #46 was merged via mobile while PC-based merging remained broken. Explicitly deferred; no troubleshooting or settings changes requested tonight.
+
 ### Request template
 
 - **Title:**
