@@ -64,6 +64,18 @@ Do not commit save files, raw private inventory exports, or unrelated terminal o
 **Next:** retain the verified 77-entry seed and expand mappings only where a concrete parser fixture or product need requires it. Full catalog coverage is not a precondition for the MVP: known IDs can resolve through the crosswalk while ambiguous or missing IDs remain explicitly unresolved. Proceed with parser compatibility and isolation, then owner authentication, bounded upload, and read-only preview gates before persistence.
 
 
+## Upstream fixture provenance review (November 3, 2026)
+
+A source-only review of the gd-edit 0.2.586 test suite found useful parser regression cases, but not fixtures that can yet serve as Game Lab's clean 1.3.1.0 compatibility gate:
+
+- `counterstrike.gdc` and `z20.gdc` are described in [item_skills_test.clj](https://github.com/GrimDawn-max/gd-edit/blob/v0.2.586/test/gd_edit/item_skills_test.clj) as saves sent by a forum contributor. The tests expect one and two item-skill entries respectively and state that their character Block 8 version is 5. They do not state the game release that produced the files.
+- `NamedTabs.gdc` and `NamedTabs-transfer.gst` are described in [stash_tabs_test.clj](https://github.com/GrimDawn-max/gd-edit/blob/v0.2.586/test/gd_edit/stash_tabs_test.clj) as named-tab regression cases. The tests assert selected tab names, icons/colors, and byte-identical round trips. The same suite identifies `NamedTabs.gdc` as the one save with character Block 8 version 8, but does not identify its game release or provide expected inventory item counts.
+- The upstream repository is licensed under EPL-1.0, but no fixture-specific provenance or license note was found alongside these files. Do not copy or redistribute the binaries based solely on the source-code license.
+
+The upstream tests provide evidence that gd-edit's own regression suite covers format edge cases; they do not independently verify parser correctness, expected item counts, or the exact 1.3.1.0 game build. They were inspected but not run in Game Lab, and no upstream binary fixtures were copied.
+
+**Next:** use only fixtures whose provider confirms the game version, expected read-only parse summary, and permission to use them; otherwise keep the user's files as local smoke-test evidence and proceed with synthetic tests for the adapter's allowlisted projection. Do not weaken the real-save compatibility gate for uploads.
+
 ## Snapshot and identity semantics
 
 - One user-confirmed import represents a point-in-time snapshot of the selected character and/or stash files.
