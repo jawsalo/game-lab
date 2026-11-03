@@ -61,7 +61,7 @@ The new [versioned crosswalk seed](DBR-CATALOG-CROSSWALK.md) records those 77 ma
 
 Do not commit save files, raw private inventory exports, or unrelated terminal output. The crosswalk document contains only the verified mapping data needed for the next stage.
 
-**Next:** keep expanding coverage from the seed set with a reproducible export that contains no save/inventory data; report unique, ambiguous, and missing mappings separately. Then finish parser license/version compatibility, owner authentication, bounded upload and preview gates before persistence.
+**Next:** retain the verified 77-entry seed and expand mappings only where a concrete parser fixture or product need requires it. Full catalog coverage is not a precondition for the MVP: known IDs can resolve through the crosswalk while ambiguous or missing IDs remain explicitly unresolved. Proceed with parser compatibility and isolation, then owner authentication, bounded upload, and read-only preview gates before persistence.
 
 
 ## Snapshot and identity semantics
@@ -103,3 +103,20 @@ Implement in small gates:
 - GrimTools build links as inventory evidence.
 - Public accounts, sharing, trading, recommendations, or an autonomous remediation/MCP action.
 - Starting the Datadog trial before a useful snapshot workload and repeatable failure scenarios exist.
+
+
+## gd-edit parser source review (November 3, 2026)
+
+The installed editor version reported in the prior PC session was **gd-edit 0.2.586**. The upstream [GrimDawn-max/gd-edit project](https://github.com/GrimDawn-max/gd-edit) identifies its license as **Eclipse Public License 1.0 (EPL-1.0)**, and its README describes this as a community fork updated for Fangs of Asterkarn. Record the license before deciding whether and how to distribute parser code or a bundled worker; this review is not a legal compatibility determination.
+
+Source inspection found these read entry points:
+
+- `gd-edit.io.gdc/load-character-file*` accepts either a path or byte array and validates character data versions 6, 7, or 8.
+- `gd-edit.io.stash/load-stash-file` reads a stash path and distinguishes supported block types. The transfer stash uses block 18; block 19 is a different account-data structure.
+- The character item layout and stash item layout gate the Fangs-era item fields on format version 11.
+
+These entry points parse encrypted save structures into maps. They do not resolve item DBR paths to Game Lab catalog IDs; that remains a separate, versioned crosswalk operation. Their returned structures also include metadata such as source paths, so a service must construct an explicit allowlisted preview object rather than serialize or log the parser's full map.
+
+This establishes source-level feasibility for an isolated JVM parser boundary, but **does not yet prove** a production-ready integration. Game Lab's API is Python/FastAPI, so the next implementation spike should invoke only the read-only parser functions through a narrowly scoped worker or sidecar and return a minimal JSON projection. Do not include gd-edit's interactive editor, save-writing commands, or Grim Dawn's full game database in that boundary. Apply upload size, time, memory, and temporary-file limits; delete temporary inputs after parsing; never log raw bytes, instance payloads, or local paths.
+
+The user previously confirmed that gd-edit 0.2.586 could read their own 1.3.1.1 character and transfer-stash files, without modifying them. That is useful smoke-test evidence for those files, not a clean fixture-based compatibility result. The upstream repository contains parser tests and save-file fixtures, but this review did not establish their exact game versions or expected item counts; do not copy them into Game Lab until their provenance, privacy, and license are checked. The required clean 1.3.1.0 fixture tests, expected-count assertions, malformed/unsupported-file rejection, and byte-for-byte source-preservation test remain open.
