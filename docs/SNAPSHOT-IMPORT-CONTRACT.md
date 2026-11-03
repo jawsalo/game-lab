@@ -1,6 +1,6 @@
 # Grim Dawn Character and Stash Snapshot Import Contract
 
-**Status:** Parser selected; user-save read-only smoke test passed November 3, 2026; clean fixtures and security gates remain before implementation  
+**Status:** Read-only parser integrated and locally smoke-tested against the user's files (November 3, 2026); clean fixtures, catalog identity coverage, and security gates remain before upload implementation  
 **Product goal:** Let the owner search personal character and stash snapshots against the shared Grim Dawn catalog, identify owned copies, and compare snapshots over time.
 
 ## Input decision
@@ -75,6 +75,28 @@ A source-only review of the gd-edit 0.2.586 test suite found useful parser regre
 The upstream tests provide evidence that gd-edit's own regression suite covers format edge cases; they do not independently verify parser correctness, expected item counts, or the exact 1.3.1.0 game build. They were inspected but not run in Game Lab, and no upstream binary fixtures were copied.
 
 **Next:** use only fixtures whose provider confirms the game version, expected read-only parse summary, and permission to use them; otherwise keep the user's files as local smoke-test evidence and proceed with synthetic tests for the adapter's allowlisted projection. Do not weaken the real-save compatibility gate for uploads.
+
+## Local parser integration validation (November 3, 2026)
+
+The read-only parser integration is now implemented and its local invocation has been exercised from the user's Windows PC. PR #51 added the Java/Clojure worker boundary and Python wrapper; PR #52 added the PowerShell smoke script. Both are merged to main.
+
+Environment and execution:
+
+- Python 3.13.17 was installed and a repository-local .venv was created. The repository's requirements.txt installed PyYAML 6.0.3.
+- Git 2.55.0.windows.5 is installed. The local checkout is on the Desktop; keep personal paths out of committed output.
+- The runtime is Temurin Java 25.0.5 with gd-edit standalone JAR 0.2.586. Keep both installed locally; neither is committed to Game Lab.
+- The user ran both the Python SnapshotParser.parse_bytes wrapper and scripts/smoke-snapshot-parser.ps1. Results agreed:
+  - character: format version 8, 153 item instances in the allowlisted projection.
+  - sharedStash: format version 11, 210 item instances in the allowlisted projection.
+- PowerShell's default execution policy blocked direct script invocation. The smoke script ran successfully through a child process using powershell.exe -NoProfile -ExecutionPolicy Bypass -File ...; this is process-scoped and did not persistently alter the user's execution policy.
+
+No raw save data, character or item names, local file paths, or individual inventory records were committed. The parser was read-only; neither source save changed. The script's output is an aggregate summary only.
+
+What this establishes: the Java worker can be launched locally, the Python adapter can invoke it and return its minimal projection, and the PowerShell smoke script produces matching format/item-count summaries for these specific user files.
+
+What remains unproven: clean fixtures with confirmed game-version provenance and redistribution permission; broad compatibility beyond these files; exhaustive DBR-to-catalog ID resolution; and upload security/ownership. The game build reported for this user is 1.3.1.1, while the shared catalog is 1.3.1.0. The prior Crate hotfix notes say 1.3.1.1 did not add item data, but do not treat this user-save smoke test as the required clean 1.3.1.0 fixture gate.
+
+Restart point: continue the partial DBR-to-catalog crosswalk from DBR-CATALOG-CROSSWALK.md. Prefer a reproducible bulk export or a narrowly scoped source-driven mapping method; do not repeat the manual 100-row batch loop across all 8,695 catalog items. Keep unresolved, ambiguous, and unique mappings distinct. Then close the clean fixture/license gate before designing owner authentication, bounded temporary uploads, read-only preview, capacity limits, and PostgreSQL persistence. See SESSION-5-HANDOFF.md for the operator steps.
 
 ## Snapshot and identity semantics
 
