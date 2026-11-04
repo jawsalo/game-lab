@@ -53,10 +53,6 @@ const PROPERTY_LABELS = {
   characterSpirit: "Spirit",
   characterStrength: "Physique",
   defensiveBlock: "Blocked Damage",
-  offensiveAetherModifier: "Aether Damage",
-  offensiveBaseAetherMin: "Flat Aether Damage",
-  retaliationPhysicalModifier: "Physical Retaliation Damage",
-  retaliationTotalDamageModifier: "All Retaliation Damage",
   defensiveAether: "Aether Resistance",
   defensiveBleeding: "Bleeding Resistance",
   defensiveChaos: "Chaos Resistance",
@@ -198,25 +194,45 @@ function resultCard(item) {
   return article;
 }
 
-function retaliationLabel(key) {
-  // Flat retaliation damage has a different player-facing label from its
-  // percentage-based Modifier counterpart. Keep all source values unchanged.
-  const match = /^retaliation([A-Z][a-zA-Z]*)(Min|Max)$/.exec(key);
-  if (!match) return null;
-  const damageType = match[1] === "Poison" ? "Acid" : match[1];
-  return `${friendlyLabel(damageType)} Retaliation`;
+// Use a constrained set of damage types: generic matching of every "offensive"
+// or "retaliation" property would mislabel crowd control, life leech, and
+ // other specialty effects.
+const DAMAGE_TYPE_LABELS = {
+  Physical: "Physical", Pierce: "Pierce", Fire: "Fire", Cold: "Cold",
+  Lightning: "Lightning", Aether: "Aether", Chaos: "Chaos",
+  Vitality: "Vitality", Poison: "Acid", Acid: "Acid",
+  Bleeding: "Bleeding", Elemental: "Elemental",
+  SlowPhysical: "Internal Trauma", SlowFire: "Burn",
+  SlowCold: "Frostburn", SlowLightning: "Electrocute",
+  SlowPoison: "Poison", SlowLife: "Vitality Decay",
+};
+function damagePropertyLabel(key) {
+  if (key === "retaliationTotalDamageModifier") return "All Retaliation Damage";
+  const retaliation = /^retaliation([A-Z][a-zA-Z]*)(Min|Max|Modifier)$/.exec(key);
+  if (retaliation && DAMAGE_TYPE_LABELS[retaliation[1]]) {
+    const type = DAMAGE_TYPE_LABELS[retaliation[1]];
+    return retaliation[2] === "Modifier"
+      ? `${type} Retaliation Damage` : `${type} Retaliation`;
+  }
+  const offensive = /^offensive(Base)?([A-Z][a-zA-Z]*)(Min|Max|Modifier)$/.exec(key);
+  if (offensive && DAMAGE_TYPE_LABELS[offensive[2]]) {
+    const type = DAMAGE_TYPE_LABELS[offensive[2]];
+    if (offensive[1] && offensive[3] !== "Modifier") return `Flat ${type} Damage`;
+    if (offensive[3] === "Modifier") return `${type} Damage`;
+  }
+  return null;
 }
 
 function propertyLabel(property) {
-  const retaliation = retaliationLabel(property.key);
-  if (retaliation) return retaliation;
-  if (PROPERTY_LABELS[property.key]) return PROPERTY_LABELS[property.key];
-  if (typeof property.label === "string" && property.label) return property.label;
   if (property.key === "offensiveSlowPoisonMin"
       && Number.isFinite(property.durationSeconds)) {
     return `Poison Damage over ${numberFormatter.format(property.durationSeconds)} Seconds`;
   }
-  return PROPERTY_LABELS[property.key] || friendlyLabel(property.key);
+  const damageLabel = damagePropertyLabel(property.key);
+  if (damageLabel) return damageLabel;
+  if (PROPERTY_LABELS[property.key]) return PROPERTY_LABELS[property.key];
+  if (typeof property.label === "string" && property.label) return property.label;
+  return friendlyLabel(property.key);
 }
 
 function propertyValue(property) {
