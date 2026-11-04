@@ -524,3 +524,43 @@ select:focus-visible {
     text-align: center;
   }
 }
+
+/* Catalog pagination: keep controls reachable above and below long result lists. */
+.search__pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 0.8rem;
+  margin: 1rem 0;
+}
+.search__pagination[hidden] {
+  display: none;
+}
+.search__pagination button {
+  min-height: 2.75rem;
+  padding: 0.6rem 1rem;
+  border: 1px solid #334155;
+  border-radius: 0.7rem;
+  background: #1e293b;
+  color: #e2e8f0;
+  font-weight: 700;
+  cursor: pointer;
+}
+.search__pagination button:disabled {
+  cursor: not-allowed;
+  opacity: 0.45;
+}
+.search__page-label {
+  color: #cbd5e1;
+  font-size: 0.9rem;
+  font-variant-numeric: tabular-nums;
+}
+@media (max-width: 42rem) {
+  .search__pagination {
+    gap: 0.5rem;
+  }
+  .search__pagination button {
+    flex: 1 1 5rem;
+  }
+}
