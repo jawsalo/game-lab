@@ -51,6 +51,12 @@ const PROPERTY_LABELS = {
   characterPhysique: "Physique",
   characterSpellCastSpeedModifier: "Cast Speed",
   characterSpirit: "Spirit",
+  characterStrength: "Physique",
+  defensiveBlock: "Blocked Damage",
+  offensiveAetherModifier: "Aether Damage",
+  offensiveBaseAetherMin: "Flat Aether Damage",
+  retaliationPhysicalModifier: "Physical Retaliation Damage",
+  retaliationTotalDamageModifier: "All Retaliation Damage",
   defensiveAether: "Aether Resistance",
   defensiveBleeding: "Bleeding Resistance",
   defensiveChaos: "Chaos Resistance",
@@ -204,6 +210,7 @@ function retaliationLabel(key) {
 function propertyLabel(property) {
   const retaliation = retaliationLabel(property.key);
   if (retaliation) return retaliation;
+  if (PROPERTY_LABELS[property.key]) return PROPERTY_LABELS[property.key];
   if (typeof property.label === "string" && property.label) return property.label;
   if (property.key === "offensiveSlowPoisonMin"
       && Number.isFinite(property.durationSeconds)) {
@@ -214,6 +221,7 @@ function propertyLabel(property) {
 
 function propertyValue(property) {
   const isPercent = property.key !== "defensiveProtection"
+    && property.key !== "defensiveBlock"
     && (property.key.startsWith("defensive") || property.key.endsWith("Modifier")
       || property.key === "skillCooldownReduction"
       || property.key === "offensiveLifeLeechMin");
