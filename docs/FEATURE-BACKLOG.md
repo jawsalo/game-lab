@@ -2,6 +2,19 @@
 
 This backlog captures feature requests as the user provides their requirements. Each entry states whether it can be advanced from a phone or needs a PC. Keep requirements and acceptance criteria tied to what the user actually asked for; clarify only when a missing detail affects implementation.
 
+## Implementation policy: fix families, not screenshots
+
+When a screenshot or single item exposes a naming, unit, formatting, or data-display problem, treat it as a **symptom of a potentially broader property family** rather than patching only that one item.
+
+1. **Trace the source and semantics.** Identify the source field(s), catalog/API keys, frontend transformation, and actual player-facing meaning before changing labels or units. Distinguish flat values, percentages, ranges, durations, chances, and skill-specific effects.
+2. **Inventory the family.** Search for related keys and damage types (including damage-over-time and retaliation variants), analogous item categories, and source-supplied labels. Document which are in scope and which are deliberately excluded.
+3. **Prefer shared, constrained rules.** Fix the common translation or formatting layer when appropriate. Use explicit recognized types or well-defined schemas; avoid broad string replacements that would accidentally affect specialty effects, e.g. crowd-control retaliation.
+4. **Test representative siblings and exceptions.** Cover multiple damage types, both flat and percentage forms, source-label overrides, and at least one non-matching specialty property. Preserve raw values and mechanics unless a separately verified defect requires changing them.
+5. **Verify beyond the reported screenshot.** Review the initial example *and* other items or properties from the same family, ideally on mobile when the task is mobile-friendly. Record unverified edge cases honestly.
+6. **Keep changes reviewable.** State the family scope, exceptions, regression cases, and remaining unknowns in the PR. If a related issue is materially different, track it separately rather than silently expanding the fix.
+
+This policy applies to all future catalog and item-card changes, not just retaliation or damage labels. A single screenshot is a reproduction case, **not** the boundary of the solution.
+
 ## Device labels
 
 - **Mobile-friendly** — can be scoped, documented, reviewed, or verified from a phone without a local development environment.
