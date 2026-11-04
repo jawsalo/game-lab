@@ -122,6 +122,22 @@ This backlog captures feature requests as the user provides their requirements. 
 - **Acceptance criteria:** Reproduce this on a ready PR from the PC; identify why the desktop merge action is unavailable; restore normal PC merging without weakening required PR checks or main-branch protections; verify a ready test PR can be merged from PC.
 - **Dependencies or notes:** The user reported on November 3, 2026 that PR #46 was merged via mobile while PC-based merging remained broken. Explicitly deferred; no troubleshooting or settings changes requested tonight.
 
+### 15. Polish catalog pagination button appearance
+
+- **Device:** Mobile-friendly
+- **Status:** Proposed
+- **Problem and desired behavior:** After PR #54, Previous and Next pagination controls work on mobile but look like browser-default gray buttons rather than the site's dark-themed controls. Make pagination navigation visually consistent with the rest of Game Lab without changing its working behavior.
+- **Acceptance criteria:** Style Previous/Next with the existing site's colors, typography, border radius, spacing, and touch-target sizing; distinguish enabled, disabled, focused, and pressed states accessibly; ensure the page indicator and controls fit narrow mobile screens without overflow; keep both top and bottom pagination controls visually consistent; preserve pagination, result ranges, and all filters.
+- **Dependencies or notes:** Screenshot from mobile verification of PR #54 showed `Previous  Page 2 of 290  Next` in default-looking gray buttons. Inspect existing CSS specificity and button styles before implementation. Do not combine with pagination logic changes.
+
+### 16. Correct specialty retaliation labels and presentation
+
+- **Device:** Mobile-friendly
+- **Status:** Proposed
+- **Problem and desired behavior:** Specialty retaliation effects such as Terrifying, Slow, and Freeze Retaliation need accurate, readable player-facing names and values. They should not be treated as ordinary flat damage retaliation or displayed with raw internal property labels.
+- **Acceptance criteria:** Audit the catalog/API keys and rendered labels for terrifying/fear, slow, freeze, and other non-damage retaliation effects; show accurate effect names, durations, chances, and units where supported by source data; distinguish crowd-control retaliation from flat damage and percentage damage modifiers; add representative regression cases; preserve underlying values and mechanics.
+- **Dependencies or notes:** Follow-up to global flat damage retaliation label PR #56. Inspect source fields and actual examples before deciding mappings; do not blindly apply the `retaliation<Type>Min` → `<Type> Retaliation` damage naming rule to specialty effects. Keep PR #55 as documentation-only backlog intake.
+
 ### Request template
 
 - **Title:**
