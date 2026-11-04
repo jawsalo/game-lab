@@ -14,6 +14,25 @@ const highestLevelOnly = document.querySelector("#highest-level-only");
 const searchReset = document.querySelector("#search-reset");
 const searchStatus = document.querySelector("#search-status");
 const searchResults = document.querySelector("#search-results");
+const paginationControls = [
+  {
+    container: document.querySelector("#search-pagination"),
+    previous: document.querySelector("#search-previous"),
+    next: document.querySelector("#search-next"),
+    label: document.querySelector("#search-page-label"),
+  },
+  {
+    container: document.querySelector("#search-pagination-bottom"),
+    previous: document.querySelector("#search-previous-bottom"),
+    next: document.querySelector("#search-next-bottom"),
+    label: document.querySelector("#search-page-label-bottom"),
+  },
+];
+const PAGE_SIZE = 30;
+let activeSearchParameters = null;
+let currentOffset = 0;
+let currentTotal = 0;
+let searchPending = false;
 
 const numberFormatter = new Intl.NumberFormat();
 const DESCRIPTION_STYLES = {
@@ -406,26 +425,83 @@ async function toggleItemDetails(button, panel, item) {
   }
 }
 
-function renderResults(payload) {
+function updatePagination() {
+  const hasResults = activeSearchParameters !== null && currentTotal > 0;
+  const pageCount = Math.ceil(currentTotal / PAGE_SIZE);
+  const currentPage = Math.floor(currentOffset / PAGE_SIZE) + 1;
+
+  paginationControls.forEach(({ container, previous, next, label }) => {
+    container.hidden = !hasResults || pageCount <= 1;
+    previous.disabled = searchPending || !hasResults || currentOffset === 0;
+    next.disabled = searchPending || !hasResults || currentOffset + PAGE_SIZE >= currentTotal;
+    label.textContent = hasResults
+      ? `Page ${numberFormatter.format(currentPage)} of ${numberFormatter.format(pageCount)}`
+      : "";
+  });
+}
+
+function renderResults(payload, offset) {
   searchResults.replaceChildren();
+  currentOffset = offset;
+  currentTotal = payload.total;
 
   if (payload.items.length === 0) {
     searchStatus.textContent = "No matching catalog records.";
+    updatePagination();
     return;
   }
 
-  const shown = payload.items.length;
+  const first = offset + 1;
+  const last = offset + payload.items.length;
   searchStatus.textContent =
-    `Showing ${numberFormatter.format(shown)} of ${numberFormatter.format(payload.total)} matching records.`;
+    `Showing ${numberFormatter.format(first)}–${numberFormatter.format(last)} of ${numberFormatter.format(payload.total)} matching records.`;
 
   const fragment = document.createDocumentFragment();
   payload.items.forEach((item) => fragment.append(resultCard(item)));
   searchResults.append(fragment);
+  updatePagination();
 }
 
-async function searchCatalog(event) {
-  event.preventDefault();
+async function fetchSearchPage(parameters, offset, navigate = false) {
   const searchId = ++latestSearch;
+  const request = new URLSearchParams(parameters);
+  request.set("limit", String(PAGE_SIZE));
+  request.set("offset", String(offset));
+
+  searchPending = true;
+  updatePagination();
+  searchStatus.textContent = "Searching catalog…";
+  searchForm.setAttribute("aria-busy", "true");
+
+  try {
+    const response = await fetch(`/api/grim-dawn/items?${request}`, {
+      headers: { Accept: "application/json" },
+    });
+    if (!response.ok) {
+      throw new Error(`Catalog search returned ${response.status}`);
+    }
+    const payload = await response.json();
+    if (searchId !== latestSearch) return;
+    renderResults(payload, offset);
+    if (navigate) {
+      document.querySelector("#search-status").scrollIntoView({ block: "start" });
+    }
+  } catch (error) {
+    if (searchId === latestSearch) {
+      searchStatus.textContent = "Catalog search is temporarily unavailable. Try again.";
+      console.error("Catalog search failed", error);
+    }
+  } finally {
+    if (searchId === latestSearch) {
+      searchPending = false;
+      searchForm.removeAttribute("aria-busy");
+      updatePagination();
+    }
+  }
+}
+
+function searchCatalog(event) {
+  event.preventDefault();
   const parameters = new URLSearchParams();
   const query = searchQuery.value.trim();
 
@@ -435,37 +511,35 @@ async function searchCatalog(event) {
   if (searchEquipment.value) parameters.set("group", equipmentGroupValue || "equipment");
   if (searchSlot.value) parameters.set("slot", searchSlot.value);
   if (highestLevelOnly.checked) parameters.set("highestLevelOnly", "true");
-  parameters.set("limit", "30");
 
-  searchStatus.textContent = "Searching catalog…";
+  activeSearchParameters = parameters;
+  currentOffset = 0;
+  currentTotal = 0;
   searchResults.replaceChildren();
-  searchForm.setAttribute("aria-busy", "true");
+  updatePagination();
+  fetchSearchPage(parameters, 0);
+}
 
-  try {
-    const response = await fetch(`/api/grim-dawn/items?${parameters}`, {
-      headers: { Accept: "application/json" },
-    });
-    if (!response.ok) {
-      throw new Error(`Catalog search returned ${response.status}`);
-    }
-    const payload = await response.json();
-    if (searchId === latestSearch) renderResults(payload);
-  } catch (error) {
-    if (searchId === latestSearch) {
-      searchStatus.textContent = "Catalog search is temporarily unavailable.";
-      console.error("Catalog search failed", error);
-    }
-  } finally {
-    if (searchId === latestSearch) searchForm.removeAttribute("aria-busy");
-  }
+function navigateSearch(direction) {
+  if (searchPending || activeSearchParameters === null) return;
+  const offset = currentOffset + direction * PAGE_SIZE;
+  if (offset < 0 || offset >= currentTotal) return;
+  fetchSearchPage(activeSearchParameters, offset, true);
 }
 
 function resetSearch() {
+  // Invalidate in-flight requests immediately, before the browser resets form fields.
+  latestSearch += 1;
+  activeSearchParameters = null;
+  currentOffset = 0;
+  currentTotal = 0;
+  searchPending = false;
+  searchForm.removeAttribute("aria-busy");
+  updatePagination();
+  searchResults.replaceChildren();
+  searchStatus.textContent = "Enter a name or choose a filter to begin.";
   window.setTimeout(() => {
     searchGroup.disabled = false;
-    latestSearch += 1;
-    searchResults.replaceChildren();
-    searchStatus.textContent = "Enter a name or choose a filter to begin.";
     searchQuery.focus();
   }, 0);
 }
@@ -529,4 +603,8 @@ async function checkPlatform() {
 
 searchForm.addEventListener("submit", searchCatalog);
 searchReset.addEventListener("click", resetSearch);
+paginationControls.forEach(({ previous, next }) => {
+  previous.addEventListener("click", () => navigateSearch(-1));
+  next.addEventListener("click", () => navigateSearch(1));
+});
 checkPlatform();

@@ -6,7 +6,7 @@
     <meta name="theme-color" content="#111827">
     <title>Game Lab</title>
     <link rel="stylesheet" href="/styles.css">
-    <script src="/app.js?v=equipment-slot-41" defer></script>
+    <script src="/app.js?v=catalog-pagination-47" defer></script>
   </head>
   <body>
     <main class="shell">
@@ -105,7 +105,17 @@
         <p id="search-status" class="search__status" role="status" aria-live="polite">
           Enter a name or choose a filter to begin.
         </p>
+        <nav id="search-pagination" class="search__pagination" aria-label="Catalog results pages" hidden>
+          <button id="search-previous" class="button--secondary" type="button" disabled>Previous</button>
+          <span id="search-page-label" class="search__page-label" aria-live="polite"></span>
+          <button id="search-next" class="button--secondary" type="button" disabled>Next</button>
+        </nav>
         <div id="search-results" class="results"></div>
+        <nav id="search-pagination-bottom" class="search__pagination" aria-label="Catalog results pages bottom" hidden>
+          <button id="search-previous-bottom" class="button--secondary" type="button" disabled>Previous</button>
+          <span id="search-page-label-bottom" class="search__page-label"></span>
+          <button id="search-next-bottom" class="button--secondary" type="button" disabled>Next</button>
+        </nav>
       </section>
 
       <footer>
