@@ -192,7 +192,18 @@ function resultCard(item) {
   return article;
 }
 
+function retaliationLabel(key) {
+  // Flat retaliation damage has a different player-facing label from its
+  // percentage-based Modifier counterpart. Keep all source values unchanged.
+  const match = /^retaliation([A-Z][a-zA-Z]*)(Min|Max)$/.exec(key);
+  if (!match) return null;
+  const damageType = match[1] === "Poison" ? "Acid" : match[1];
+  return `${friendlyLabel(damageType)} Retaliation`;
+}
+
 function propertyLabel(property) {
+  const retaliation = retaliationLabel(property.key);
+  if (retaliation) return retaliation;
   if (typeof property.label === "string" && property.label) return property.label;
   if (property.key === "offensiveSlowPoisonMin"
       && Number.isFinite(property.durationSeconds)) {
