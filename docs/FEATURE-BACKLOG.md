@@ -122,6 +122,14 @@ This backlog captures feature requests as the user provides their requirements. 
 - **Acceptance criteria:** Reproduce this on a ready PR from the PC; identify why the desktop merge action is unavailable; restore normal PC merging without weakening required PR checks or main-branch protections; verify a ready test PR can be merged from PC.
 - **Dependencies or notes:** The user reported on November 3, 2026 that PR #46 was merged via mobile while PC-based merging remained broken. Explicitly deferred; no troubleshooting or settings changes requested tonight.
 
+### 15. Polish catalog pagination button appearance
+
+- **Device:** Mobile-friendly
+- **Status:** Proposed
+- **Problem and desired behavior:** After PR #54, Previous and Next pagination controls work on mobile but look like browser-default gray buttons rather than the site's dark-themed controls. Make pagination navigation visually consistent with the rest of Game Lab without changing its working behavior.
+- **Acceptance criteria:** Style Previous/Next with the existing site's colors, typography, border radius, spacing, and touch-target sizing; distinguish enabled, disabled, focused, and pressed states accessibly; ensure the page indicator and controls fit narrow mobile screens without overflow; keep both top and bottom pagination controls visually consistent; preserve pagination, result ranges, and all filters.
+- **Dependencies or notes:** Screenshot from mobile verification of PR #54 showed `Previous  Page 2 of 290  Next` in default-looking gray buttons. Inspect existing CSS specificity and button styles before implementation. Do not combine with pagination logic changes.
+
 ### Request template
 
 - **Title:**
