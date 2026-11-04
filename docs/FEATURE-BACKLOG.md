@@ -151,6 +151,14 @@ This policy applies to all future catalog and item-card changes, not just retali
 - **Acceptance criteria:** Audit the catalog/API keys and rendered labels for terrifying/fear, slow, freeze, and other non-damage retaliation effects; show accurate effect names, durations, chances, and units where supported by source data; distinguish crowd-control retaliation from flat damage and percentage damage modifiers; add representative regression cases; preserve underlying values and mechanics.
 - **Dependencies or notes:** Follow-up to global flat damage retaliation label PR #56. Inspect source fields and actual examples before deciding mappings; do not blindly apply the `retaliation<Type>Min` → `<Type> Retaliation` damage naming rule to specialty effects. Keep PR #55 as documentation-only backlog intake.
 
+### 17. Audit damage-over-time property labels and block chance naming
+
+- **Device:** Mobile-friendly
+- **Status:** Proposed
+- **Problem and desired behavior:** Mobile verification after PR #57 revealed `Offensive Slow Bleeding Modifier` on Mythical Bramblevine (`it12725`) and `Defensive Block Chance` on shields. Present these as readable `Bleeding Damage` and `Block Chance`, respectively, without overlooking other related property keys.
+- **Acceptance criteria:** Inventory the full offensive damage-over-time family (Bleeding, Burn, Frostburn, Electrocute, Poison, Vitality Decay, Internal Trauma, and any source-backed variants) and standardize labels across modifier and flat/duration forms where semantically correct; distinguish damage-over-time from ordinary flat damage; normalize block-chance labeling wherever the same property occurs while keeping `Blocked Damage` as a separate flat amount; add representative regression tests for siblings and exceptions; preserve values, percentages, durations, and mechanics.
+- **Dependencies or notes:** Follow the family-wide implementation policy introduced in PR #58. Verify Mythical Bramblevine (`it12725`) and additional damage types on mobile. Keep this separate from specialty retaliation backlog #16 and block recovery/source audit #8.
+
 ### Request template
 
 - **Title:**
