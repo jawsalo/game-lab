@@ -14,7 +14,6 @@ assert.ok(labelsStart >= 0 && labelsEnd > labelsStart, "Property formatter must 
 const relevant = source.slice(labelsStart, labelsEnd);
 const context = vm.createContext({
   numberFormatter: new Intl.NumberFormat("en-US"),
-  RESISTANCE_PROPERTY_KEYS: new Set(),
 });
 vm.runInContext(relevant + "\nthis.getLabel = propertyLabel; this.getValue = propertyValue;", context);
 
