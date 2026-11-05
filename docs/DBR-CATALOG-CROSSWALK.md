@@ -140,6 +140,10 @@ These examples resolve several of the flagged non-caster collisions. They are ta
 - Record the exact catalog/game build with any future generated crosswalk. If a source path has zero or multiple candidates, keep it unresolved until additional evidence distinguishes it.
 - The attachments also contained private character/stash files and unrelated output. None of those files, raw exports, or inventory contents are included in this document or should be committed.
 
+## Current source-data extraction checkpoint — November 5, 2026
+
+The local Asset Manager export contains 74,052 DBRs across base (34,180), GDX1 (18,455), GDX2 (16,453), survivalmode (3,148), survivalmode1 (1,005), and survivalmode2 (811). The counts reconcile. GDX3 is missing from that export. Its installed archive was read by ArchiveTool (24,775 listed entries; exit code 0), but no DBR files appeared at the requested destination or in the targeted search locations. This is an extraction failure, not evidence that the GDX3 archive is absent or empty. See [Session 6 handoff](SESSION-6-HANDOFF.md) for the exact attempts and safe resume plan. Do not claim full source coverage until GDX3 files are actually extracted and counted.
+
 ## Next mapping work
 
 1. Keep these 77 mappings as a verified seed set and regression fixture.

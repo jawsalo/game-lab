@@ -13,7 +13,7 @@ User-requested features are tracked with mobile, PC, or mixed effort labels in [
 
 ## Current priority sequence
 
-The app foundation and open-source observability stack are working. Item-card fidelity is complete for this checkpoint. The first snapshot input is Grim Dawn character and stash save files; the import contract and current crosswalk checkpoint are in [SNAPSHOT-IMPORT-CONTRACT.md](SNAPSHOT-IMPORT-CONTRACT.md), with the hands-on restart steps in [SESSION-5-HANDOFF.md](SESSION-5-HANDOFF.md). The read-only parser path is integrated and smoke-tested against the user's local character and shared-stash files (November 2); this proves the invocation and allowlisted projection for those files, not clean 1.3.1.0 fixture coverage. Continue the versioned DBR-to-catalog crosswalk using a reproducible export path, then complete clean fixture/license compatibility and design owner authentication before accepting uploads. Next check live VPS capacity and implement bounded temporary upload, read-only preview, and PostgreSQL persistence. Once the app can produce meaningful, repeatable traffic, exercise it with controlled failure scenarios and compare the same investigations in Datadog. Keep Datadog deferred until that workload is ready. Phone-first controlled MCP operations remain a later, separately scoped track.
+The app foundation and open-source observability stack are working. Item-card fidelity is complete for this checkpoint. The first snapshot input is Grim Dawn character and stash save files; the import contract and current crosswalk checkpoint are in [SNAPSHOT-IMPORT-CONTRACT.md](SNAPSHOT-IMPORT-CONTRACT.md), with the hands-on restart steps in [SESSION-6-HANDOFF.md](SESSION-6-HANDOFF.md). The read-only parser path is integrated and smoke-tested against the user's local character and shared-stash files (November 2); this proves the invocation and allowlisted projection for those files, not clean 1.3.1.0 fixture coverage. Continue the versioned DBR-to-catalog crosswalk using a reproducible export path, then complete clean fixture/license compatibility and design owner authentication before accepting uploads. Next check live VPS capacity and implement bounded temporary upload, read-only preview, and PostgreSQL persistence. Once the app can produce meaningful, repeatable traffic, exercise it with controlled failure scenarios and compare the same investigations in Datadog. Keep Datadog deferred until that workload is ready. Phone-first controlled MCP operations remain a later, separately scoped track.
 
 ## Existing foundation (previously verified; recheck before work)
 - Ubuntu 24.04 VPS, single-node K3s v1.36.3+k3s1.
@@ -165,6 +165,13 @@ The first DBR-to-catalog mapping seed is documented in [DBR-CATALOG-CROSSWALK.md
 - The smoke script prints only source type, format version, and aggregate item count. The source save files were read-only and were not modified. Only aggregate count summaries are recorded; no personal file paths, character names, item names, or individual records were added to this repository.
 - This verifies the parser invocation and output projection against these particular local files. It is not a clean, independently licensed Grim Dawn 1.3.1.0 fixture test, it does not establish coverage for every supported save, and it does not prove catalog identity resolution. The game's reported build is 1.3.1.1; the catalog is pinned to 1.3.1.0 because that hotfix did not add item data.
 - The handoff and remaining gates are detailed in SESSION-5-HANDOFF.md and SNAPSHOT-IMPORT-CONTRACT.md.
+
+## DBR source extraction checkpoint — November 5, 2026
+
+- The local Asset Manager export contains **74,052 DBRs**: base 34,180; GDX1 18,455; GDX2 16,453; survivalmode 3,148; survivalmode1 1,005; survivalmode2 811. These counts reconcile exactly.
+- **GDX3 is not included** in that export. The installed GDX3 archive exists and lists 24,775 entries, but the direct ArchiveTool run exited 0 after reporting “Operation completed” while writing zero DBR files to its requested destination. A targeted search did not find the final listed DBR elsewhere.
+- Do not repeat the successful 74,052-file extraction or put output in the game installation. GDX3 extraction remains unresolved; start with the isolated GUI-wrapper path and verification steps in [Session 6 handoff](SESSION-6-HANDOFF.md).
+- No raw game DBRs or personal save/inventory data belong in Git.
 
 ## Resume checklist
 - Keep Grafana private; access it with the two-step port-forward and SSH tunnel documented in the session handoff.
