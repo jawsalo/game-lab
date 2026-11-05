@@ -540,16 +540,37 @@ select:focus-visible {
 .search__pagination button {
   min-height: 2.75rem;
   padding: 0.6rem 1rem;
-  border: 1px solid #334155;
-  border-radius: 0.7rem;
+  border: 1px solid #475569;
+  border-radius: 0.75rem;
   background: #1e293b;
-  color: #e2e8f0;
+  color: #f8fafc;
+  font: inherit;
   font-weight: 700;
   cursor: pointer;
+  transition: background-color 150ms ease, border-color 150ms ease;
+}
+@media (hover: hover) {
+  .search__pagination button:not(:disabled):hover {
+    border-color: #22d3ee;
+    background: #26364b;
+  }
+}
+.search__pagination button:not(:disabled):active {
+  border-color: #22d3ee;
+  background: #0e7490;
+  color: #fff;
 }
 .search__pagination button:disabled {
+  border-color: #334155;
+  background: #111827;
+  color: #94a3b8;
   cursor: not-allowed;
-  opacity: 0.45;
+  opacity: 0.65;
+}
+@media (prefers-reduced-motion: reduce) {
+  .search__pagination button {
+    transition: none;
+  }
 }
 .search__page-label {
   color: #cbd5e1;
