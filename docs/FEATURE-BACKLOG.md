@@ -171,6 +171,14 @@ This policy applies to all future catalog and item-card changes, not just retali
   - **Markovian's Bastion — five pieces, mixed slots:** [gd_baseline1.PNG](reference/grimtools-item-cards/gd_baseline1.PNG) (set list, 2–5-piece bonuses, Blitz/Overguard and granted skill), [gd_baseline2.PNG](reference/grimtools-item-cards/gd_baseline2.PNG) (shield, amulet, chest), [gd_baseline3.PNG](reference/grimtools-item-cards/gd_baseline3.PNG) (shoulders, helm). Members: Mythical Markovian's Visor (helm), Platemail (chest), Vanguard (shoulders), Bulwark (shield), Distinction (amulet). Tests mixed equipment slots, five-piece progression and skill modifiers.
   - **Invoker's Will — four pieces, accessories/off-hand:** [gd_baseline4.PNG](reference/grimtools-item-cards/gd_baseline4.PNG) (off-hand, ring, amulet), [gd_baseline5.PNG](reference/grimtools-item-cards/gd_baseline5.PNG) (Shocking Touch ring, complete piece list and 2–4-piece bonuses), [gd_baseline6.PNG](reference/grimtools-item-cards/gd_baseline6.PNG) (set bonus skill details and Invoker's Fury). Members: Mythical Invoker's Shard (amulet), Burning Hand (ring), Shocking Touch (ring), Blaze (off-hand). Tests two distinct rings, four-piece progression, granted skills and Panetti's Replicating Missile modifiers.
 
+### 19. Invalidate cached frontend assets after deployment
+
+- **Device:** Mobile-friendly (implementation and verification from phone via GitHub; PC optional for deeper browser debugging)
+- **Status:** Proposed
+- **Problem and desired behavior:** After PR #64 was merged and production deployment verification succeeded, Samsung Internet still displayed the old `Offensive Slow Bleeding Modifier` and `Defensive Block Chance` labels on Mythical Bramblevine (`it12725`). Chrome Incognito displayed the corrected labels, indicating stale browser-cached frontend assets. Users should receive the latest deployed UI without clearing site data or using Incognito.
+- **Acceptance criteria:** Give `app.js` and `styles.css` release-specific URLs (for example, a build/commit-based query string or content-hashed filename) that change whenever their contents change; ensure the served HTML is revalidated so an existing browser session discovers the new asset URLs; preserve efficient caching of unchanged versioned assets; verify behavior after two successive deployments using the same regular mobile browser session; confirm a normal reload loads the latest code without manual cache clearing; document any service worker or proxy cache behavior if present.
+- **Dependencies or notes:** Prefer the existing build/deploy commit metadata rather than manually updating version numbers. Inspect `apps/web/index.html`, web server cache headers, container build, and deployment path before choosing implementation. Avoid disabling all caching globally. Verify in Samsung Internet and Chrome where practical. No local Grim Dawn DBR exports required.
+
 ### Request template
 
 - **Title:**
