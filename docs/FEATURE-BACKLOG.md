@@ -159,6 +159,14 @@ This policy applies to all future catalog and item-card changes, not just retali
 - **Acceptance criteria:** Inventory the full offensive damage-over-time family (Bleeding, Burn, Frostburn, Electrocute, Poison, Vitality Decay, Internal Trauma, and any source-backed variants) and standardize labels across modifier and flat/duration forms where semantically correct; distinguish damage-over-time from ordinary flat damage; normalize block-chance labeling wherever the same property occurs while keeping `Blocked Damage` as a separate flat amount; add representative regression tests for siblings and exceptions; preserve values, percentages, durations, and mechanics.
 - **Dependencies or notes:** Follow the family-wide implementation policy introduced in PR #58. Verify Mythical Bramblevine (`it12725`) and additional damage types on mobile. Keep this separate from specialty retaliation backlog #16 and block recovery/source audit #8.
 
+### 18. Display equipment set membership, pieces, and set bonuses
+
+- **Device:** Mixed
+- **Status:** Proposed
+- **Problem and desired behavior:** Set items currently appear as standalone equipment with no indication of their set membership. Mythical Invoker's Shocking Touch (`it9047`) belongs to a four-piece set, but its Game Lab card does not identify the set or show related pieces and bonuses.
+- **Acceptance criteria:** Audit source DBR/catalog representation of set identity, piece counts, related items, and set bonuses; display the set name and all member pieces on applicable item cards; show bonuses at their correct piece-count thresholds with readable names and values; link to catalog entries for pieces when reliably identifiable; distinguish base, empowered, mythical, and other similarly named sets without combining unrelated tiers; keep non-set items unchanged; add representative regression cases across different set sizes and item slots.
+- **Dependencies or notes:** Follow the family-wide implementation policy. Source-backed set metadata may require PC access to game database files, so investigate remotely first and mark implementation PC-required if necessary. The UI should not imply which pieces a player owns or which bonuses are currently active without character/equipment data. Mobile screenshot example: `it9047`.
+
 ### Request template
 
 - **Title:**
