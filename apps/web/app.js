@@ -53,6 +53,7 @@ const PROPERTY_LABELS = {
   characterSpirit: "Spirit",
   characterStrength: "Physique",
   defensiveBlock: "Blocked Damage",
+  defensiveBlockChance: "Block Chance",
   defensiveAether: "Aether Resistance",
   defensiveBleeding: "Bleeding Resistance",
   defensiveChaos: "Chaos Resistance",
@@ -205,6 +206,7 @@ const DAMAGE_TYPE_LABELS = {
   SlowPhysical: "Internal Trauma", SlowFire: "Burn",
   SlowCold: "Frostburn", SlowLightning: "Electrocute",
   SlowPoison: "Poison", SlowLife: "Vitality Decay",
+  SlowBleeding: "Bleeding",
 };
 function damagePropertyLabel(key) {
   if (key === "retaliationTotalDamageModifier") return "All Retaliation Damage";
