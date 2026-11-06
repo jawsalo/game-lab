@@ -1,52 +1,67 @@
-# Game Lab Session 6 Handoff — GDX3 Extraction Blocked
+# Game Lab Session 6 Handoff — Complete Local DBR Export
 
-**Checkpoint:** November 5, 2026  
+**Checkpoint:** November 6, 2026  
 **Repository:** `jawsalo/game-lab`, `main`  
 **Project stage:** Phase 2 — DBR-to-catalog identity crosswalk for future character/stash snapshots  
-**Status:** The broad local database export succeeded for 74,052 DBRs. GDX3 extraction is not complete. Stop here and resume from the isolated extraction investigation below.
+**Status:** Complete local source export verified: **98,827 DBRs across all seven database layers**, including GDX3. The extraction blocker is closed. Next: build and validate a reproducible local DBR index and candidate crosswalk report.
 
 ## Where this fits
 
-The local snapshot parser smoke test is complete for the user's own files (see [Session 5 handoff](SESSION-5-HANDOFF.md)). The remaining identity work is to map parsed DBR record paths to stable catalog IDs. The current evidence-backed seed is documented in [DBR-CATALOG-CROSSWALK.md](DBR-CATALOG-CROSSWALK.md): 77 unique generic caster mappings among 418 captured paths, plus targeted recipe, quest, and positive-control mappings. It is not full catalog coverage.
+The read-only snapshot parser smoke test is complete for the user's own files (see [Session 5 handoff](SESSION-5-HANDOFF.md)). The remaining identity work is mapping parsed DBR paths to stable catalog IDs. The evidence-backed seed is in [DBR-CATALOG-CROSSWALK.md](DBR-CATALOG-CROSSWALK.md): 77 unique generic caster mappings among 418 captured paths, plus targeted recipe, quest, and positive-control mappings. The crosswalk is still partial.
 
-## Successful local export
+The Grim Dawn catalog is pinned to **1.3.1.0**. The user's installed game reports **1.3.1.1**, which was identified in prior work as a hotfix without item additions. Keep the game build and catalog version separately labeled.
 
-The user ran Asset Manager extraction to a local output folder outside the game installation. DBR counts reported:
+## Successful complete local export
 
-| Layer/folder | DBRs |
-|---|---:|
-| Base database | 34,180 |
-| GDX1 | 18,455 |
-| GDX2 | 16,453 |
-| survivalmode | 3,148 |
-| survivalmode1 | 1,005 |
-| survivalmode2 | 811 |
-| **Total extracted** | **74,052** |
+The first Asset Manager export, outside the live game installation, provided 74,052 DBRs. Asset Manager omitted GDX3. The installed archive was present at:
 
-The sum reconciles exactly. The top-level output was `database` and `mods`; base was under `database`, with expansion/survival layers under `mods`. Preserve this export. There is no reason to repeat it.
+`C:\Program Files (x86)\Steam\steamapps\common\Grim Dawn\gdx3\database\GDX3.arz`
 
-## GDX3 investigation
+The direct ArchiveTool CLI reported all 24,775 entries processed and exit code 0, but wrote no files to the requested destination. Do not treat that attempt as a successful extraction.
 
-- The installed archive exists at `<Grim Dawn install>\gdx3\database\GDX3.arz` and is 48,508,393 bytes.
-- No GDX3 folder/count appeared in the Asset Manager export.
-- ArchiveTool was run against that archive with a new destination outside the game install. It listed entries through **24,775/24,775**, then printed `Operation completed in 00:18`; PowerShell reported `Exit=0`.
-- Despite that progress, the requested destination was never created, and the DBR count there was 0. A recursive search for the final listed record, `prodromus_chaosblastn.dbr`, across the export tree, user profile, and Grim Dawn install returned no result.
-- The previous top-level `gdx3-direct-1` folder contains a child folder named `3`, but contains 0 DBRs. Do not assume that folder is a valid extraction.
-- The command and output locations were checked against PowerShell history; the target path in the command was the intended one. The exact reason the CLI completed without writing files is still unknown.
-- Crate's forum has a report of Asset Manager failing to extract GDX3 ([forum report](https://forums.crateentertainment.com/t/v1-3-0-0-foa-assetmanager-not-extracting-gdx3/156037)). This is evidence of a reported issue, not proof of a universal failure or a confirmed fix.
+The user then extracted the GDX3 archive through the community ArchiveToolGUI utility. The GUI package was kept outside the game installation at `C:\GD-Data-Export\ArchiveToolGUI`; its INI points to the installed `ArchiveTool.exe`. GDX3 was extracted to a separate source folder and then copied into the combined Asset Manager tree.
 
-## Resume plan
+Verified local paths:
 
-1. Keep the 74,052-file export untouched. Never point extraction output at the live Grim Dawn install or overwrite an existing export.
-2. Next try the community ArchiveTool GUI helper referenced in this [Crate forum troubleshooting thread](https://forums.crateentertainment.com/t/cant-get-archivetool-exe-to-work/160297). It is a community utility, not a Crate-made tool. Review its source/archive and path fields before extracting.
-3. Extract only `GDX3.arz` into a fresh isolated output folder, such as `C:\GD-Data-Export\GDX3-GUI`.
-4. Verify actual files were written: count `.dbr` files recursively, inspect at least one known GDX3 item record such as `records/items/gearhead/d309_head.dbr`, and compare the observed count with the archive's listed 24,775 entries. Do not treat a progress count or exit code alone as extraction success.
-5. If the GUI also produces no files, stop and investigate the tool/version or use a verified extraction method before expanding crosswalk coverage. Do not fall back to many manual gd-edit pages.
-6. Once GDX3 is present, decide whether to generate mappings from local DBR/catalog data or prioritize item categories represented in actual snapshots. Keep unique, ambiguous, and missing matches separately reported; never map on display name alone.
+- GDX3 standalone extraction source: `C:\GD-Data-Export\GDX3-GUI\records`
+- Combined local database tree: `C:\GD-Data-Export\AssetManager-Work`
+- Combined GDX3 location: `C:\GD-Data-Export\AssetManager-Work\mods\gdx3\database\records`
 
-## Data handling
+The standalone GDX3 source contains 24,775 `.dbr` files. The combined tree was counted by layer:
 
-The DBR export is local source material. Do not commit raw game DBRs, extracted localization archives, personal save files, gd-edit transcripts, or individual inventory data to Git. Commit only project-authored scripts, reviewed derived mapping results, provenance, and tests as appropriate. The user's game build is 1.3.1.1; the catalog is pinned to 1.3.1.0. Keep those version labels distinct.
+| Layer | Relative location in combined tree | DBRs |
+|---|---|---:|
+| Base | `database` | 34,180 |
+| GDX1 | `mods\gdx1` | 18,455 |
+| GDX2 | `mods\gdx2` | 16,453 |
+| GDX3 | `mods\gdx3` | 24,775 |
+| Survival mode | `mods\survivalmode` | 3,148 |
+| Survival mode 1 | `mods\survivalmode1` | 1,005 |
+| Survival mode 2 | `mods\survivalmode2` | 811 |
+| **Total** |  | **98,827** |
+
+The seven layer counts sum exactly to the recursive total. The GDX3 count matches the 24,775 records reported by ArchiveToolGUI, and actual files were verified with sample paths under `records/controllers/enemy/`. This establishes that files were written and the complete extracted DBR corpus is assembled locally.
+
+## Next work: first index and candidate-mapping chunk
+
+Estimated time for the first useful chunk: **about 1–2 hours**, depending on the local export format and localization requirements. Broad catalog coverage will need additional sessions; estimate it after seeing the first report.
+
+1. From the Windows checkout of `jawsalo/game-lab`, inspect the DBR text format, layer directory layout, and available English localization inputs. Keep the local export outside Git.
+2. Implement a small deterministic local tool that scans all seven layer roots and emits an inventory/index of item-relevant DBRs. Preserve source layer and normalized DBR path. Keep raw DBR bodies and localized personal data out of the repo.
+3. Compare the index with the pinned 8,695-row catalog using a composite fingerprint based on source path relationships and item fields (resolved name, class/category, rarity, item/required levels, bitmap, gameplay properties, and where relevant recipe output/reagents or quest text). Do not use display name alone.
+4. Produce a review report that separates unique candidates, ambiguous matches, and unmatched records. Validate the known seed mappings (including the four canonical item-card items where applicable, the caster set, crafting/recipe examples, and quest examples) as regression checks.
+5. Review the first sample/report before expanding to a full generated crosswalk. Keep source version, catalog version, counts, and hashes/provenance explicit. Do not claim full coverage until counts and unresolved cases are reported.
+
+The current checkout is on the user's PC at `C:\Users\15073\Desktop\game-lab`; Python 3.13.17, a repository-local `.venv`, and Temurin Java 25.0.5 are installed. The parser smoke test already returned character format 8 / 153 items and shared stash format 11 / 210 items. The full DBR corpus is in `C:\GD-Data-Export`, not in that checkout.
+
+## Data handling and safety
+
+- Keep both raw exports local. Do not commit the 98,827 raw game DBRs, extracted localization archives, save files, gd-edit transcripts, or personal inventory data.
+- Commit only project-authored tooling, reviewed derived mapping data, provenance, and tests where appropriate.
+- Keep the known 74,052-file Asset Manager export and the standalone `GDX3-GUI` source intact. No need to repeat either extraction.
+- The failed direct CLI output folders are not valid sources; they contained no DBRs. Do not overwrite or mistake them for the successful export.
+- Keep the snapshot parser read-only with respect to original saves. The parser smoke test did not write to the character or stash files.
+- A candidate match is not a confirmed identity. Unique, ambiguous, and missing mappings must remain distinct until supported by evidence.
 
 ## Related documents
 

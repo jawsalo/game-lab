@@ -1,6 +1,6 @@
 # Game Lab — V9 Roadmap
 
-**Status:** PHASE 2 IN PROGRESS; PHASE 3 COMPLETE; PHASE 4 COMPLETE — metrics, logs, traces, and database-span correlation verified; PHONE-APPROVED DEPLOYMENT VERIFIED; ITEM-CARD BASELINE COMPLETE AND VERIFIED ON PRODUCTION — October 26, 2026  
+**Status:** PHASE 2 IN PROGRESS; PHASE 3 COMPLETE; PHASE 4 COMPLETE — metrics, logs, traces, and database-span correlation verified; PHONE-APPROVED DEPLOYMENT VERIFIED; ITEM-CARD BASELINE COMPLETE AND VERIFIED ON PRODUCTION; COMPLETE LOCAL DBR EXPORT VERIFIED — November 6, 2026  
 **Supersedes:** V8  
 **Execution:** Continue with short, validated chunks from the current Phase 2 checkpoint.
 
@@ -13,7 +13,7 @@ User-requested features are tracked with mobile, PC, or mixed effort labels in [
 
 ## Current priority sequence
 
-The app foundation and open-source observability stack are working. Item-card fidelity is complete for this checkpoint. The first snapshot input is Grim Dawn character and stash save files; the import contract and current crosswalk checkpoint are in [SNAPSHOT-IMPORT-CONTRACT.md](SNAPSHOT-IMPORT-CONTRACT.md), with the hands-on restart steps in [SESSION-6-HANDOFF.md](SESSION-6-HANDOFF.md). The read-only parser path is integrated and smoke-tested against the user's local character and shared-stash files (November 2); this proves the invocation and allowlisted projection for those files, not clean 1.3.1.0 fixture coverage. Continue the versioned DBR-to-catalog crosswalk using a reproducible export path, then complete clean fixture/license compatibility and design owner authentication before accepting uploads. Next check live VPS capacity and implement bounded temporary upload, read-only preview, and PostgreSQL persistence. Once the app can produce meaningful, repeatable traffic, exercise it with controlled failure scenarios and compare the same investigations in Datadog. Keep Datadog deferred until that workload is ready. Phone-first controlled MCP operations remain a later, separately scoped track.
+The app foundation and open-source observability stack are working. Item-card fidelity is complete for this checkpoint. The first snapshot input is Grim Dawn character and stash save files; the import contract and current crosswalk checkpoint are in [SNAPSHOT-IMPORT-CONTRACT.md](SNAPSHOT-IMPORT-CONTRACT.md), with the hands-on restart steps in [SESSION-6-HANDOFF.md](SESSION-6-HANDOFF.md). The read-only parser path is integrated and smoke-tested against the user's local character and shared-stash files (November 2); this proves the invocation and allowlisted projection for those files, not clean 1.3.1.0 fixture coverage. The complete local DBR source export is now verified across all seven layers (98,827 records including GDX3). Build and validate a deterministic local DBR index and candidate crosswalk report. Then close the clean-fixture and parser-license compatibility gates and design owner authentication before accepting uploads. Next check live VPS capacity and implement bounded temporary upload, read-only preview, and PostgreSQL persistence. Once the app can produce meaningful, repeatable traffic, exercise it with controlled failure scenarios and compare the same investigations in Datadog. Keep Datadog deferred until that workload is ready. Phone-first controlled MCP operations remain a later, separately scoped track.
 
 ## Existing foundation (previously verified; recheck before work)
 - Ubuntu 24.04 VPS, single-node K3s v1.36.3+k3s1.
@@ -106,6 +106,14 @@ Unify application, Kubernetes, GitHub and observability context for guided inves
 - Loki returned API pod logs, including successful 200 requests to the API, catalog, and item search routes.
 - Tempo returned a `GET /api/grim-dawn/items` trace with six spans: the request, two HTTP send spans, one SQLite `PRAGMA`, and two SQLite `SELECT` spans. The database spans are children of the request trace.
 - Dashboard, logs, traces, and database-span correlation are now verified. Continue Phase 2 with the snapshot upload and ownership contract before implementing persistence.
+
+### DBR source export checkpoint — November 6, 2026
+
+- The complete local export contains 98,827 DBRs: base 34,180; GDX1 18,455; GDX2 16,453; GDX3 24,775; survivalmode 3,148; survivalmode1 1,005; survivalmode2 811.
+- Asset Manager supplied the first six layers (74,052 DBRs). Its GDX3 omission was resolved with the community ArchiveToolGUI utility: 24,775 actual DBR files were extracted from the installed GDX3 archive and verified, then copied into the combined local tree.
+- The seven counts reconcile to the total. Extraction is complete; DBR-to-catalog identity coverage remains partial.
+- Next chunk: locally inspect the DBR text/localization inputs, build a deterministic index and produce a small candidate-match report with unique, ambiguous, and unmatched results. See [Session 6 handoff](SESSION-6-HANDOFF.md) and [DBR crosswalk](DBR-CATALOG-CROSSWALK.md).
+- Keep raw game exports and all save/inventory data local and out of Git.
 
 ## Progress — October 18, 2026
 - Deployed the mobile-first web shell and FastAPI service at `games.phobosandeimos.com`.
