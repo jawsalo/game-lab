@@ -102,8 +102,24 @@ class ItemCardTests(unittest.TestCase):
         self.assertIsNotNone(item)
         card = build_item_card(item)
         self.assertEqual(
-            {(entry.input_type.lower(), entry.output_type.lower()) for entry in card.conversions},
-            {("chaos", "physical"), ("acid", "physical")},
+            [
+                {
+                    **entry.dict(by_alias=True, exclude_none=True),
+                    "from": entry.input_type.lower(),
+                    "to": entry.output_type.lower(),
+                }
+                for entry in card.conversions
+            ],
+            [
+                {
+                    "from": "chaos", "to": "physical", "percentage": 45,
+                    "minValue": 36, "maxValue": 54,
+                },
+                {
+                    "from": "acid", "to": "physical", "percentage": 45,
+                    "minValue": 36, "maxValue": 54,
+                },
+            ],
         )
 
     def test_multiple_conversion_slots_are_preserved_without_cross_pairing(self) -> None:

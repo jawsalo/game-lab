@@ -358,6 +358,13 @@ function renderItemDetails(card, summaryDescription) {
     fragment.append(skills);
   }
 
+  function conversionValue(conversion) {
+    if (Number.isFinite(conversion.minValue) && Number.isFinite(conversion.maxValue)) {
+      return `${numberFormatter.format(conversion.minValue)}/${numberFormatter.format(conversion.maxValue)}`;
+    }
+    return numberFormatter.format(conversion.percentage);
+  }
+
   if (Array.isArray(card.conversions) && card.conversions.length > 0) {
     addSectionHeading(fragment, "Conversions");
     const list = document.createElement("ul");
@@ -365,7 +372,7 @@ function renderItemDetails(card, summaryDescription) {
     card.conversions.forEach((conversion) => {
       const entry = document.createElement("li");
       entry.textContent =
-        `${Number.isFinite(conversion.minValue) && Number.isFinite(conversion.maxValue) ? `${numberFormatter.format(conversion.minValue)}/${numberFormatter.format(conversion.maxValue)}` : numberFormatter.format(conversion.percentage)}% ${friendlyLabel(conversion.from)} to ${friendlyLabel(conversion.to)}`;
+        `${conversionValue(conversion)}% ${friendlyLabel(conversion.from)} to ${friendlyLabel(conversion.to)}`;
       list.append(entry);
     });
     fragment.append(list);
