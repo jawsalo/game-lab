@@ -32,9 +32,8 @@ if [[ -z "$js_url" || -z "$css_url" ]] || ! grep -qi 'cache-control:.*no-cache' 
   exit 1
 fi
 for asset_url in "$js_url" "$css_url"; do
-  asset="$(curl "${curl_options[@]}" "$base_url$asset_url")"
   version="${asset_url##*v=}"
-  actual="$(printf '%s' "$asset" | sha256sum | cut -c1-16)"
+  actual="$(curl "${curl_options[@]}" "$base_url$asset_url" | sha256sum | cut -c1-16)"
   if [[ "$actual" != "$version" ]]; then
     echo "Frontend smoke test failed: $asset_url content hash mismatch ($actual)." >&2
     exit 1
