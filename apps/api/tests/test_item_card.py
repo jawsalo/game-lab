@@ -95,6 +95,17 @@ class ItemCardTests(unittest.TestCase):
         self.assertNotIn("record", payload)
         self.assertNotIn("mods", payload)
 
+    def test_pinned_dauntless_catalog_contains_both_conversions(self) -> None:
+        from apps.api.app.catalog import GrimDawnCatalog
+
+        item = GrimDawnCatalog().get_item("it14449")
+        self.assertIsNotNone(item)
+        card = build_item_card(item)
+        self.assertEqual(
+            {(entry.input_type.lower(), entry.output_type.lower()) for entry in card.conversions},
+            {("chaos", "physical"), ("acid", "physical")},
+        )
+
     def test_multiple_conversion_slots_are_preserved_without_cross_pairing(self) -> None:
         # Dauntless reference: Chaos and Acid both convert to Physical.
         card = build_item_card(
