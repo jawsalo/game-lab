@@ -150,7 +150,7 @@ def shared_discriminator_evidence(record: dict[str, Any], item: dict[str, Any]) 
 
 
 def record_stat_evidence(record: dict[str, Any], item: dict[str, Any]) -> tuple[list[str], list[str]]:
-    """Compare nonzero numeric item stats preserved in both raw record sources."""
+    """Compare numeric item stats that both raw record sources actually contain."""
     source_fields = record.get("fields", {})
     catalog_record = item.get("record", {})
 
@@ -162,7 +162,7 @@ def record_stat_evidence(record: dict[str, Any], item: dict[str, Any]) -> tuple[
         if not is_stat_field(key):
             continue
         value = number(first(source_fields, key))
-        if value not in (None, 0):
+        if value is not None:
             source_stats[key] = value
 
     catalog_stats = {}
@@ -170,17 +170,18 @@ def record_stat_evidence(record: dict[str, Any], item: dict[str, Any]) -> tuple[
         if not is_stat_field(key):
             continue
         parsed = number(value)
-        if parsed not in (None, 0):
+        if parsed is not None:
             catalog_stats[key] = parsed
 
     matched = []
     mismatched = []
-    for key in sorted(source_stats.keys() | catalog_stats.keys()):
-        if key in source_stats and key in catalog_stats and source_stats[key] == catalog_stats[key]:
-            matched.append(key)
+    for key in sorted(source_stats.keys() & catalog_stats.keys()):
+        if source_stats[key] == catalog_stats[key]:
+            # Zero values help reject a different damage type when both datasets
+            # explicitly include the field, but are not useful positive evidence.
+            if source_stats[key] != 0:
+                matched.append(key)
         else:
-            # A nonzero stat present on only one side is meaningful evidence too:
-            # catalog record_json omits default zero values.
             mismatched.append(key)
     return matched, mismatched
 
