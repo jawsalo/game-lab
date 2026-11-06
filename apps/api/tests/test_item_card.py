@@ -119,8 +119,8 @@ class ItemCardTests(unittest.TestCase):
         self.assertEqual(
             [entry.dict(by_alias=True) for entry in card.conversions],
             [
-                {"from": "chaos", "to": "physical", "percentage": 45},
-                {"from": "acid", "to": "physical", "percentage": 45},
+                {"from": "chaos", "to": "physical", "percentage": 45, "minValue": 36, "maxValue": 54},
+                {"from": "acid", "to": "physical", "percentage": 45, "minValue": 36, "maxValue": 54},
             ],
         )
 
@@ -143,7 +143,7 @@ class ItemCardTests(unittest.TestCase):
         )
         self.assertEqual(
             [entry.dict(by_alias=True) for entry in card.conversions],
-            [{"from": "fire", "to": "cold", "percentage": 25}],
+            [{"from": "fire", "to": "cold", "percentage": 25, "minValue": 20, "maxValue": 30}],
         )
 
     def test_fire_damage_label_is_friendly_for_item_and_granted_skill(self) -> None:
