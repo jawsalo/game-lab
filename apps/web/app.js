@@ -365,7 +365,7 @@ function renderItemDetails(card, summaryDescription) {
     card.conversions.forEach((conversion) => {
       const entry = document.createElement("li");
       entry.textContent =
-        `${numberFormatter.format(conversion.percentage)}% ${friendlyLabel(conversion.from)} to ${friendlyLabel(conversion.to)}`;
+        `${Number.isFinite(conversion.minValue) && Number.isFinite(conversion.maxValue) ? `${numberFormatter.format(conversion.minValue)}/${numberFormatter.format(conversion.maxValue)}` : numberFormatter.format(conversion.percentage)}% ${friendlyLabel(conversion.from)} to ${friendlyLabel(conversion.to)}`;
       list.append(entry);
     });
     fragment.append(list);
