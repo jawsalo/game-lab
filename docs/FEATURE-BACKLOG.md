@@ -179,6 +179,14 @@ This policy applies to all future catalog and item-card changes, not just retali
 - **Acceptance criteria:** Give `app.js` and `styles.css` release-specific URLs (for example, a build/commit-based query string or content-hashed filename) that change whenever their contents change; ensure the served HTML is revalidated so an existing browser session discovers the new asset URLs; preserve efficient caching of unchanged versioned assets; verify behavior after two successive deployments using the same regular mobile browser session; confirm a normal reload loads the latest code without manual cache clearing; document any service worker or proxy cache behavior if present.
 - **Dependencies or notes:** Prefer the existing build/deploy commit metadata rather than manually updating version numbers. Inspect `apps/web/index.html`, web server cache headers, container build, and deployment path before choosing implementation. Avoid disabling all caching globally. Verify in Samsung Internet and Chrome where practical. No local Grim Dawn DBR exports required.
 
+### 20. Prioritize shield block chance and blocked damage at top of item details
+
+- **Device:** Mobile-friendly
+- **Status:** Proposed
+- **Problem and desired behavior:** Shield cards currently bury their defining block mechanics among general properties. On Dauntless (`it14449`), `Blocked Damage` and `Block Chance` appear below offensive bonuses and Defensive Ability. Display block chance and blocked damage together at the top of expanded shield details, ideally under a dedicated `Shield Stats` heading, before general properties.
+- **Acceptance criteria:** Apply to all shield item cards, not just Dauntless; preserve the original chance and amount values/ranges and their units; avoid duplicate rows in the general Properties section; do not move similarly named non-shield properties; keep the ordering responsive and readable on mobile; add representative shield and non-shield regression tests.
+- **Dependencies or notes:** Use Dauntless (`it14449`) and Mythical Bramblevine (`it12725`) as visual regression cases. The Dauntless GrimTools reference is [03-1000115465.jpg](reference/grimtools-item-cards/03-1000115465.jpg). Keep this presentation-only task distinct from backlog #8's deeper block recovery and source-data audit.
+
 ### Request template
 
 - **Title:**
