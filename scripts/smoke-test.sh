@@ -22,6 +22,24 @@ if ! curl "${curl_options[@]}" "$base_url/" | grep --fixed-strings --quiet "<tit
   exit 1
 fi
 
+# Validate the actual deployed HTML and assets, not just the API commit.
+html="$(curl "${curl_options[@]}" "$base_url/")"
+html_headers="$(curl "${curl_options[@]}" --head "$base_url/")"
+js_url="$(printf '%s' "$html" | grep -oE '/app\\.js\\?v=[0-9a-f]{16}' | head -n 1)"
+css_url="$(printf '%s' "$html" | grep -oE '/styles\\.css\\?v=[0-9a-f]{16}' | head -n 1)"
+if [[ -z "$js_url" || -z "$css_url" ]] || ! grep -qi 'cache-control:.*no-cache' <<< "$html_headers"; then
+  echo "Frontend smoke test failed: missing versioned assets or HTML revalidation header." >&2
+  exit 1
+fi
+for asset_url in "$js_url" "$css_url"; do
+  version="${asset_url##*v=}"
+  actual="$(curl "${curl_options[@]}" "$base_url$asset_url" | sha256sum | cut -c1-16)"
+  if [[ "$actual" != "$version" ]]; then
+    echo "Frontend smoke test failed: $asset_url content hash mismatch ($actual)." >&2
+    exit 1
+  fi
+done
+
 metadata="$(curl "${curl_options[@]}" "$base_url/api")"
 readiness="$(curl "${curl_options[@]}" "$base_url/api/health/ready")"
 catalog="$(curl "${curl_options[@]}" "$base_url/api/grim-dawn/catalog")"
