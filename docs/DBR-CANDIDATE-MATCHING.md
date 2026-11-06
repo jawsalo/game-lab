@@ -7,6 +7,7 @@ This second local step compares the item-directory DBR index with the pinned Gri
 - A DBR and catalog row must have the same category (`Class` ↔ catalog `category`).
 - When present, the DBR `itemNameTag` is compared with catalog `name_tag` as an exact source-tag match.
 - Shared item level, required level, rarity, and bitmap values are checked. `.tex` and `.png` bitmap extensions are normalized for comparison.
+- Nonzero numeric offensive, defensive, character, conversion, and armor stats are compared between DBR fields and the catalog's raw `record_json`. This distinguishes variants that share a name tag, category, level, rarity, and bitmap, such as elemental versions of generic weapons. Missing nonzero stats count as mismatches because catalog records omit default zero values.
 - If the source name tag cannot identify a catalog row, an exact normalized localized display name may produce a candidate only when at least one independent discriminator also matches. Display-name-only matches stay unmatched.
 - Multiple candidates remain `ambiguous`. Unmatched rows are retained in the report.
 
@@ -30,4 +31,4 @@ The report output and DBR index contain derived game data. Keep both local; do n
 .\.venv\Scripts\python.exe -m unittest scripts.tests.test_grim_dawn_dbr_candidates -v
 ```
 
-Tests cover exact tag matching, discriminator conflicts, ambiguity retention, composite display-name fallback, rejection of name-only matches, category mismatches, and the catalog-version check.
+Tests cover exact tag matching, stat-based disambiguation, discriminator conflicts, ambiguity retention, composite display-name fallback, rejection of name-only matches, category mismatches, and the catalog-version check.

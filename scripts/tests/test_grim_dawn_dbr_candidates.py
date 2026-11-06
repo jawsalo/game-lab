@@ -17,6 +17,7 @@ def catalog_item(
     name_tag: str | None = "tagTestSword",
     item_level: int | None = 94,
     bitmap: str | None = "items/test_sword.png",
+    record: dict[str, object] | None = None,
 ) -> dict[str, object]:
     return {
         "id": item_id,
@@ -27,6 +28,7 @@ def catalog_item(
         "item_level": item_level,
         "bitmap": bitmap,
         "name_tag": name_tag,
+        "record": record or {},
     }
 
 
@@ -64,16 +66,17 @@ def make_catalog_db(path: Path, items: list[dict[str, object]]) -> None:
     connection.executescript(
         "CREATE TABLE metadata (key TEXT, value TEXT);"
         "CREATE TABLE items (id TEXT, name TEXT, category TEXT, rarity TEXT, "
-        "level_requirement INTEGER, item_level INTEGER, bitmap TEXT, name_tag TEXT);"
+        "level_requirement INTEGER, item_level INTEGER, bitmap TEXT, name_tag TEXT, record_json TEXT);"
     )
     connection.execute("INSERT INTO metadata VALUES ('game_version', '1.3.1.0')")
     connection.execute("INSERT INTO metadata VALUES ('record_count', ?)", (str(len(items)),))
     connection.executemany(
-        "INSERT INTO items VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+        "INSERT INTO items VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
         [
             (
                 item["id"], item["name"], item["category"], item["rarity"],
                 item["level_requirement"], item["item_level"], item["bitmap"], item["name_tag"],
+                json.dumps(item["record"]),
             )
             for item in items
         ],
@@ -101,6 +104,28 @@ class DbrCandidateTests(unittest.TestCase):
         )
         self.assertEqual(report["status"], "ambiguous")
         self.assertEqual(report["candidate_count"], 2)
+
+    def test_nonzero_record_stats_disambiguate_elemental_weapon_variants(self) -> None:
+        record = dbr_record()
+        record["fields"]["offensiveBaseColdMin"] = ["13.000000"]
+        record["fields"]["offensiveBaseColdMax"] = ["25.000000"]
+        cold = catalog_item(
+            "it-cold",
+            record={"offensiveBaseColdMin": 13, "offensiveBaseColdMax": 25},
+        )
+        poison = catalog_item(
+            "it-poison",
+            record={"offensiveBasePoisonMin": 13, "offensiveBasePoisonMax": 25},
+        )
+
+        report = make_candidates(record, {"WeaponMelee_Sword": [cold, poison]})
+
+        self.assertEqual(report["status"], "unique")
+        self.assertEqual(report["candidates"][0]["id"], "it-cold")
+        self.assertEqual(
+            report["candidates"][0]["matched_record_stats"],
+            ["offensiveBaseColdMax", "offensiveBaseColdMin"],
+        )
 
     def test_name_fallback_requires_an_independent_matching_field(self) -> None:
         record = dbr_record(name_tag=None)
