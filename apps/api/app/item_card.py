@@ -274,7 +274,7 @@ def _conversion(record: dict[str, Any], item_group: str | None) -> list[ItemConv
     conversions: list[ItemConversion] = []
     suffixes = {""}
     for key in record:
-        match = re.fullmatch(r"conversionInType(\\d+)", key)
+        match = re.fullmatch(r"conversionInType(\d+)", key)
         if match:
             suffixes.add(match.group(1))
 
