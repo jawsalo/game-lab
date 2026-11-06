@@ -264,21 +264,36 @@ def _numeric_properties(
 
 
 def _conversion(record: dict[str, Any]) -> list[ItemConversion]:
-    input_type = record.get("conversionInType")
-    output_type = record.get("conversionOutType")
-    percentage = record.get("conversionPercentage")
-    if (
-        isinstance(input_type, str)
-        and isinstance(output_type, str)
-        and isinstance(percentage, (int, float))
-        and not isinstance(percentage, bool)
-    ):
-        return [
-            ItemConversion(
-                **{"from": input_type, "to": output_type, "percentage": percentage}
+    """Collect every complete, source-backed conversion triplet.
+
+    DBR records may carry multiple numbered conversion slots in addition to
+    the legacy unsuffixed fields. Never combine values from different slots.
+    """
+    conversions: list[ItemConversion] = []
+    suffixes = {""}
+    for key in record:
+        match = re.fullmatch(r"conversionInType(\\d+)", key)
+        if match:
+            suffixes.add(match.group(1))
+
+    for suffix in sorted(suffixes, key=lambda value: (value != "", int(value or 0))):
+        input_type = record.get(f"conversionInType{suffix}")
+        output_type = record.get(f"conversionOutType{suffix}")
+        percentage = record.get(f"conversionPercentage{suffix}")
+        if (
+            isinstance(input_type, str)
+            and input_type
+            and isinstance(output_type, str)
+            and output_type
+            and isinstance(percentage, (int, float))
+            and not isinstance(percentage, bool)
+        ):
+            conversions.append(
+                ItemConversion(
+                    **{"from": input_type, "to": output_type, "percentage": percentage}
+                )
             )
-        ]
-    return []
+    return conversions
 
 
 def _ingredient_ids(value: Any) -> list[str]:
