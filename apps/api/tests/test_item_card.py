@@ -118,7 +118,7 @@ class ItemCardTests(unittest.TestCase):
                     "conversionInType": "chaos",
                     "conversionOutType": "physical",
                     "conversionPercentage": 45,
-                    "conversionInType2": "acid",
+                    "conversionInType2": "poison",
                     "conversionOutType2": "physical",
                     "conversionPercentage2": 45,
                     "conversionInType3": "fire",
@@ -134,6 +134,22 @@ class ItemCardTests(unittest.TestCase):
                 {"from": "acid", "to": "physical", "percentage": 45, "minValue": 36, "maxValue": 54},
             ],
         )
+
+    def test_poison_conversion_output_is_acid_not_poison_dot(self) -> None:
+        card = build_item_card(
+            {
+                "id": "test-acid",
+                "name": "Test Acid",
+                "group": "equipment",
+                "category": "ArmorJewelry_Ring",
+                "record": {
+                    "conversionInType": "fire",
+                    "conversionOutType": "poison",
+                    "conversionPercentage": 50,
+                },
+            }
+        )
+        self.assertEqual(card.conversions[0].output_type, "acid")
 
     def test_numbered_only_conversion_and_invalid_values(self) -> None:
         card = build_item_card(
