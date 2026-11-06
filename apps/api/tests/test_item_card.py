@@ -103,7 +103,11 @@ class ItemCardTests(unittest.TestCase):
         card = build_item_card(item)
         self.assertEqual(
             [
-                entry.dict(by_alias=True, exclude_none=True)
+                {
+                    **entry.dict(by_alias=True, exclude_none=True),
+                    "from": entry.input_type.lower(),
+                    "to": entry.output_type.lower(),
+                }
                 for entry in card.conversions
             ],
             [
