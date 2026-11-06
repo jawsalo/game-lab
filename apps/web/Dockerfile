@@ -4,11 +4,15 @@ COPY nginx.conf /etc/nginx/conf.d/default.conf
 COPY index.html styles.css app.js /usr/share/nginx/html/
 
 # Generate stable content-based asset URLs at image build time. No manual bump needed.
+# nginx-unprivileged runs as nginx by default; temporarily elevate for build-time editing.
+USER root
 RUN set -eu; \
     cd /usr/share/nginx/html; \
     js_version="$(sha256sum app.js | cut -c1-16)"; \
     css_version="$(sha256sum styles.css | cut -c1-16)"; \
     sed -i "s/__JS_VERSION__/${js_version}/g; s/__CSS_VERSION__/${css_version}/g" index.html; \
     ! grep -q "__JS_VERSION__\|__CSS_VERSION__" index.html
+
+USER nginx
 
 EXPOSE 8080
