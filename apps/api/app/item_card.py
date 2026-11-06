@@ -98,6 +98,8 @@ class ItemConversion(BaseModel):
     input_type: str = Field(alias="from")
     output_type: str = Field(alias="to")
     percentage: int | float
+    minimum: int | float | None = Field(default=None, alias="minValue")
+    maximum: int | float | None = Field(default=None, alias="maxValue")
 
 
 class RecipeIngredient(BaseModel):
@@ -263,7 +265,7 @@ def _numeric_properties(
     return result
 
 
-def _conversion(record: dict[str, Any]) -> list[ItemConversion]:
+def _conversion(record: dict[str, Any], item_group: str | None) -> list[ItemConversion]:
     """Collect every complete, source-backed conversion triplet.
 
     DBR records may carry multiple numbered conversion slots in addition to
@@ -288,11 +290,20 @@ def _conversion(record: dict[str, Any]) -> list[ItemConversion]:
             and isinstance(percentage, (int, float))
             and not isinstance(percentage, bool)
         ):
-            conversions.append(
-                ItemConversion(
-                    **{"from": input_type, "to": output_type, "percentage": percentage}
+            data: dict[str, Any] = {
+                "from": input_type, "to": output_type, "percentage": percentage
+            }
+            jitter = record.get("i", 20)
+            if (
+                item_group == "equipment"
+                and 0 < percentage < 100
+                and isinstance(jitter, (int, float))
+                and not isinstance(jitter, bool)
+            ):
+                data["minValue"], data["maxValue"] = _roll_bounds(
+                    percentage, scale=0, jitter=jitter
                 )
-            )
+            conversions.append(ItemConversion(**data))
     return conversions
 
 
@@ -467,6 +478,6 @@ def build_item_card(
         properties=_numeric_properties(record, item.get("group")),
         skillBonuses=_skill_bonuses(resolved_skill_data),
         grantedSkills=_granted_skills(resolved_skill_data),
-        conversions=_conversion(record),
+        conversions=_conversion(record, item.get("group")),
         recipe=_recipe(record),
     )
