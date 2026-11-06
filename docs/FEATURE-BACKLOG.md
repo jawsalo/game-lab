@@ -21,6 +21,15 @@ This policy applies to all future catalog and item-card changes, not just retali
 - **PC-required** — needs a desktop development setup, terminal, game files, local tools, or substantial browser/QA work.
 - **Mixed** — planning can happen on mobile, but implementation or verification requires a PC.
 
+## Priority 1 — Verify web and API deployments are on the same release
+
+- **Priority:** P1 — next infrastructure task, ahead of feature backlog items.
+- **Device:** Mixed — GitHub workflow and smoke-test changes are mobile-friendly; inspecting running VPS images and deployment reconciliation may require terminal access.
+- **Status:** Ready to investigate.
+- **Problem:** Dauntless (`it14449`) returns both conversions with `minValue: 36`, `maxValue: 54` from the live API, yet regular and Incognito Chrome display 45% for each. The deployed `/app.js` appears to lack the `conversionValue` function already present on main. The existing production workflow checks the API commit and asset integrity but does not prove that web and API images originate from the same commit.
+- **Acceptance criteria:** Inspect the actual running web and API image tags/digests on the VPS and compare with published images; diagnose and correct any stale web rollout; expose an unambiguous web build commit/version marker; update production verification to assert the web build matches the expected commit as well as the API version; retain existing HTML/asset hash checks; test a new deployment and ensure both Dauntless conversions render 36/54% in normal Chrome without clearing cache.
+- **Notes:** Do not assume a stale image until the VPS image state is checked. Keep the fix deployment-wide, not Dauntless-specific. Do not silently alter production infrastructure without reviewing the deployment procedure.
+
 ## Feature requests
 
 ### 1. Add independent Equipment and Slot filters
