@@ -17,7 +17,6 @@ from typing import Iterable
 
 
 MAIN_LAYERS = ("base", "gdx1", "gdx2", "gdx3")
-SURVIVAL_LAYERS = ("survivalmode", "survivalmode1", "survivalmode2")
 LOCALIZED_FIELDS = ("FileDescription", "itemNameTag", "description", "itemText")
 
 
