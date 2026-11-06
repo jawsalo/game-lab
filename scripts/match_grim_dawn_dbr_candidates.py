@@ -20,6 +20,7 @@ from typing import Any, Iterable
 
 NAME_FIELDS = ("FileDescription", "itemNameTag", "description")
 DISCRIMINATORS = ("item_level", "level_requirement", "rarity", "bitmap")
+STAT_FIELD_PREFIXES = ("offensive", "defensive", "character", "conversion", "armor")
 
 
 def number(value: Any) -> int | float | None:
@@ -77,14 +78,14 @@ def load_catalog(path: Path) -> tuple[list[dict[str, Any]], dict[str, Any]]:
         columns = {row[1] for row in connection.execute("PRAGMA table_info(items)")}
         required = {
             "id", "name", "category", "rarity", "level_requirement",
-            "item_level", "bitmap", "name_tag",
+            "item_level", "bitmap", "name_tag", "record_json",
         }
         missing = required - columns
         if missing:
             raise ValueError(f"Catalog schema is missing expected columns: {sorted(missing)}")
         rows = connection.execute(
             """SELECT id, name, category, rarity, level_requirement,
-                      item_level, bitmap, name_tag
+                      item_level, bitmap, name_tag, record_json
                FROM items ORDER BY id"""
         ).fetchall()
     except sqlite3.Error as error:
@@ -92,7 +93,15 @@ def load_catalog(path: Path) -> tuple[list[dict[str, Any]], dict[str, Any]]:
     finally:
         if "connection" in locals():
             connection.close()
-    items = [dict(row) for row in rows]
+    items = []
+    for row in rows:
+        item = dict(row)
+        try:
+            parsed_record = json.loads(item.pop("record_json"))
+        except (TypeError, json.JSONDecodeError) as error:
+            raise ValueError(f"Catalog item {item.get('id')} has invalid record_json") from error
+        item["record"] = parsed_record if isinstance(parsed_record, dict) else {}
+        items.append(item)
     return items, metadata
 
 
@@ -140,6 +149,42 @@ def shared_discriminator_evidence(record: dict[str, Any], item: dict[str, Any]) 
     return matched, mismatched, unavailable
 
 
+def record_stat_evidence(record: dict[str, Any], item: dict[str, Any]) -> tuple[list[str], list[str]]:
+    """Compare nonzero numeric item stats preserved in both raw record sources."""
+    source_fields = record.get("fields", {})
+    catalog_record = item.get("record", {})
+
+    def is_stat_field(key: str) -> bool:
+        return key.startswith(STAT_FIELD_PREFIXES)
+
+    source_stats = {}
+    for key, values in source_fields.items():
+        if not is_stat_field(key):
+            continue
+        value = number(first(source_fields, key))
+        if value not in (None, 0):
+            source_stats[key] = value
+
+    catalog_stats = {}
+    for key, value in catalog_record.items():
+        if not is_stat_field(key):
+            continue
+        parsed = number(value)
+        if parsed not in (None, 0):
+            catalog_stats[key] = parsed
+
+    matched = []
+    mismatched = []
+    for key in sorted(source_stats.keys() | catalog_stats.keys()):
+        if key in source_stats and key in catalog_stats and source_stats[key] == catalog_stats[key]:
+            matched.append(key)
+        else:
+            # A nonzero stat present on only one side is meaningful evidence too:
+            # catalog record_json omits default zero values.
+            mismatched.append(key)
+    return matched, mismatched
+
+
 def make_candidates(record: dict[str, Any], category_index: dict[str, list[dict[str, Any]]]) -> dict[str, Any] | None:
     classes = [value for value in record.get("class", []) if value in category_index]
     if not classes:
@@ -161,8 +206,9 @@ def make_candidates(record: dict[str, Any], category_index: dict[str, list[dict[
             tag_matches = []
             for item in tag_pool:
                 matched, mismatched, unavailable = shared_discriminator_evidence(record, item)
-                if not mismatched:
-                    tag_matches.append((item, matched, unavailable))
+                matched_stats, mismatched_stats = record_stat_evidence(record, item)
+                if not mismatched and not mismatched_stats:
+                    tag_matches.append((item, matched, unavailable, matched_stats))
             if tag_matches:
                 method = "exact_name_tag"
                 candidates = [
@@ -172,8 +218,9 @@ def make_candidates(record: dict[str, Any], category_index: dict[str, list[dict[
                         "category": item["category"],
                         "matched_discriminators": matched,
                         "unavailable_discriminators": unavailable,
+                        "matched_record_stats": matched_stats,
                     }
-                    for item, matched, unavailable in tag_matches
+                    for item, matched, unavailable, matched_stats in tag_matches
                 ]
 
     if not candidates:
@@ -185,9 +232,10 @@ def make_candidates(record: dict[str, Any], category_index: dict[str, list[dict[
                     if normalize_name(item.get("name")) not in name_keys:
                         continue
                     matched, mismatched, _ = shared_discriminator_evidence(record, item)
+                    matched_stats, mismatched_stats = record_stat_evidence(record, item)
                     # Require at least one independent supporting field; never map on name alone.
-                    if not mismatched and matched:
-                        name_matches.append((item, matched))
+                    if not mismatched and not mismatched_stats and (matched or matched_stats):
+                        name_matches.append((item, matched, matched_stats))
             if name_matches:
                 method = "display_name_composite"
                 candidates = [
@@ -196,8 +244,9 @@ def make_candidates(record: dict[str, Any], category_index: dict[str, list[dict[
                         "name": item["name"],
                         "category": item["category"],
                         "matched_discriminators": matched,
+                        "matched_record_stats": matched_stats,
                     }
-                    for item, matched in name_matches
+                    for item, matched, matched_stats in name_matches
                 ]
 
     status = "unique" if len(candidates) == 1 else "ambiguous" if candidates else "unmatched"
