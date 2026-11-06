@@ -109,6 +109,10 @@ class DbrCandidateTests(unittest.TestCase):
         record = dbr_record()
         record["fields"]["offensiveBaseColdMin"] = ["13.000000"]
         record["fields"]["offensiveBaseColdMax"] = ["25.000000"]
+        # ArchiveTool emits default-zero stat fields. Those explicit zeros let
+        # us rule out a catalog variant with a different elemental damage type.
+        record["fields"]["offensiveBasePoisonMin"] = ["0.000000"]
+        record["fields"]["offensiveBasePoisonMax"] = ["0.000000"]
         cold = catalog_item(
             "it-cold",
             record={"offensiveBaseColdMin": 13, "offensiveBaseColdMax": 25},
@@ -126,6 +130,15 @@ class DbrCandidateTests(unittest.TestCase):
             report["candidates"][0]["matched_record_stats"],
             ["offensiveBaseColdMax", "offensiveBaseColdMin"],
         )
+
+    def test_catalog_omitted_stat_is_unavailable_not_a_conflict(self) -> None:
+        record = dbr_record()
+        record["fields"]["characterBaseAttackSpeed"] = ["-0.020000"]
+        report = make_candidates(
+            record,
+            {"WeaponMelee_Sword": [catalog_item("it-one")]},
+        )
+        self.assertEqual(report["status"], "unique")
 
     def test_name_fallback_requires_an_independent_matching_field(self) -> None:
         record = dbr_record(name_tag=None)
