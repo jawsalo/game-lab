@@ -95,6 +95,84 @@ class ItemCardTests(unittest.TestCase):
         self.assertNotIn("record", payload)
         self.assertNotIn("mods", payload)
 
+    def test_pinned_dauntless_catalog_contains_both_conversions(self) -> None:
+        from apps.api.app.catalog import GrimDawnCatalog
+
+        item = GrimDawnCatalog().get_item("it14449")
+        self.assertIsNotNone(item)
+        card = build_item_card(item)
+        self.assertEqual(
+            {(entry.input_type.lower(), entry.output_type.lower()) for entry in card.conversions},
+            {("chaos", "physical"), ("acid", "physical")},
+        )
+
+    def test_multiple_conversion_slots_are_preserved_without_cross_pairing(self) -> None:
+        # Dauntless reference: Chaos and Acid both convert to Physical.
+        card = build_item_card(
+            {
+                "id": "it14449",
+                "name": "Dauntless",
+                "group": "equipment",
+                "category": "ArmorProtective_Shield",
+                "record": {
+                    "conversionInType": "chaos",
+                    "conversionOutType": "physical",
+                    "conversionPercentage": 45,
+                    "conversionInType2": "poison",
+                    "conversionOutType2": "physical",
+                    "conversionPercentage2": 45,
+                    "conversionInType3": "fire",
+                    "conversionOutType3": "cold",
+                    # Missing percentage: this slot must not leak into the card.
+                },
+            }
+        )
+        self.assertEqual(
+            [entry.dict(by_alias=True) for entry in card.conversions],
+            [
+                {"from": "chaos", "to": "physical", "percentage": 45, "minValue": 36, "maxValue": 54},
+                {"from": "acid", "to": "physical", "percentage": 45, "minValue": 36, "maxValue": 54},
+            ],
+        )
+
+    def test_poison_conversion_output_is_acid_not_poison_dot(self) -> None:
+        card = build_item_card(
+            {
+                "id": "test-acid",
+                "name": "Test Acid",
+                "group": "equipment",
+                "category": "ArmorJewelry_Ring",
+                "record": {
+                    "conversionInType": "fire",
+                    "conversionOutType": "poison",
+                    "conversionPercentage": 50,
+                },
+            }
+        )
+        self.assertEqual(card.conversions[0].output_type, "acid")
+
+    def test_numbered_only_conversion_and_invalid_values(self) -> None:
+        card = build_item_card(
+            {
+                "id": "test",
+                "name": "Test",
+                "group": "equipment",
+                "category": "ArmorJewelry_Ring",
+                "record": {
+                    "conversionInType1": "fire",
+                    "conversionOutType1": "cold",
+                    "conversionPercentage1": 25,
+                    "conversionInType2": "chaos",
+                    "conversionOutType2": "physical",
+                    "conversionPercentage2": True,
+                },
+            }
+        )
+        self.assertEqual(
+            [entry.dict(by_alias=True) for entry in card.conversions],
+            [{"from": "fire", "to": "cold", "percentage": 25, "minValue": 20, "maxValue": 30}],
+        )
+
     def test_fire_damage_label_is_friendly_for_item_and_granted_skill(self) -> None:
         card = build_item_card(
             {

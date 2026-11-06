@@ -98,6 +98,8 @@ class ItemConversion(BaseModel):
     input_type: str = Field(alias="from")
     output_type: str = Field(alias="to")
     percentage: int | float
+    minimum: int | float | None = Field(default=None, alias="minValue")
+    maximum: int | float | None = Field(default=None, alias="maxValue")
 
 
 class RecipeIngredient(BaseModel):
@@ -263,22 +265,50 @@ def _numeric_properties(
     return result
 
 
-def _conversion(record: dict[str, Any]) -> list[ItemConversion]:
-    input_type = record.get("conversionInType")
-    output_type = record.get("conversionOutType")
-    percentage = record.get("conversionPercentage")
-    if (
-        isinstance(input_type, str)
-        and isinstance(output_type, str)
-        and isinstance(percentage, (int, float))
-        and not isinstance(percentage, bool)
-    ):
-        return [
-            ItemConversion(
-                **{"from": input_type, "to": output_type, "percentage": percentage}
-            )
-        ]
-    return []
+def _conversion(record: dict[str, Any], item_group: str | None) -> list[ItemConversion]:
+    """Collect every complete, source-backed conversion triplet.
+
+    DBR records may carry multiple numbered conversion slots in addition to
+    the legacy unsuffixed fields. Never combine values from different slots.
+    """
+    conversions: list[ItemConversion] = []
+    suffixes = {""}
+    for key in record:
+        match = re.fullmatch(r"conversionInType(\d+)", key)
+        if match:
+            suffixes.add(match.group(1))
+
+    for suffix in sorted(suffixes, key=lambda value: (value != "", int(value or 0))):
+        input_type = record.get(f"conversionInType{suffix}")
+        output_type = record.get(f"conversionOutType{suffix}")
+        percentage = record.get(f"conversionPercentage{suffix}")
+        if (
+            isinstance(input_type, str)
+            and input_type
+            and isinstance(output_type, str)
+            and output_type
+            and isinstance(percentage, (int, float))
+            and not isinstance(percentage, bool)
+        ):
+            # The source uses "poison" for the Acid damage conversion type.
+            # Normalize only the conversion contract, not unrelated poison DoT stats.
+            display_input = "acid" if input_type.lower() == "poison" else input_type
+            display_output = "acid" if output_type.lower() == "poison" else output_type
+            data: dict[str, Any] = {
+                "from": display_input, "to": display_output, "percentage": percentage
+            }
+            jitter = record.get("i", 20)
+            if (
+                item_group == "equipment"
+                and 0 < percentage < 100
+                and isinstance(jitter, (int, float))
+                and not isinstance(jitter, bool)
+            ):
+                data["minValue"], data["maxValue"] = _roll_bounds(
+                    percentage, scale=0, jitter=jitter
+                )
+            conversions.append(ItemConversion(**data))
+    return conversions
 
 
 def _ingredient_ids(value: Any) -> list[str]:
@@ -452,6 +482,6 @@ def build_item_card(
         properties=_numeric_properties(record, item.get("group")),
         skillBonuses=_skill_bonuses(resolved_skill_data),
         grantedSkills=_granted_skills(resolved_skill_data),
-        conversions=_conversion(record),
+        conversions=_conversion(record, item.get("group")),
         recipe=_recipe(record),
     )
