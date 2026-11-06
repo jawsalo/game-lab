@@ -290,8 +290,12 @@ def _conversion(record: dict[str, Any], item_group: str | None) -> list[ItemConv
             and isinstance(percentage, (int, float))
             and not isinstance(percentage, bool)
         ):
+            # The source uses "poison" for the Acid damage conversion type.
+            # Normalize only the conversion contract, not unrelated poison DoT stats.
+            display_input = "acid" if input_type.lower() == "poison" else input_type
+            display_output = "acid" if output_type.lower() == "poison" else output_type
             data: dict[str, Any] = {
-                "from": input_type, "to": output_type, "percentage": percentage
+                "from": display_input, "to": display_output, "percentage": percentage
             }
             jitter = record.get("i", 20)
             if (
