@@ -140,13 +140,29 @@ These examples resolve several of the flagged non-caster collisions. They are ta
 - Record the exact catalog/game build with any future generated crosswalk. If a source path has zero or multiple candidates, keep it unresolved until additional evidence distinguishes it.
 - The attachments also contained private character/stash files and unrelated output. None of those files, raw exports, or inventory contents are included in this document or should be committed.
 
-## Current source-data extraction checkpoint — November 5, 2026
+## Complete local source-data extraction checkpoint — November 6, 2026
 
-The local Asset Manager export contains 74,052 DBRs across base (34,180), GDX1 (18,455), GDX2 (16,453), survivalmode (3,148), survivalmode1 (1,005), and survivalmode2 (811). The counts reconcile. GDX3 is missing from that export. Its installed archive was read by ArchiveTool (24,775 listed entries; exit code 0), but no DBR files appeared at the requested destination or in the targeted search locations. This is an extraction failure, not evidence that the GDX3 archive is absent or empty. See [Session 6 handoff](SESSION-6-HANDOFF.md) for the exact attempts and safe resume plan. Do not claim full source coverage until GDX3 files are actually extracted and counted.
+The local source export is now complete and verified: **98,827 DBRs across all seven database layers**. The earlier Asset Manager export contributed 74,052 DBRs but omitted GDX3. The user extracted the installed `GDX3.arz` archive with the community ArchiveToolGUI utility, counted 24,775 actual DBR files in the isolated output, and copied them into the combined local tree at `C:\\GD-Data-Export\\AssetManager-Work\\mods\\gdx3\\database\\records`.
+
+| Layer | DBRs |
+|---|---:|
+| Base | 34,180 |
+| GDX1 | 18,455 |
+| GDX2 | 16,453 |
+| GDX3 | 24,775 |
+| survivalmode | 3,148 |
+| survivalmode1 | 1,005 |
+| survivalmode2 | 811 |
+| **Total** | **98,827** |
+
+The seven layer counts reconcile exactly to the combined recursive count. The standalone GDX3 extraction was separately counted at 24,775 and showed actual record files. This closes the extraction blocker; it does not itself establish any new DBR-to-catalog mappings.
+
+See [Session 6 handoff](SESSION-6-HANDOFF.md) for tool history, exact local paths, validation evidence, data-handling limits, and the next indexing step. Raw exports remain local and must not be committed.
 
 ## Next mapping work
 
-1. Keep these 77 mappings as a verified seed set and regression fixture.
-2. Build mappings for the remaining 341 caster DBR paths and selected non-caster categories, using a reproducible export format that does not contain save/inventory data.
-3. Report unique, ambiguous, and missing mappings separately before using the crosswalk in snapshot imports.
-4. Resume parser/license/version compatibility, owner authentication, bounded upload and preview gates in [the snapshot import contract](SNAPSHOT-IMPORT-CONTRACT.md).
+1. Preserve the 77 verified caster mappings and targeted examples above as the seed/regression set.
+2. Build a deterministic local DBR index over the seven extracted layers and inspect whether English localization inputs are available for bulk name resolution.
+3. Generate candidate catalog-ID mappings with composite evidence, retaining source layer and record path.
+4. Report **unique**, **ambiguous**, and **unmatched** candidates separately. Validate known positive and negative examples before expanding coverage.
+5. Keep catalog/game versions explicit and raw DBRs, save files, gd-edit transcripts, and personal inventory data out of Git. Do not map on display name alone.
