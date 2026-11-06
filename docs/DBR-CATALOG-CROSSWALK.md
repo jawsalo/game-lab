@@ -142,7 +142,7 @@ These examples resolve several of the flagged non-caster collisions. They are ta
 
 ## Complete local source-data extraction checkpoint — November 6, 2026
 
-The local source export is now complete and verified: **98,827 DBRs across all seven database layers**. The earlier Asset Manager export contributed 74,052 DBRs but omitted GDX3. The user extracted the installed `GDX3.arz` archive with the community ArchiveToolGUI utility, counted 24,775 actual DBR files in the isolated output, and copied them into the combined local tree at `C:\\GD-Data-Export\\AssetManager-Work\\mods\\gdx3\\database\\records`.
+The local source export is now complete and verified: **98,827 DBRs across all seven database layers**. The earlier Asset Manager export contributed 74,052 DBRs but omitted GDX3. The user extracted the installed `GDX3.arz` archive with the community ArchiveToolGUI utility, counted 24,775 actual DBR files in the isolated output, and copied them into the combined local tree at `C:\GD-Data-Export\AssetManager-Work\mods\gdx3\database\records`.
 
 | Layer | DBRs |
 |---|---:|
