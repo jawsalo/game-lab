@@ -8,7 +8,8 @@ This second local step compares the item-directory DBR index with the pinned Gri
 - When present, the DBR `itemNameTag` is compared with catalog `name_tag` as an exact source-tag match.
 - Shared item level, required level, rarity, and bitmap values are checked. `.tex` and `.png` bitmap extensions are normalized for comparison.
 - Numeric offensive, defensive, character, conversion, and armor stats are compared when the field is present in both the DBR and the catalog's raw `record_json`. This distinguishes variants that share a name tag, category, level, rarity, and bitmap, such as elemental versions of generic weapons. Explicit zero values are compared when present on both sides; fields omitted by either source are treated as unavailable evidence, not a mismatch.
-- If the source name tag cannot identify a catalog row, an exact normalized localized display name may produce a candidate only when at least one independent discriminator also matches. Display-name-only matches stay unmatched.
+- Crafting recipe creation cost, output quantity, and reagent quantities are compared when the numeric field is present in both raw sources. A disagreement rejects that candidate; a field omitted by either side is unavailable evidence. Reagent identifiers themselves are not compared because DBRs store record paths while the catalog stores item IDs, and those identifiers need a separate normalization/mapping step.
+- If the source name tag cannot identify a catalog row, an exact normalized localized display name may produce a candidate only when at least one independent discriminator, stat, or recipe field also matches. Display-name-only matches stay unmatched.
 - Multiple candidates remain `ambiguous`. Unmatched rows are retained in the report.
 
 Every output record retains the DBR source layer and record path. Unique here means unique under the recorded evidence in this local report; manually review samples before promoting any row to the project crosswalk.
@@ -31,4 +32,4 @@ The report output and DBR index contain derived game data. Keep both local; do n
 .\.venv\Scripts\python.exe -m unittest scripts.tests.test_grim_dawn_dbr_candidates -v
 ```
 
-Tests cover exact tag matching, stat-based disambiguation, discriminator conflicts, ambiguity retention, composite display-name fallback, rejection of name-only matches, category mismatches, and the catalog-version check.
+Tests cover exact tag matching, stat and recipe-field disambiguation, discriminator conflicts, ambiguity retention, composite display-name fallback, rejection of name-only matches, category mismatches, and the catalog-version check.
