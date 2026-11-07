@@ -164,7 +164,7 @@ def shared_discriminator_evidence(record: dict[str, Any], item: dict[str, Any]) 
         "bitmap": item.get("bitmap"),
         "skill_level": number(item.get("record", {}).get("skillLevel")),
     }
-    matched: list[str] =
+    matched: list[str] = []
     mismatched: list[str] = []
     unavailable: list[str] = []
     for key in DISCRIMINATORS:
