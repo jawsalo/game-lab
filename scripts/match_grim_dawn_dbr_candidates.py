@@ -19,7 +19,7 @@ from typing import Any, Iterable
 
 
 NAME_FIELDS = ("FileDescription", "itemNameTag", "description")
-DISCRIMINATORS = ("item_level", "level_requirement", "rarity", "bitmap")
+DISCRIMINATORS = ("item_level", "level_requirement", "rarity", "bitmap", "skill_level")
 STAT_FIELD_PREFIXES = ("offensive", "defensive", "character", "conversion", "armor")
 RECIPE_NUMERIC_FIELDS = (
     "artifactCreateQuantity",
@@ -155,12 +155,14 @@ def shared_discriminator_evidence(record: dict[str, Any], item: dict[str, Any]) 
         "level_requirement": number(first(fields, "levelRequirement")),
         "rarity": first(fields, "itemClassification"),
         "bitmap": first(fields, "bitmap"),
+        "skill_level": number(first(fields, "skillLevel")),
     }
     catalog_values = {
         "item_level": number(item.get("item_level")),
         "level_requirement": number(item.get("level_requirement")),
         "rarity": item.get("rarity"),
         "bitmap": item.get("bitmap"),
+        "skill_level": number(item.get("record", {}).get("skillLevel")),
     }
     matched: list[str] = []
     mismatched: list[str] = []

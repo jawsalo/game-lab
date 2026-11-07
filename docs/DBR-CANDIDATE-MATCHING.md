@@ -6,7 +6,7 @@ This second local step compares the item-directory DBR index with the pinned Gri
 
 - A DBR and catalog row must have the same category (`Class` ↔ catalog `category`).
 - When present, the DBR `itemNameTag` is compared with catalog `name_tag` as an exact source-tag match.
-- Shared item level, required level, rarity, and bitmap values are checked. `.tex` and `.png` bitmap extensions are normalized for comparison.
+- Shared item level, required level, rarity, and bitmap values are checked. `.tex` and `.png` bitmap extensions are normalized for comparison. When both sides provide `skillLevel`, it is compared too; this distinguishes catalog versions of the same potion formula.
 - Numeric offensive, defensive, character, conversion, and armor stats are compared when the field is present in both the DBR and the catalog's raw `record_json`. This distinguishes variants that share a name tag, category, level, rarity, and bitmap, such as elemental versions of generic weapons. Explicit zero values are compared when present on both sides; fields omitted by either source are treated as unavailable evidence, not a mismatch.
 - Crafting recipe creation cost, output quantity, and reagent quantities are compared when the numeric field is present in both raw sources. A disagreement rejects that candidate; a field omitted by either side is unavailable evidence.
 - Recipe output and reagent references are compared when the referenced DBR record has a unique candidate mapping. The DBR path is resolved through the local item index; its candidate catalog ID is compared with the ID stored in the catalog recipe. Ambiguous or unmatched referenced records remain unavailable evidence.
@@ -34,4 +34,4 @@ The report output and DBR index contain derived game data. Keep both local; do n
 .\.venv\Scripts\python.exe -m unittest scripts.tests.test_grim_dawn_dbr_candidates -v
 ```
 
-Tests cover exact tag matching, stat, recipe-field, and recipe-reference disambiguation, discriminator conflicts, ambiguity retention, composite display-name fallback, rejection of name-only matches, category mismatches, and the catalog-version check.
+Tests cover exact tag matching, stat, recipe-field, recipe-reference, and skill-level disambiguation, discriminator conflicts, ambiguity retention, composite display-name fallback, rejection of name-only matches, category mismatches, and the catalog-version check.

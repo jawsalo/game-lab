@@ -97,6 +97,32 @@ class DbrCandidateTests(unittest.TestCase):
         self.assertEqual(report["method"], "exact_name_tag")
         self.assertEqual(report["candidates"][0]["id"], "it-one")
 
+    def test_skill_level_disambiguates_potion_formula_versions(self) -> None:
+        record = dbr_record(name_tag="tagPotionFormula", name="Formula: Bolstered Flask")
+        record["class"] = ["OneShot_SkillUnlock"]
+        record["fields"].update({
+            "Class": ["OneShot_SkillUnlock"],
+            "skillLevel": ["2"],
+        })
+        level_one = catalog_item(
+            "it-default", name="Formula: Bolstered Flask", name_tag="tagPotionFormula",
+            record={"skillLevel": 1},
+        )
+        level_two = catalog_item(
+            "it-expanded", name="Formula: Bolstered Flask", name_tag="tagPotionFormula",
+            record={"skillLevel": 2},
+        )
+        level_one["category"] = level_two["category"] = "OneShot_SkillUnlock"
+
+        report = make_candidates(
+            record,
+            {"OneShot_SkillUnlock": [level_one, level_two]},
+        )
+
+        self.assertEqual(report["status"], "unique")
+        self.assertEqual(report["candidates"][0]["id"], "it-expanded")
+        self.assertIn("skill_level", report["candidates"][0]["matched_discriminators"])
+
     def test_identical_tag_and_fields_remain_ambiguous(self) -> None:
         report = make_candidates(
             dbr_record(),
