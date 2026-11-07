@@ -196,6 +196,14 @@ This policy applies to all future catalog and item-card changes, not just retali
 - **Acceptance criteria:** Apply to all shield item cards, not just Dauntless; preserve the original chance and amount values/ranges and their units; avoid duplicate rows in the general Properties section; do not move similarly named non-shield properties; keep the ordering responsive and readable on mobile; add representative shield and non-shield regression tests.
 - **Dependencies or notes:** Use Dauntless (`it14449`) and Mythical Bramblevine (`it12725`) as visual regression cases. The Dauntless GrimTools reference is [03-1000115465.jpg](reference/grimtools-item-cards/03-1000115465.jpg). Keep this presentation-only task distinct from backlog #8's deeper block recovery and source-data audit.
 
+### 21. Polish damage conversion display names
+
+- **Device:** Mobile-friendly
+- **Status:** Proposed — minor presentation polish
+- **Problem and desired behavior:** Item cards currently show abbreviated conversion labels such as `36/54% Chaos to Physical`. Use complete, player-facing damage type names, e.g. `36/54% Chaos Damage converted to Physical Damage`, consistent with the Dauntless GrimTools reference.
+- **Acceptance criteria:** Render both Dauntless (`it14449`) conversions as `36/54% Chaos Damage converted to Physical Damage` and `36/54% Acid Damage converted to Physical Damage`; apply the shared formatting consistently to all item damage conversion types; preserve percentages, min/max rolls, conversion directions, and API values; ensure text wraps cleanly on narrow mobile screens; add representative conversion-format regression tests.
+- **Dependencies or notes:** Presentation-only. Do not conflate item-wide conversions with skill-specific conversions tracked in #7. Dauntless's two conversions were confirmed visible in normal mobile Chrome after the PR #78 rollout fix on November 7, 2026.
+
 ### Request template
 
 - **Title:**
