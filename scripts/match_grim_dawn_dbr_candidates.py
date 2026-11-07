@@ -21,6 +21,15 @@ from typing import Any, Iterable
 NAME_FIELDS = ("FileDescription", "itemNameTag", "description")
 DISCRIMINATORS = ("item_level", "level_requirement", "rarity", "bitmap")
 STAT_FIELD_PREFIXES = ("offensive", "defensive", "character", "conversion", "armor")
+RECIPE_NUMERIC_FIELDS = (
+    "artifactCreateQuantity",
+    "artifactCreationCost",
+    "reagent1Quantity",
+    "reagent2Quantity",
+    "reagent3Quantity",
+    "reagent4Quantity",
+    "reagentBaseQuantity",
+)
 
 
 def number(value: Any) -> int | float | None:
@@ -186,6 +195,25 @@ def record_stat_evidence(record: dict[str, Any], item: dict[str, Any]) -> tuple[
     return matched, mismatched
 
 
+def record_recipe_evidence(record: dict[str, Any], item: dict[str, Any]) -> tuple[list[str], list[str]]:
+    """Compare recipe costs and quantities present in both raw record sources."""
+    source_fields = record.get("fields", {})
+    catalog_record = item.get("record", {})
+    matched = []
+    mismatched = []
+    for key in RECIPE_NUMERIC_FIELDS:
+        source = number(first(source_fields, key))
+        catalog = number(catalog_record.get(key))
+        if source is None or catalog is None:
+            continue
+        if source == catalog:
+            if source != 0:
+                matched.append(key)
+        else:
+            mismatched.append(key)
+    return matched, mismatched
+
+
 def make_candidates(record: dict[str, Any], category_index: dict[str, list[dict[str, Any]]]) -> dict[str, Any] | None:
     classes = [value for value in record.get("class", []) if value in category_index]
     if not classes:
@@ -208,8 +236,9 @@ def make_candidates(record: dict[str, Any], category_index: dict[str, list[dict[
             for item in tag_pool:
                 matched, mismatched, unavailable = shared_discriminator_evidence(record, item)
                 matched_stats, mismatched_stats = record_stat_evidence(record, item)
-                if not mismatched and not mismatched_stats:
-                    tag_matches.append((item, matched, unavailable, matched_stats))
+                matched_recipe, mismatched_recipe = record_recipe_evidence(record, item)
+                if not mismatched and not mismatched_stats and not mismatched_recipe:
+                    tag_matches.append((item, matched, unavailable, matched_stats, matched_recipe))
             if tag_matches:
                 method = "exact_name_tag"
                 candidates = [
@@ -220,8 +249,9 @@ def make_candidates(record: dict[str, Any], category_index: dict[str, list[dict[
                         "matched_discriminators": matched,
                         "unavailable_discriminators": unavailable,
                         "matched_record_stats": matched_stats,
+                        "matched_recipe_fields": matched_recipe,
                     }
-                    for item, matched, unavailable, matched_stats in tag_matches
+                    for item, matched, unavailable, matched_stats, matched_recipe in tag_matches
                 ]
 
     if not candidates:
@@ -234,9 +264,10 @@ def make_candidates(record: dict[str, Any], category_index: dict[str, list[dict[
                         continue
                     matched, mismatched, _ = shared_discriminator_evidence(record, item)
                     matched_stats, mismatched_stats = record_stat_evidence(record, item)
+                    matched_recipe, mismatched_recipe = record_recipe_evidence(record, item)
                     # Require at least one independent supporting field; never map on name alone.
-                    if not mismatched and not mismatched_stats and (matched or matched_stats):
-                        name_matches.append((item, matched, matched_stats))
+                    if not mismatched and not mismatched_stats and not mismatched_recipe and (matched or matched_stats or matched_recipe):
+                        name_matches.append((item, matched, matched_stats, matched_recipe))
             if name_matches:
                 method = "display_name_composite"
                 candidates = [
@@ -246,8 +277,9 @@ def make_candidates(record: dict[str, Any], category_index: dict[str, list[dict[
                         "category": item["category"],
                         "matched_discriminators": matched,
                         "matched_record_stats": matched_stats,
+                        "matched_recipe_fields": matched_recipe,
                     }
-                    for item, matched, matched_stats in name_matches
+                    for item, matched, matched_stats, matched_recipe in name_matches
                 ]
 
     status = "unique" if len(candidates) == 1 else "ambiguous" if candidates else "unmatched"

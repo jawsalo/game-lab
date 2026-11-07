@@ -140,6 +140,45 @@ class DbrCandidateTests(unittest.TestCase):
         )
         self.assertEqual(report["status"], "unique")
 
+    def test_recipe_cost_disambiguates_formula_variants(self) -> None:
+        record = dbr_record(name_tag="tagAetherialMissive", name="Aetherial Missive")
+        record["class"] = ["ItemArtifactFormula"]
+        record["fields"].update({
+            "Class": ["ItemArtifactFormula"],
+            "artifactCreationCost": ["35000"],
+            "artifactCreateQuantity": ["1"],
+        })
+        low_cost = catalog_item(
+            "it-low", name="Aetherial Missive", name_tag="tagAetherialMissive",
+            record={"artifactCreationCost": 10000, "artifactCreateQuantity": 1},
+        )
+        high_cost = catalog_item(
+            "it-high", name="Aetherial Missive", name_tag="tagAetherialMissive",
+            record={"artifactCreationCost": 35000, "artifactCreateQuantity": 1},
+        )
+        low_cost["category"] = high_cost["category"] = "ItemArtifactFormula"
+
+        report = make_candidates(record, {"ItemArtifactFormula": [low_cost, high_cost]})
+
+        self.assertEqual(report["status"], "unique")
+        self.assertEqual(report["candidates"][0]["id"], "it-high")
+        self.assertEqual(
+            report["candidates"][0]["matched_recipe_fields"],
+            ["artifactCreateQuantity", "artifactCreationCost"],
+        )
+
+    def test_missing_recipe_fields_are_unavailable_not_a_conflict(self) -> None:
+        record = dbr_record(name_tag="tagAetherialMissive", name="Aetherial Missive")
+        record["class"] = ["ItemArtifactFormula"]
+        record["fields"].update({"Class": ["ItemArtifactFormula"], "artifactCreationCost": ["10000"]})
+        item = catalog_item("it-recipe", name="Aetherial Missive", name_tag="tagAetherialMissive")
+        item["category"] = "ItemArtifactFormula"
+
+        report = make_candidates(record, {"ItemArtifactFormula": [item]})
+
+        self.assertEqual(report["status"], "unique")
+        self.assertEqual(report["candidates"][0]["matched_recipe_fields"], [])
+
     def test_name_fallback_requires_an_independent_matching_field(self) -> None:
         record = dbr_record(name_tag=None)
         report = make_candidates(record, {"WeaponMelee_Sword": [catalog_item("it-one", name_tag=None)]})
