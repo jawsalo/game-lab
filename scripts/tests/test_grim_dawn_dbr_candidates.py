@@ -196,6 +196,33 @@ class DbrCandidateTests(unittest.TestCase):
         report = make_candidates(record, {"WeaponMelee_Dagger": [catalog_item("it-one")]})
         self.assertIsNone(report)
 
+    def test_recipe_output_reference_disambiguates_catalog_ids(self) -> None:
+        record = dbr_record(name_tag="tagTestFormula", name="Test Formula")
+        record["class"] = ["ItemArtifactFormula"]
+        record["fields"].update({
+            "Class": ["ItemArtifactFormula"],
+            "artifactName": ["records/items/test/output.dbr"],
+        })
+        wrong = catalog_item(
+            "it-formula-wrong", name="Test Formula", name_tag="tagTestFormula",
+            record={"artifactName": "it-output-wrong"},
+        )
+        right = catalog_item(
+            "it-formula-right", name="Test Formula", name_tag="tagTestFormula",
+            record={"artifactName": "it-output-right"},
+        )
+        wrong["category"] = right["category"] = "ItemArtifactFormula"
+
+        report = make_candidates(
+            record,
+            {"ItemArtifactFormula": [wrong, right]},
+            {("gdx1", "records/items/test/output.dbr"): "it-output-right"},
+        )
+
+        self.assertEqual(report["status"], "unique")
+        self.assertEqual(report["candidates"][0]["id"], "it-formula-right")
+        self.assertEqual(report["candidates"][0]["matched_recipe_references"], ["artifactName"])
+
     def test_report_is_versioned_and_keeps_unmatched_rows(self) -> None:
         with tempfile.TemporaryDirectory() as temp:
             root = Path(temp)
@@ -214,6 +241,40 @@ class DbrCandidateTests(unittest.TestCase):
         self.assertEqual(summary["catalog_category_records"], 2)
         self.assertEqual(summary["status_counts"], {"unmatched": 1, "unique": 1})
         self.assertEqual(len(results), 2)
+
+    def test_report_resolves_recipe_paths_through_unique_item_candidates(self) -> None:
+        with tempfile.TemporaryDirectory() as temp:
+            root = Path(temp)
+            database = root / "items.sqlite"
+            index = root / "index.jsonl"
+            output = root / "candidate-report.jsonl"
+            output_record = dbr_record()
+            output_record["record_path"] = "records/items/test/output.dbr"
+            formula_record = dbr_record(name_tag="tagTestFormula", name="Test Formula")
+            formula_record["record_path"] = "records/items/test/formula.dbr"
+            formula_record["class"] = ["ItemArtifactFormula"]
+            formula_record["fields"].update({
+                "Class": ["ItemArtifactFormula"],
+                "artifactName": ["records/items/test/output.dbr"],
+            })
+            formula_item = catalog_item(
+                "it-formula", name="Test Formula", name_tag="tagTestFormula",
+                record={"artifactName": "it-output"},
+            )
+            formula_item["category"] = "ItemArtifactFormula"
+            make_catalog_db(database, [catalog_item("it-output"), formula_item])
+            index.write_text(
+                json.dumps(output_record) + "\n" + json.dumps(formula_record) + "\n",
+                encoding="utf-8",
+            )
+
+            build_report(index, database, output)
+            results = [json.loads(line) for line in output.read_text(encoding="utf-8").splitlines()]
+
+        formula_result = next(result for result in results if result["record_path"].endswith("formula.dbr"))
+        self.assertEqual(formula_result["status"], "unique")
+        self.assertEqual(formula_result["candidates"][0]["id"], "it-formula")
+        self.assertEqual(formula_result["candidates"][0]["matched_recipe_references"], ["artifactName"])
 
 
 if __name__ == "__main__":
