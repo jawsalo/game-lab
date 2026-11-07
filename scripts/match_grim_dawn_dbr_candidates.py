@@ -30,6 +30,23 @@ RECIPE_NUMERIC_FIELDS = (
     "reagent4Quantity",
     "reagentBaseQuantity",
 )
+RECIPE_REFERENCE_FIELDS = (
+    "artifactName",
+    "reagentBaseBaseName",
+    "reagent1BaseName",
+    "reagent2BaseName",
+    "reagent3BaseName",
+    "reagent4BaseName",
+)
+REFERENCE_LAYER_FALLBACKS = {
+    "base": ("base",),
+    "gdx1": ("gdx1", "base"),
+    "gdx2": ("gdx2", "gdx1", "base"),
+    "gdx3": ("gdx3", "gdx2", "gdx1", "base"),
+    "survivalmode": ("survivalmode", "base"),
+    "survivalmode1": ("survivalmode1", "survivalmode", "base"),
+    "survivalmode2": ("survivalmode2", "survivalmode1", "survivalmode", "base"),
+}
 
 
 def number(value: Any) -> int | float | None:
@@ -57,6 +74,12 @@ def normalize_bitmap(value: Any) -> str:
     value = value.strip().replace("\\", "/").casefold()
     value = re.sub(r"\.(?:tex|png)$", "", value)
     return value
+
+
+def normalize_record_path(value: Any) -> str:
+    if not isinstance(value, str):
+        return ""
+    return value.strip().strip('"').replace("\\", "/").casefold()
 
 
 def first(fields: dict[str, list[str]], key: str) -> str | None:
@@ -214,13 +237,49 @@ def record_recipe_evidence(record: dict[str, Any], item: dict[str, Any]) -> tupl
     return matched, mismatched
 
 
-def make_candidates(record: dict[str, Any], category_index: dict[str, list[dict[str, Any]]]) -> dict[str, Any] | None:
+def record_recipe_reference_evidence(
+    record: dict[str, Any],
+    item: dict[str, Any],
+    reference_candidates: dict[tuple[str, str], str],
+) -> tuple[list[str], list[str]]:
+    """Compare DBR reference paths to catalog IDs when the referenced DBR maps uniquely."""
+    source_fields = record.get("fields", {})
+    catalog_record = item.get("record", {})
+    source_layer = record.get("source_layer") or "base"
+    source_layers = REFERENCE_LAYER_FALLBACKS.get(source_layer, (source_layer, "base"))
+    matched = []
+    mismatched = []
+    for key in RECIPE_REFERENCE_FIELDS:
+        source_path = normalize_record_path(first(source_fields, key))
+        catalog_id = catalog_record.get(key)
+        if not source_path or catalog_id is None:
+            continue
+        reference_id = None
+        for layer in source_layers:
+            reference_id = reference_candidates.get((layer, source_path))
+            if reference_id is not None:
+                break
+        if reference_id is None:
+            continue
+        if str(catalog_id).strip() == reference_id:
+            matched.append(key)
+        else:
+            mismatched.append(key)
+    return matched, mismatched
+
+
+def make_candidates(
+    record: dict[str, Any],
+    category_index: dict[str, list[dict[str, Any]]],
+    reference_candidates: dict[tuple[str, str], str] | None = None,
+) -> dict[str, Any] | None:
     classes = [value for value in record.get("class", []) if value in category_index]
     if not classes:
         return None
     fields = record.get("fields", {})
     raw_name_tag = first(fields, "itemNameTag")
     names = localized_names(record)
+    reference_candidates = reference_candidates or {}
     candidates: list[dict[str, Any]] = []
     method = "unmatched"
 
@@ -237,8 +296,9 @@ def make_candidates(record: dict[str, Any], category_index: dict[str, list[dict[
                 matched, mismatched, unavailable = shared_discriminator_evidence(record, item)
                 matched_stats, mismatched_stats = record_stat_evidence(record, item)
                 matched_recipe, mismatched_recipe = record_recipe_evidence(record, item)
-                if not mismatched and not mismatched_stats and not mismatched_recipe:
-                    tag_matches.append((item, matched, unavailable, matched_stats, matched_recipe))
+                matched_references, mismatched_references = record_recipe_reference_evidence(record, item, reference_candidates)
+                if not mismatched and not mismatched_stats and not mismatched_recipe and not mismatched_references:
+                    tag_matches.append((item, matched, unavailable, matched_stats, matched_recipe, matched_references))
             if tag_matches:
                 method = "exact_name_tag"
                 candidates = [
@@ -250,8 +310,9 @@ def make_candidates(record: dict[str, Any], category_index: dict[str, list[dict[
                         "unavailable_discriminators": unavailable,
                         "matched_record_stats": matched_stats,
                         "matched_recipe_fields": matched_recipe,
+                        "matched_recipe_references": matched_references,
                     }
-                    for item, matched, unavailable, matched_stats, matched_recipe in tag_matches
+                    for item, matched, unavailable, matched_stats, matched_recipe, matched_references in tag_matches
                 ]
 
     if not candidates:
@@ -265,9 +326,10 @@ def make_candidates(record: dict[str, Any], category_index: dict[str, list[dict[
                     matched, mismatched, _ = shared_discriminator_evidence(record, item)
                     matched_stats, mismatched_stats = record_stat_evidence(record, item)
                     matched_recipe, mismatched_recipe = record_recipe_evidence(record, item)
+                    matched_references, mismatched_references = record_recipe_reference_evidence(record, item, reference_candidates)
                     # Require at least one independent supporting field; never map on name alone.
-                    if not mismatched and not mismatched_stats and not mismatched_recipe and (matched or matched_stats or matched_recipe):
-                        name_matches.append((item, matched, matched_stats, matched_recipe))
+                    if not mismatched and not mismatched_stats and not mismatched_recipe and not mismatched_references and (matched or matched_stats or matched_recipe or matched_references):
+                        name_matches.append((item, matched, matched_stats, matched_recipe, matched_references))
             if name_matches:
                 method = "display_name_composite"
                 candidates = [
@@ -278,8 +340,9 @@ def make_candidates(record: dict[str, Any], category_index: dict[str, list[dict[
                         "matched_discriminators": matched,
                         "matched_record_stats": matched_stats,
                         "matched_recipe_fields": matched_recipe,
+                        "matched_recipe_references": matched_references,
                     }
-                    for item, matched, matched_stats, matched_recipe in name_matches
+                    for item, matched, matched_stats, matched_recipe, matched_references in name_matches
                 ]
 
     status = "unique" if len(candidates) == 1 else "ambiguous" if candidates else "unmatched"
@@ -310,6 +373,17 @@ def build_report(index_path: Path, catalog_path: Path, output_path: Path, overwr
     for item in catalog_items:
         category_index.setdefault(item.get("category"), []).append(item)
 
+    index_records = list(read_index(index_path))
+    first_pass = [make_candidates(record, category_index) for record in index_records]
+    reference_candidates: dict[tuple[str, str], str] = {}
+    for record, result in zip(index_records, first_pass):
+        if result is None or result["status"] != "unique":
+            continue
+        layer = record.get("source_layer") or "base"
+        path = normalize_record_path(record.get("record_path"))
+        if path:
+            reference_candidates[(layer, path)] = result["candidates"][0]["id"]
+
     statuses: Counter[str] = Counter()
     methods: Counter[str] = Counter()
     by_layer: dict[str, Counter[str]] = {}
@@ -318,9 +392,9 @@ def build_report(index_path: Path, catalog_path: Path, output_path: Path, overwr
     total_index_records = 0
     output_path.parent.mkdir(parents=True, exist_ok=True)
     with output_path.open("w", encoding="utf-8", newline="\n") as stream:
-        for record in read_index(index_path):
+        for record in index_records:
             total_index_records += 1
-            result = make_candidates(record, category_index)
+            result = make_candidates(record, category_index, reference_candidates)
             if result is None:
                 continue
             eligible += 1
