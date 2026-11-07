@@ -281,6 +281,7 @@ def make_candidates(
     names = localized_names(record)
     reference_candidates = reference_candidates or {}
     candidates: list[dict[str, Any]] = []
+    rejected_candidates: dict[str, dict[str, Any]] = {}
     method = "unmatched"
 
     if raw_name_tag:
@@ -299,6 +300,14 @@ def make_candidates(
                 matched_references, mismatched_references = record_recipe_reference_evidence(record, item, reference_candidates)
                 if not mismatched and not mismatched_stats and not mismatched_recipe and not mismatched_references:
                     tag_matches.append((item, matched, unavailable, matched_stats, matched_recipe, matched_references))
+                else:
+                    rejected_candidates[item["id"]] = {
+                        "id": item["id"], "name": item["name"], "via": "exact_name_tag",
+                        "mismatched_discriminators": mismatched,
+                        "mismatched_record_stats": mismatched_stats,
+                        "mismatched_recipe_fields": mismatched_recipe,
+                        "mismatched_recipe_references": mismatched_references,
+                    }
             if tag_matches:
                 method = "exact_name_tag"
                 candidates = [
@@ -330,6 +339,14 @@ def make_candidates(
                     # Require at least one independent supporting field; never map on name alone.
                     if not mismatched and not mismatched_stats and not mismatched_recipe and not mismatched_references and (matched or matched_stats or matched_recipe or matched_references):
                         name_matches.append((item, matched, matched_stats, matched_recipe, matched_references))
+                    else:
+                        rejected_candidates[item["id"]] = {
+                            "id": item["id"], "name": item["name"], "via": "display_name",
+                            "mismatched_discriminators": mismatched,
+                            "mismatched_record_stats": mismatched_stats,
+                            "mismatched_recipe_fields": mismatched_recipe,
+                            "mismatched_recipe_references": mismatched_references,
+                        }
             if name_matches:
                 method = "display_name_composite"
                 candidates = [
@@ -346,7 +363,7 @@ def make_candidates(
                 ]
 
     status = "unique" if len(candidates) == 1 else "ambiguous" if candidates else "unmatched"
-    return {
+    result = {
         "source_layer": record.get("source_layer"),
         "record_path": record.get("record_path"),
         "class": classes,
@@ -357,6 +374,9 @@ def make_candidates(
         "candidate_count": len(candidates),
         "candidates": candidates,
     }
+    if not candidates and rejected_candidates:
+        result["rejected_candidates"] = sorted(rejected_candidates.values(), key=lambda candidate: candidate["id"])
+    return result
 
 
 def build_report(index_path: Path, catalog_path: Path, output_path: Path, overwrite: bool = False) -> dict[str, Any]:

@@ -167,6 +167,22 @@ class DbrCandidateTests(unittest.TestCase):
             ["artifactCreateQuantity", "artifactCreationCost"],
         )
 
+    def test_unmatched_report_explains_recipe_field_rejection(self) -> None:
+        record = dbr_record(name_tag="tagAetherialMissive", name="Aetherial Missive")
+        record["class"] = ["ItemArtifactFormula"]
+        record["fields"].update({"Class": ["ItemArtifactFormula"], "artifactCreationCost": ["35000"]})
+        item = catalog_item(
+            "it-wrong-cost", name="Aetherial Missive", name_tag="tagAetherialMissive",
+            record={"artifactCreationCost": 10000},
+        )
+        item["category"] = "ItemArtifactFormula"
+
+        report = make_candidates(record, {"ItemArtifactFormula": [item]})
+
+        self.assertEqual(report["status"], "unmatched")
+        self.assertEqual(report["rejected_candidates"][0]["id"], "it-wrong-cost")
+        self.assertEqual(report["rejected_candidates"][0]["mismatched_recipe_fields"], ["artifactCreationCost"])
+
     def test_missing_recipe_fields_are_unavailable_not_a_conflict(self) -> None:
         record = dbr_record(name_tag="tagAetherialMissive", name="Aetherial Missive")
         record["class"] = ["ItemArtifactFormula"]
