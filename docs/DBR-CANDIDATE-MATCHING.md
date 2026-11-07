@@ -12,7 +12,7 @@ This second local step compares the item-directory DBR index with the pinned Gri
 - Recipe output and reagent references are compared when the referenced DBR record has a unique candidate mapping. The DBR path is resolved through the local item index; its candidate catalog ID is compared with the ID stored in the catalog recipe. Ambiguous or unmatched referenced records remain unavailable evidence.
 - If the source name tag cannot identify a catalog row, an exact normalized localized display name may produce a candidate only when at least one independent discriminator, stat, or recipe field also matches. Display-name-only matches stay unmatched.
 - Multiple candidates remain `ambiguous`. Unmatched rows are retained in the report.
-- For unmatched rows with plausible same-tag or same-name candidates, `rejected_candidates` records candidate IDs and the evidence fields that conflicted. This makes exclusions auditable without changing the conservative match rules.
+- For unmatched rows with plausible same-tag or same-name candidates, `rejected_candidates` records candidate IDs and the evidence fields that conflicted. Reference conflicts include the DBR path, resolved source layer and catalog ID, and expected catalog recipe ID. This makes exclusions auditable without changing the conservative match rules.
 
 Every output record retains the DBR source layer and record path. Unique here means unique under the recorded evidence in this local report; manually review samples before promoting any row to the project crosswalk.
 

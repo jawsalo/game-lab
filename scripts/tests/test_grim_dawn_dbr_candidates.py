@@ -167,6 +167,30 @@ class DbrCandidateTests(unittest.TestCase):
             ["artifactCreateQuantity", "artifactCreationCost"],
         )
 
+    def test_unmatched_report_shows_recipe_reference_ids_and_resolved_layer(self) -> None:
+        record = dbr_record(name_tag="tagTestFormula", name="Test Formula")
+        record["class"] = ["ItemArtifactFormula"]
+        record["fields"].update({
+            "Class": ["ItemArtifactFormula"],
+            "reagent1BaseName": ["records/items/test/reagent.dbr"],
+        })
+        item = catalog_item(
+            "it-formula", name="Test Formula", name_tag="tagTestFormula",
+            record={"reagent1BaseName": "it-catalog-reagent"},
+        )
+        item["category"] = "ItemArtifactFormula"
+
+        report = make_candidates(
+            record,
+            {"ItemArtifactFormula": [item]},
+            {("base", "records/items/test/reagent.dbr"): "it-resolved-reagent"},
+        )
+
+        detail = report["rejected_candidates"][0]["mismatched_recipe_reference_details"][0]
+        self.assertEqual(detail["resolved_source_layer"], "base")
+        self.assertEqual(detail["resolved_catalog_id"], "it-resolved-reagent")
+        self.assertEqual(detail["catalog_record_id"], "it-catalog-reagent")
+
     def test_unmatched_report_explains_recipe_field_rejection(self) -> None:
         record = dbr_record(name_tag="tagAetherialMissive", name="Aetherial Missive")
         record["class"] = ["ItemArtifactFormula"]

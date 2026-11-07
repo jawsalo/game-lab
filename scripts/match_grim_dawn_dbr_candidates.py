@@ -241,7 +241,7 @@ def record_recipe_reference_evidence(
     record: dict[str, Any],
     item: dict[str, Any],
     reference_candidates: dict[tuple[str, str], str],
-) -> tuple[list[str], list[str]]:
+) -> tuple[list[str], list[str], list[dict[str, Any]]]:
     """Compare DBR reference paths to catalog IDs when the referenced DBR maps uniquely."""
     source_fields = record.get("fields", {})
     catalog_record = item.get("record", {})
@@ -249,23 +249,35 @@ def record_recipe_reference_evidence(
     source_layers = REFERENCE_LAYER_FALLBACKS.get(source_layer, (source_layer, "base"))
     matched = []
     mismatched = []
+    details = []
     for key in RECIPE_REFERENCE_FIELDS:
         source_path = normalize_record_path(first(source_fields, key))
         catalog_id = catalog_record.get(key)
         if not source_path or catalog_id is None:
             continue
         reference_id = None
+        resolved_layer = None
         for layer in source_layers:
             reference_id = reference_candidates.get((layer, source_path))
             if reference_id is not None:
+                resolved_layer = layer
                 break
         if reference_id is None:
             continue
-        if str(catalog_id).strip() == reference_id:
+        equal = str(catalog_id).strip() == reference_id
+        details.append({
+            "field": key,
+            "source_record_path": first(source_fields, key),
+            "resolved_source_layer": resolved_layer,
+            "resolved_catalog_id": reference_id,
+            "catalog_record_id": str(catalog_id).strip(),
+            "matches": equal,
+        })
+        if equal:
             matched.append(key)
         else:
             mismatched.append(key)
-    return matched, mismatched
+    return matched, mismatched, details
 
 
 def make_candidates(
@@ -297,7 +309,7 @@ def make_candidates(
                 matched, mismatched, unavailable = shared_discriminator_evidence(record, item)
                 matched_stats, mismatched_stats = record_stat_evidence(record, item)
                 matched_recipe, mismatched_recipe = record_recipe_evidence(record, item)
-                matched_references, mismatched_references = record_recipe_reference_evidence(record, item, reference_candidates)
+                matched_references, mismatched_references, reference_details = record_recipe_reference_evidence(record, item, reference_candidates)
                 if not mismatched and not mismatched_stats and not mismatched_recipe and not mismatched_references:
                     tag_matches.append((item, matched, unavailable, matched_stats, matched_recipe, matched_references))
                 else:
@@ -307,6 +319,7 @@ def make_candidates(
                         "mismatched_record_stats": mismatched_stats,
                         "mismatched_recipe_fields": mismatched_recipe,
                         "mismatched_recipe_references": mismatched_references,
+                        "mismatched_recipe_reference_details": [detail for detail in reference_details if not detail["matches"]],
                     }
             if tag_matches:
                 method = "exact_name_tag"
@@ -335,7 +348,7 @@ def make_candidates(
                     matched, mismatched, _ = shared_discriminator_evidence(record, item)
                     matched_stats, mismatched_stats = record_stat_evidence(record, item)
                     matched_recipe, mismatched_recipe = record_recipe_evidence(record, item)
-                    matched_references, mismatched_references = record_recipe_reference_evidence(record, item, reference_candidates)
+                    matched_references, mismatched_references, reference_details = record_recipe_reference_evidence(record, item, reference_candidates)
                     # Require at least one independent supporting field; never map on name alone.
                     if not mismatched and not mismatched_stats and not mismatched_recipe and not mismatched_references and (matched or matched_stats or matched_recipe or matched_references):
                         name_matches.append((item, matched, matched_stats, matched_recipe, matched_references))
@@ -346,6 +359,7 @@ def make_candidates(
                             "mismatched_record_stats": mismatched_stats,
                             "mismatched_recipe_fields": mismatched_recipe,
                             "mismatched_recipe_references": mismatched_references,
+                            "mismatched_recipe_reference_details": [detail for detail in reference_details if not detail["matches"]],
                         }
             if name_matches:
                 method = "display_name_composite"
