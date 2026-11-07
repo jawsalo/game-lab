@@ -123,6 +123,29 @@ class DbrCandidateTests(unittest.TestCase):
         self.assertEqual(report["candidates"][0]["id"], "it-expanded")
         self.assertIn("skill_level", report["candidates"][0]["matched_discriminators"])
 
+    def test_description_tag_disambiguates_wayfinder_quest_reports(self) -> None:
+        record = dbr_record(name_tag=None, name="Wayfinder Report")
+        record["source_layer"] = "gdx3"
+        record["class"] = ["QuestItem"]
+        record["fields"].update({
+            "Class": ["QuestItem"],
+            "description": ["tagGDX3QuestItemKurnScoutReport02"],
+        })
+        reports = []
+        for number in (1, 2, 3):
+            item = catalog_item(
+                f"it-report-{number}", name="Wayfinder Report", name_tag=None,
+                record={"d": f"tagGDX3QuestItemKurnScoutReport{number:02}"},
+            )
+            item["category"] = "QuestItem"
+            reports.append(item)
+
+        result = make_candidates(record, {"QuestItem": reports})
+
+        self.assertEqual(result["status"], "unique")
+        self.assertEqual(result["candidates"][0]["id"], "it-report-2")
+        self.assertIn("description_tag", result["candidates"][0]["matched_discriminators"])
+
     def test_identical_tag_and_fields_remain_ambiguous(self) -> None:
         report = make_candidates(
             dbr_record(),
