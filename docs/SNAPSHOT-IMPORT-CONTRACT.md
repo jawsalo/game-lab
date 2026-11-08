@@ -1,6 +1,6 @@
 # Grim Dawn Character and Stash Snapshot Import Contract
 
-**Status:** Authenticated, bounded, temporary-only preview route and pinned parser runtime are merged (PRs #86–87). Preview is disabled by default pending approved, version-known compatibility fixtures and production runtime verification. No snapshot persistence exists yet.
+**Status:** Authenticated, bounded, temporary-only preview route and pinned parser runtime are merged (PRs #86–87); the API image worker smoke check, local snapshot-to-candidate smoke tool, and documentation/backlog updates are merged (PRs #89–91). Preview is disabled by default pending an authorized, version-known compatibility fixture and packaged-runtime/preview verification. No snapshot persistence exists yet.
 **Product goal:** Let the owner search personal character and stash snapshots against the shared Grim Dawn catalog, identify owned copies, and compare snapshots over time.
 
 ## Input decision
@@ -104,6 +104,9 @@ The DBR extraction, index, and candidate matching steps are complete; see [Sessi
 - The latest local snapshot check resolved all 173 character item instances across 139 DBR paths. Of 137 shared-stash instances, 132 resolved uniquely; five instances across four paths are known game items outside the catalog, with no catalog IDs or cards assigned. The four paths and their DBR classes are recorded below. Earlier local counts are superseded by this synced-save run.
 - PR #86 added `/api/snapshots/preview`, protected by the owner authentication/CSRF boundary, with request and file limits, parser concurrency limits, temporary processing, and an allowlisted response. It does not persist snapshots.
 - PR #87 packages gd-edit 0.2.586 from its release archive after checking the pinned byte size and SHA-256, preserves upstream license notices, and includes Java 21 and the worker source. Both CI validation and image-build checks passed. Helm defaults `modules.api.snapshotPreview.enabled` to `false`; keep it disabled until compatibility is verified.
+- PR #89 adds an image-build smoke command that starts Java 21 and requires the snapshot-worker namespace. Validate and Build application images passed. This proves the worker can load in the built image; it does not prove parsing of a known-version fixture or exercise the protected preview route.
+- PR #90 adds a local-only utility for comparing parsed item DBR paths with the user's generated candidate report. The latest synced-save run reported character format version 8 with 173 instances across 139 paths (all uniquely matched), and shared-stash format version 11 with 137 instances across 129 paths (132 uniquely matched and 5 known non-catalog instances across four paths). Output omitted names and item payloads; the local source saves were read-only.
+- PR #91 records the four missing paths as known game items without catalog cards or assigned catalog IDs and adds a future investigation of a general standalone lookup across the much larger local DBR corpus.
 - PR #90 added a local-only snapshot-to-candidate smoke tool. The five missing stash instances are valid inventory records but remain outside the public item catalog and have no catalog IDs/cards assigned: `records/items/misc/potions/potion_attributereset.dbr` (`ItemAttributeReset`), `records/items/misc/difficultyunlock_ultimate.dbr` (`ItemDifficultyUnlock`, two instances), `records/items/misc/potions/potion_devotionreset.dbr` (`ItemDevotionReset`), and `records/items/faction/booster/boosthostile_wendigo_c01.dbr` (`ItemFactionWarrant`). A standalone lookup for these paths is a backlog investigation, not a requirement to block snapshot parsing.
 - **Next:** validate the packaged runtime against authorized, version-known fixtures, then test the protected preview route and cleanup behavior. Only then consider enabling preview. Review live VPS capacity before planning PostgreSQL snapshot persistence.
 
@@ -113,6 +116,20 @@ The DBR extraction, index, and candidate matching steps are complete; see [Sessi
 - **Known examples:** the four utility-item DBR paths listed above, covering attribute reset, Ultimate difficulty unlock, devotion reset, and Wendigo faction warrant.
 - **Question:** determine whether these and other inventory-bearing DBR records outside the public item catalog merit a general standalone lookup using the local DBR index and layer-aware localization, rather than one-off path mappings or catalog cards.
 - **Scope:** begin with a read-only count and classification of inventory item paths absent from catalog coverage across the seven DBR layers (about 98,827 exported DBRs). Estimate likely user value, data volume, maintenance cost, and whether this belongs only in private snapshot metadata or in a separate lookup surface. Do not promote these records into the public catalog by default.
+
+## Pinned gd-edit fixture eligibility audit (November 8, 2026)
+
+The pinned upstream test suite at [gd-edit v0.2.586](https://github.com/GrimDawn-max/gd-edit/tree/v0.2.586) was checked for fixtures suitable for Game Lab's compatibility gate. **None qualifies as a clean, confirmed-version fixture.**
+
+- `counterstrike.gdc` and `z20.gdc`, described in [item_skills_test.clj](https://github.com/GrimDawn-max/gd-edit/blob/v0.2.586/test/gd_edit/item_skills_test.clj), are expected to contain one and two item-skill entries. The test comments say a forum contributor sent them to exercise that layout. The tests identify Character Block 8 format version 5 and test the version gate; they do not identify the Grim Dawn game release that created the saves or provide fixture-specific permission for Game Lab to reuse or redistribute them. Their assertions are useful upstream parser regressions, not full inventory-count expectations.
+- `NamedTabs.gdc` and `NamedTabs-transfer.gst`, described in [stash_tabs_test.clj](https://github.com/GrimDawn-max/gd-edit/blob/v0.2.586/test/gd_edit/stash_tabs_test.clj), test named tab values, icon/color fields, and byte-identical round trips. They do not assert expected item-instance counts or name a Grim Dawn game release. The associated item-skill tests identify `NamedTabs.gdc` as a Block 8 format version 8 file; that is not a game-version statement.
+- The gd-edit source is EPL-1.0 licensed, but that does not by itself establish the provenance or license of contributed save binaries. Do not copy upstream saves into Game Lab or use them as approved external fixtures without confirming rights and provenance.
+
+**Decision:** keep the compatibility gate open. The upstream fixtures show the parser project's regression coverage for specific binary layouts, but cannot prove compatibility with a known Grim Dawn build or expected aggregate inventory counts. The user's own local 1.3.1.1 saves remain useful private smoke evidence, not a clean 1.3.1.0 fixture set. If no qualifying fixture can be obtained, record that limitation; do not weaken the gate or enable preview for general use.
+
+## Session 7 stopping point (November 8, 2026)
+
+See [Session 7 handoff](SESSION-7-HANDOFF.md) for the full chronology, validation evidence, current roadmap position, and ordered resume checklist. The immediate task is fixture provenance/availability; the DBR export, index, candidate report, local parser invocation, and inventory-matching smoke step are already complete for the current local test files.
 
 ## Snapshot and identity semantics
 
