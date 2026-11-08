@@ -6,7 +6,6 @@ import asyncio
 import json
 import os
 import threading
-from functools import lru_cache
 from pathlib import Path
 from typing import Any
 
@@ -32,9 +31,13 @@ _preview_semaphore = asyncio.Semaphore(1)
 _parser_semaphore = threading.BoundedSemaphore(1)
 
 
-@lru_cache(maxsize=1)
 def _configured_parser() -> SnapshotParser:
-    """Load parser paths only when provided by deployment configuration."""
+    """Load parser paths only when preview is explicitly enabled."""
+    if os.getenv("GAME_LAB_SNAPSHOT_PREVIEW_ENABLED", "").lower() != "true":
+        raise HTTPException(
+            status_code=503,
+            detail="Save preview is disabled",
+        )
     java = os.getenv("GAME_LAB_JAVA_EXECUTABLE", "")
     jar = os.getenv("GAME_LAB_PARSER_JAR", "")
     worker = os.getenv("GAME_LAB_PARSER_WORKER_SOURCE", "")
