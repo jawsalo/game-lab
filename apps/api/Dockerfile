@@ -24,6 +24,8 @@ RUN python /tmp/package_gd_edit.py --destination /opt/gd-edit \
 COPY apps/api/app ./app
 COPY apps/api/data ./data
 COPY apps/parser-worker/src /opt/game-lab/parser-worker/src
+RUN java -cp "${GAME_LAB_PARSER_JAR}:${GAME_LAB_PARSER_WORKER_SOURCE}" \
+    clojure.main -e "(require 'game-lab.snapshot-worker)"
 
 USER 65532:65532
 
