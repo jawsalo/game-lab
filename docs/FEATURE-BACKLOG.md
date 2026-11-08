@@ -236,6 +236,14 @@ This policy applies to all future catalog and item-card changes, not just retali
 - **Acceptance criteria:** Trace granted-skill source fields and their actual units; compose matching minimum/maximum damage fields into one correctly labeled range (likely 115–155 Vitality Damage); render flat physical damage accurately; express Defensive Ability reduction together with its duration when supported; label stun duration and area radius in player-facing terms; determine whether `Skill Ultimate Level` is displayable gameplay information or internal metadata; retain trigger chance, recharge, and description; add regression cases across multiple granted skills, including non-matching or incomplete field pairs.
 - **Dependencies or notes:** Do not infer units or mechanics solely from internal field names. Implement shared, source-verified granted-skill formatting rather than a Boneshatter-specific override. Distinct from #7, which concerns item modifiers to existing skills. Screenshot supplied November 8, 2026.
 
+### 26. Restore missing granted-skill effects on item cards
+
+- **Device:** Mixed — mobile reproduction and verification; source/API investigation may require deeper development work.
+- **Status:** Proposed
+- **Problem and desired behavior:** Mythical Fiendflesh Greaves (`it8015`) show the granted skill `Fiend's Flesh (50% Chance when Hit)` and its description (`The flesh of the fiend protects you from harm.`), but no effect/stat lines appear beneath it. Determine whether the skill effects are absent from the pinned catalog, lost during card API extraction, or omitted by frontend rendering.
+- **Acceptance criteria:** Trace the granted-skill reference and effects from the pinned 1.3.1.0 source through API payload to frontend; display all verified player-facing effects for Fiend's Flesh without inventing values; distinguish genuinely effect-less skills from incomplete extraction; test additional granted defensive/buff skills and at least one offensive granted skill; preserve trigger chance, skill name, description, and other existing details; provide explicit fallback only when source effects cannot be resolved.
+- **Dependencies or notes:** Separate from #25 (effects present but raw/unreadable). Coordinate shared granted-skill parsing/formatting fixes without treating this item as an isolated exception. Mobile screenshot supplied November 8, 2026.
+
 ### Request template
 
 - **Title:**
