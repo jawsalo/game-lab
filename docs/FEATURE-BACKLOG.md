@@ -147,7 +147,7 @@ This policy applies to all future catalog and item-card changes, not just retali
 ### 15. Polish catalog pagination button appearance
 
 - **Device:** Mobile-friendly
-- **Status:** Proposed
+- **Status:** Done — PR #66 merged; user confirmed pagination looks and works great on mobile November 8, 2026
 - **Problem and desired behavior:** After PR #54, Previous and Next pagination controls work on mobile but look like browser-default gray buttons rather than the site's dark-themed controls. Make pagination navigation visually consistent with the rest of Game Lab without changing its working behavior.
 - **Acceptance criteria:** Style Previous/Next with the existing site's colors, typography, border radius, spacing, and touch-target sizing; distinguish enabled, disabled, focused, and pressed states accessibly; ensure the page indicator and controls fit narrow mobile screens without overflow; keep both top and bottom pagination controls visually consistent; preserve pagination, result ranges, and all filters.
 - **Dependencies or notes:** Screenshot from mobile verification of PR #54 showed `Previous  Page 2 of 290  Next` in default-looking gray buttons. Inspect existing CSS specificity and button styles before implementation. Do not combine with pagination logic changes.
@@ -203,6 +203,54 @@ This policy applies to all future catalog and item-card changes, not just retali
 - **Problem and desired behavior:** Item cards currently show abbreviated conversion labels such as `36/54% Chaos to Physical`. Use complete, player-facing damage type names, e.g. `36/54% Chaos Damage converted to Physical Damage`, consistent with the Dauntless GrimTools reference.
 - **Acceptance criteria:** Render both Dauntless (`it14449`) conversions as `36/54% Chaos Damage converted to Physical Damage` and `36/54% Acid Damage converted to Physical Damage`; apply the shared formatting consistently to all item damage conversion types; preserve percentages, min/max rolls, conversion directions, and API values; ensure text wraps cleanly on narrow mobile screens; add representative conversion-format regression tests.
 - **Dependencies or notes:** Presentation-only. Do not conflate item-wide conversions with skill-specific conversions tracked in #7. Dauntless's two conversions were confirmed visible in normal mobile Chrome after the PR #78 rollout fix on November 7, 2026.
+
+### 22. Audit crowd-control and leech resistance property labels
+
+- **Device:** Mobile-friendly
+- **Status:** Proposed
+- **Problem and desired behavior:** Mythical Bloodmist Boots (`it14640`) display `Defensive Trap +24/+36%` and `Defensive Stun +24/+36%`; Mythical Boneshatter Treads (`it9093`) display `Defensive Slow Life Leach +40/+60%` and `Defensive Total Speed +24/+36%`. These are internal-looking names rather than recognizable resistance labels. Investigate Entrapment Resistance, Stun Resistance, Life Leech Resistance, and Slow Resistance respectively, confirming actual source semantics before relabeling.
+- **Acceptance criteria:** Inventory related crowd-control, speed-reduction, and leech resistance fields across the catalog; use accurate player-facing resistance labels with correct percentages; distinguish resistance from effect duration, application chance, and offensive slow/leech effects; preserve original values and rolls; test the two boot cards and representative sibling/exception records.
+- **Dependencies or notes:** Family-wide label/semantics investigation, not two item-specific replacements. Check whether these overlap the specialty retaliation task #16 before implementing.
+
+### 23. Audit movement speed and maximum movement speed labels
+
+- **Device:** Mobile-friendly
+- **Status:** Proposed
+- **Problem and desired behavior:** Mythical Bloodmist Boots (`it14640`) display `Character Run Speed Modifier +8/+12%`; Mythical Boneshatter Treads (`it9093`) display both `Character Run Speed Modifier +7/+9%` and `Character Run Speed Max Modifier +2/+4%`. Replace internal-looking terms with clear player-facing movement speed labels after confirming the distinction between ordinary speed bonuses and increased maximum speed.
+- **Acceptance criteria:** Verify field semantics and naming across related movement-speed properties; clearly distinguish `Movement Speed` from `Maximum Movement Speed` (or source-accurate equivalent); preserve percent values, min/max rolls, and separate lines for separate effects; test both boots and other movement-speed item categories; check narrow-screen wrapping.
+- **Dependencies or notes:** Do not merge distinct speed mechanics or assume `Run Speed Max` is a standard movement-speed bonus.
+
+### 24. Investigate Offensive Life Modifier damage label
+
+- **Device:** Mobile-friendly
+- **Status:** Proposed — investigation
+- **Problem and desired behavior:** Mythical Boneshatter Treads (`it9093`) show `Offensive Life Modifier +67/+100%`, an internal-looking property name among Physical, Vitality Decay, and Internal Trauma damage bonuses. Determine whether this represents Vitality Damage or another game mechanic before choosing a player-facing label.
+- **Acceptance criteria:** Trace the exact source field and meaning; inspect sibling offensive damage types and other items; display the verified label without changing numeric values or confusing damage, life leech, or health modifiers; add regression cases for the affected family and non-matching life-related fields.
+- **Dependencies or notes:** May overlap existing backlog #9 (player-facing item-property labels); keep the investigation separately trackable and consolidate implementation if the same translation family is involved. User believes `Offensive Life Modifier` represents Vitality Damage; verify against pinned source before applying the label.
+
+### 25. Render granted-skill effects as readable game mechanics
+
+- **Device:** Mixed — source/field mapping and API tests may need deeper development work; mobile screenshots and card verification are straightforward.
+- **Status:** Proposed
+- **Problem and desired behavior:** Mythical Boneshatter Treads (`it9093`) grant `Shattering Force (30% Chance when Hit)`. Its trigger, description, and 2.5-second recharge are readable, but the effects list exposes raw internal properties: `Offensive Life Max +155`, `Offensive Life Min +115`, `Physical Damage (minimum) +240`, `Offensive Slow Defensive Ability Duration Min +3`, `Offensive Slow Defensive Ability Min +70`, `Offensive Stun Min +1`, `Skill Target Radius +3.5`, and `Skill Ultimate Level +1`.
+- **Acceptance criteria:** Trace granted-skill source fields and their actual units; compose matching minimum/maximum damage fields into one correctly labeled range (likely 115–155 Vitality Damage); render flat physical damage accurately; express Defensive Ability reduction together with its duration when supported; label stun duration and area radius in player-facing terms; determine whether `Skill Ultimate Level` is displayable gameplay information or internal metadata; retain trigger chance, recharge, and description; add regression cases across multiple granted skills, including non-matching or incomplete field pairs.
+- **Dependencies or notes:** Do not infer units or mechanics solely from internal field names. Implement shared, source-verified granted-skill formatting rather than a Boneshatter-specific override. Distinct from #7, which concerns item modifiers to existing skills. Screenshot supplied November 8, 2026.
+
+### 26. Restore missing granted-skill effects on item cards
+
+- **Device:** Mixed — mobile reproduction and verification; source/API investigation may require deeper development work.
+- **Status:** Proposed
+- **Problem and desired behavior:** Mythical Fiendflesh Greaves (`it8015`) show the granted skill `Fiend's Flesh (50% Chance when Hit)` and its description (`The flesh of the fiend protects you from harm.`), but no effect/stat lines appear beneath it. Determine whether the skill effects are absent from the pinned catalog, lost during card API extraction, or omitted by frontend rendering.
+- **Acceptance criteria:** Trace the granted-skill reference and effects from the pinned 1.3.1.0 source through API payload to frontend; display all verified player-facing effects for Fiend's Flesh without inventing values; distinguish genuinely effect-less skills from incomplete extraction; test additional granted defensive/buff skills and at least one offensive granted skill; preserve trigger chance, skill name, description, and other existing details; provide explicit fallback only when source effects cannot be resolved.
+- **Dependencies or notes:** Separate from #25 (effects present but raw/unreadable). Coordinate shared granted-skill parsing/formatting fixes without treating this item as an isolated exception. Mobile screenshot supplied November 8, 2026.
+
+### 27. Complete damage-over-time field-family rendering (Chillgore regression)
+
+- **Device:** Mixed — source/API mapping and tests; mobile visual verification.
+- **Status:** Proposed — regression follow-up to #17 / PR #64
+- **Problem and desired behavior:** Chillgore (`it15817`) still exposes raw `Offensive Slow Bleeding Duration Min`, `Offensive Slow Bleeding Duration Modifier`, `Offensive Slow Bleeding Min`, and corresponding `Offensive Slow Cold ...` fields even though the Bleeding Damage and Frostburn Damage percentage modifier labels are already corrected. The earlier fix did not fully cover flat damage-over-time, duration, and duration-modifier siblings.
+- **Acceptance criteria:** Trace and inventory the full DoT field families (Bleeding, Frostburn, Burn, Electrocute, Poison, Vitality Decay, Internal Trauma and verified variants); combine damage, duration, and duration-modifier fields into source-accurate player-facing effects where appropriate; preserve separate percentage damage modifiers and original values/rolls; handle missing or non-matching fields safely; add Chillgore and representative sibling/exception tests and mobile verification.
+- **Dependencies or notes:** Explicitly cross-reference existing #17 rather than treating the prior implementation as family-complete. The same screenshot also exposes `Character Offensive Ability Modifier` (percentage OA) and split physical minimum/maximum damage fields; assess these under #9 or separately if implementation scope differs. Do not invent a final damage range from unverified field semantics.
 
 ### Request template
 
