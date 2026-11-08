@@ -9,6 +9,8 @@ from .auth import router as auth_router
 from .catalog import CatalogUnavailableError
 from .grim_dawn import catalog as grim_dawn_catalog
 from .grim_dawn import router as grim_dawn_router
+from .snapshot_upload import RequestBodyLimitMiddleware
+from .snapshot_upload import router as snapshot_router
 from .telemetry import configure_telemetry, shutdown_telemetry
 
 SERVICE_NAME = "game-lab-api"
@@ -37,6 +39,8 @@ app = FastAPI(
 )
 app.include_router(grim_dawn_router)
 app.include_router(auth_router)
+app.include_router(snapshot_router)
+app.add_middleware(RequestBodyLimitMiddleware)
 
 telemetry_providers = configure_telemetry(app)
 
