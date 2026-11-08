@@ -1,6 +1,6 @@
 # Game Lab — V9 Roadmap
 
-**Status:** PHASE 2 IN PROGRESS; PHASE 3 COMPLETE; PHASE 4 COMPLETE — metrics, logs, traces, and database-span correlation verified; PHONE-APPROVED DEPLOYMENT VERIFIED; ITEM-CARD BASELINE COMPLETE AND VERIFIED ON PRODUCTION; COMPLETE LOCAL DBR EXPORT VERIFIED — November 6, 2026  
+**Status:** PHASE 2 IN PROGRESS; PHASE 3/4 COMPLETE; PHONE-APPROVED DEPLOYMENT VERIFIED; ITEM-CARD BASELINE COMPLETE; LOCAL DBR INDEX AND CANDIDATE MATCHER COMPLETE; SNAPSHOT PREVIEW IMPLEMENTED BUT DISABLED PENDING FIXTURE COMPATIBILITY — November 8, 2026
 **Supersedes:** V8  
 **Execution:** Continue with short, validated chunks from the current Phase 2 checkpoint.
 
@@ -13,7 +13,7 @@ User-requested features are tracked with mobile, PC, or mixed effort labels in [
 
 ## Current priority sequence
 
-The app foundation and open-source observability stack are working. Item-card fidelity is complete for this checkpoint. The first snapshot input is Grim Dawn character and stash save files; the import contract and current crosswalk checkpoint are in [SNAPSHOT-IMPORT-CONTRACT.md](SNAPSHOT-IMPORT-CONTRACT.md), with the hands-on restart steps in [SESSION-6-HANDOFF.md](SESSION-6-HANDOFF.md). The read-only parser path is integrated and smoke-tested against the user's local character and shared-stash files (November 2); this proves the invocation and allowlisted projection for those files, not clean 1.3.1.0 fixture coverage. The complete local DBR source export is now verified across all seven layers (98,827 records including GDX3). Build and validate a deterministic local DBR index and candidate crosswalk report. Then close the clean-fixture and parser-license compatibility gates and design owner authentication before accepting uploads. Next check live VPS capacity and implement bounded temporary upload, read-only preview, and PostgreSQL persistence. Once the app can produce meaningful, repeatable traffic, exercise it with controlled failure scenarios and compare the same investigations in Datadog. Keep Datadog deferred until that workload is ready. Phone-first controlled MCP operations remain a later, separately scoped track.
+The app foundation and open-source observability stack are working. Item-card fidelity is complete for this checkpoint. The first snapshot input is Grim Dawn character and stash save files; the contract and current parser checkpoint are in [SNAPSHOT-IMPORT-CONTRACT.md](SNAPSHOT-IMPORT-CONTRACT.md). The full local DBR index and candidate matcher are implemented, and supplied character/stash summaries have been checked against them; unresolved records remain explicit. PR #86 added authenticated, bounded, temporary-only preview handling. PR #87 packaged the pinned gd-edit 0.2.586 runtime, Java 21, and worker in the API image, while keeping preview disabled by default. The remaining first-use gate is a version-known, authorized fixture set and a production runtime check with preview still off. After that, run the preview acceptance checks, review live VPS capacity, and design snapshot persistence. Once the app can produce meaningful, repeatable traffic, exercise it with controlled failure scenarios and compare the same investigations in Datadog. Keep Datadog deferred until that workload is ready. Phone-first controlled MCP operations remain a later, separately scoped track.
 
 ## Existing foundation (previously verified; recheck before work)
 - Ubuntu 24.04 VPS, single-node K3s v1.36.3+k3s1.
@@ -84,7 +84,7 @@ Unify application, Kubernetes, GitHub and observability context for guided inves
 4. **API metrics are confirmed end to end:** requests to `/api`, `/api/grim-dawn/catalog`, and `/api/grim-dawn/items` appeared in Prometheus as `http_server_duration_milliseconds_count`, labeled with `job="game-lab-api"` and HTTP 200.
 5. **Alloy remote-write endpoint was corrected** to use the Prometheus Service port 80, and Alloy was upgraded/restarted. The Prometheus metric query confirms application metrics are arriving.
 6. **Grafana dashboard and all telemetry signals are verified end to end** (October 26, 2026). The provisioned Game Lab dashboard shows API request rate, p95 latency, and 5xx rate. Loki returns API pod logs. A Tempo trace for `GET /api/grim-dawn/items` contains its SQLite `PRAGMA` and `SELECT` child spans, confirming trace correlation.
-7. **Phase 2 remains in progress:** the user selected Grim Dawn character/stash save files as the snapshot input. The proposed contract and compatibility/security gates are in [SNAPSHOT-IMPORT-CONTRACT.md](SNAPSHOT-IMPORT-CONTRACT.md). Parser validation, owner authentication, PostgreSQL persistence, ownership and duplicate detection remain. Item-card fidelity is complete for now.
+7. **Phase 2 remains in progress:** the user selected Grim Dawn character/stash save files as the snapshot input. The API now has an owner-authenticated, bounded, temporary-only preview route (PR #86), and the pinned parser runtime is packaged in the image (PR #87). Preview remains disabled by default pending clean-fixture compatibility and production runtime checks. The DBR index and conservative candidate matching tools are complete; the project still needs authorized version-known fixtures and then preview verification before persistence design. Contract and restart point: [SNAPSHOT-IMPORT-CONTRACT.md](SNAPSHOT-IMPORT-CONTRACT.md).
 
 ### Mobile item-card checkpoint — October 26, 2026
 
@@ -114,6 +114,14 @@ Unify application, Kubernetes, GitHub and observability context for guided inves
 - The seven counts reconcile to the total. Extraction is complete; DBR-to-catalog identity coverage remains partial.
 - Next chunk: locally inspect the DBR text/localization inputs, build a deterministic index and produce a small candidate-match report with unique, ambiguous, and unmatched results. See [Session 6 handoff](SESSION-6-HANDOFF.md) and [DBR crosswalk](DBR-CATALOG-CROSSWALK.md).
 - Keep raw game exports and all save/inventory data local and out of Git.
+
+### Snapshot parser and crosswalk checkpoint — November 8, 2026
+
+- The local DBR indexer and candidate matcher are implemented and documented in [DBR-LOCAL-INDEX.md](DBR-LOCAL-INDEX.md) and [DBR-CANDIDATE-MATCHING.md](DBR-CANDIDATE-MATCHING.md). The report retains unique, ambiguous, rejected, and unmatched evidence instead of guessing from names.
+- The latest scan compared 12,070 catalog category rows against the 31,205 item-directory DBR records. It reported 10,588 unique matches, 1 ambiguous match, and 1,481 unmatched rows. This is evidence coverage, not a claim that every game record belongs in the public item catalog.
+- Snapshot-path checks on local test files found all 181 character item instances uniquely resolvable across 146 source paths. The shared stash had 114 instances: 109 uniquely resolved and 5 missing across four source paths; those DBR records exist in the local corpus but are not currently represented by the matcher as catalog entries. No save files or per-item exports were committed.
+- PR #86 added the owner-authenticated bounded preview endpoint. PR #87 packaged gd-edit 0.2.586, the upstream license notices, Java 21, and the read-only worker. The preview flag defaults to off; no real uploads should be accepted until the compatibility gate is closed.
+- **Next:** obtain or create fixtures with documented game version, expected aggregate parser results, and permission for local test use. Validate parser/runtime behavior and the preview route while it remains disabled in production. Enable it only after those checks pass. Then verify owner-only preview on approved fixtures and design PostgreSQL persistence separately.
 
 ## Progress — October 18, 2026
 - Deployed the mobile-first web shell and FastAPI service at `games.phobosandeimos.com`.
@@ -186,7 +194,7 @@ The first DBR-to-catalog mapping seed is documented in [DBR-CATALOG-CROSSWALK.md
 - The phone-approved PR-to-K3s deployment workflow is complete and verified. Preserve it as the default path for future production changes.
 - Open-source observability is complete for this checkpoint: dashboard, Loki logs, Tempo traces, and SQLite span correlation are verified.
 - Item-card work is complete for this checkpoint: PRs #23–25 are merged and the relevant production behavior is verified. The user is happy with the cards.
-- Next: continue the partial DBR-path-to-catalog-ID crosswalk in [DBR-CATALOG-CROSSWALK.md](DBR-CATALOG-CROSSWALK.md) with a reproducible export path, then complete clean parser fixture/license compatibility, owner authentication and upload limits, capacity review, read-only preview, and PostgreSQL persistence. The current restart point is [SESSION-5-HANDOFF.md](SESSION-5-HANDOFF.md).
+- Next: close the known-version, authorized parser fixture gate and verify the packaged production runtime with snapshot preview still disabled. Then run preview acceptance checks on those approved fixtures; only after that decide whether to enable the preview flag. PostgreSQL persistence remains a later design gate. See [SNAPSHOT-IMPORT-CONTRACT.md](SNAPSHOT-IMPORT-CONTRACT.md) and [SESSION-6-HANDOFF.md](SESSION-6-HANDOFF.md).
 - After a useful snapshot workload exists, add repeatable traffic and failure scenarios, then start the Datadog comparison. Keep Datadog deferred until those scenarios are ready.
 - Do not activate Datadog prematurely; wait for a meaningful workload and repeatable failure scenarios.
 

@@ -3,7 +3,7 @@
 **Checkpoint:** November 6, 2026  
 **Repository:** `jawsalo/game-lab`, `main`  
 **Project stage:** Phase 2 — DBR-to-catalog identity crosswalk for future character/stash snapshots  
-**Status:** Complete local source export verified: **98,827 DBRs across all seven database layers**, including GDX3. The extraction blocker is closed. Next: build and validate a reproducible local DBR index and candidate crosswalk report.
+**Status:** Complete local source export verified: **98,827 DBRs across all seven database layers**, including GDX3. The extraction blocker, local index, and candidate-report implementation are complete. Resume with parser fixture compatibility and preview runtime verification; see [Roadmap V9](ROADMAP-V9.md) and [Snapshot Import Contract](SNAPSHOT-IMPORT-CONTRACT.md).
 
 ## Where this fits
 
@@ -42,15 +42,20 @@ The standalone GDX3 source contains 24,775 `.dbr` files. The combined tree was c
 
 The seven layer counts sum exactly to the recursive total. The GDX3 count matches the 24,775 records reported by ArchiveToolGUI, and actual files were verified with sample paths under `records/controllers/enemy/`. This establishes that files were written and the complete extracted DBR corpus is assembled locally.
 
-## Next work: first index and candidate-mapping chunk
+## Index and candidate matching: complete
 
-Estimated time for the first useful chunk: **about 1–2 hours**, depending on the local export format and localization requirements. Broad catalog coverage will need additional sessions; estimate it after seeing the first report.
+- `scripts/index_grim_dawn_dbrs.py` indexes item-directory records from the seven local database layers, preserving source layer, DBR path, fields, and localization evidence. Run instructions and boundaries are in [DBR-LOCAL-INDEX.md](DBR-LOCAL-INDEX.md).
+- `scripts/match_grim_dawn_dbr_candidates.py` compares that index with the pinned Grim Dawn 1.3.1.0 catalog. It uses category, source tags or localized names plus independent evidence, gameplay stats, recipe references, and known discriminators. Ambiguous, rejected, and unmatched cases stay explicit. See [DBR-CANDIDATE-MATCHING.md](DBR-CANDIDATE-MATCHING.md).
+- The latest generated report compared 12,070 catalog category rows to 31,205 item-directory DBRs: 10,588 unique, 1 ambiguous, and 1,481 unmatched. This report is local derived data, not the canonical database and not a claim of full source-record coverage.
+- A supplied character summary resolved all 181 item instances uniquely across 146 source paths. The shared-stash summary resolved 109 of 114 instances uniquely; 5 instances across four DBR paths remain outside the current catalog matcher, though the records exist in the extracted corpus. Keep those unresolved rather than guessing.
+- All raw DBR and localization exports, generated index/report files, and save/inventory data stay outside Git.
 
-1. From the Windows checkout of `jawsalo/game-lab`, inspect the DBR text format, layer directory layout, and available English localization inputs. Keep the local export outside Git.
-2. Implement a small deterministic local tool that scans all seven layer roots and emits an inventory/index of item-relevant DBRs. Preserve source layer and normalized DBR path. Keep raw DBR bodies and localized personal data out of the repo.
-3. Compare the index with the pinned 8,695-row catalog using a composite fingerprint based on source path relationships and item fields (resolved name, class/category, rarity, item/required levels, bitmap, gameplay properties, and where relevant recipe output/reagents or quest text). Do not use display name alone.
-4. Produce a review report that separates unique candidates, ambiguous matches, and unmatched records. Validate the known seed mappings (including the four canonical item-card items where applicable, the caster set, crafting/recipe examples, and quest examples) as regression checks.
-5. Review the first sample/report before expanding to a full generated crosswalk. Keep source version, catalog version, counts, and hashes/provenance explicit. Do not claim full coverage until counts and unresolved cases are reported.
+## Next work: parser fixture and packaged runtime gate
+
+1. Obtain or create save fixtures with confirmed Grim Dawn version, expected aggregate parse results, and permission for local test use. The user's own 1.3.1.1 files remain local smoke-test evidence, not clean compatibility fixtures.
+2. Verify the merged API image contains the checksum-pinned gd-edit 0.2.586 archive, preserved license notices, Java 21, and read-only worker. Keep the production preview flag off during this check.
+3. Run authenticated preview acceptance checks against approved fixtures, checking character/stash mode, counts, bounded failures, temporary-file cleanup, and that no data persists.
+4. Only after the fixture and runtime gates pass, decide whether to enable preview. Check live VPS capacity and design PostgreSQL persistence as a later step.
 
 The current checkout is on the user's PC at `C:\Users\15073\Desktop\game-lab`; Python 3.13.17, a repository-local `.venv`, and Temurin Java 25.0.5 are installed. The parser smoke test already returned character format 8 / 153 items and shared stash format 11 / 210 items. The full DBR corpus is in `C:\GD-Data-Export`, not in that checkout.
 
