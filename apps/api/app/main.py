@@ -5,6 +5,7 @@ import os
 
 from fastapi import FastAPI, HTTPException
 
+from .auth import router as auth_router
 from .catalog import CatalogUnavailableError
 from .grim_dawn import catalog as grim_dawn_catalog
 from .grim_dawn import router as grim_dawn_router
@@ -35,6 +36,7 @@ app = FastAPI(
     lifespan=lifespan,
 )
 app.include_router(grim_dawn_router)
+app.include_router(auth_router)
 
 telemetry_providers = configure_telemetry(app)
 
