@@ -244,6 +244,14 @@ This policy applies to all future catalog and item-card changes, not just retali
 - **Acceptance criteria:** Trace the granted-skill reference and effects from the pinned 1.3.1.0 source through API payload to frontend; display all verified player-facing effects for Fiend's Flesh without inventing values; distinguish genuinely effect-less skills from incomplete extraction; test additional granted defensive/buff skills and at least one offensive granted skill; preserve trigger chance, skill name, description, and other existing details; provide explicit fallback only when source effects cannot be resolved.
 - **Dependencies or notes:** Separate from #25 (effects present but raw/unreadable). Coordinate shared granted-skill parsing/formatting fixes without treating this item as an isolated exception. Mobile screenshot supplied November 8, 2026.
 
+### 27. Complete damage-over-time field-family rendering (Chillgore regression)
+
+- **Device:** Mixed — source/API mapping and tests; mobile visual verification.
+- **Status:** Proposed — regression follow-up to #17 / PR #64
+- **Problem and desired behavior:** Chillgore (`it15817`) still exposes raw `Offensive Slow Bleeding Duration Min`, `Offensive Slow Bleeding Duration Modifier`, `Offensive Slow Bleeding Min`, and corresponding `Offensive Slow Cold ...` fields even though the Bleeding Damage and Frostburn Damage percentage modifier labels are already corrected. The earlier fix did not fully cover flat damage-over-time, duration, and duration-modifier siblings.
+- **Acceptance criteria:** Trace and inventory the full DoT field families (Bleeding, Frostburn, Burn, Electrocute, Poison, Vitality Decay, Internal Trauma and verified variants); combine damage, duration, and duration-modifier fields into source-accurate player-facing effects where appropriate; preserve separate percentage damage modifiers and original values/rolls; handle missing or non-matching fields safely; add Chillgore and representative sibling/exception tests and mobile verification.
+- **Dependencies or notes:** Explicitly cross-reference existing #17 rather than treating the prior implementation as family-complete. The same screenshot also exposes `Character Offensive Ability Modifier` (percentage OA) and split physical minimum/maximum damage fields; assess these under #9 or separately if implementation scope differs. Do not invent a final damage range from unverified field semantics.
+
 ### Request template
 
 - **Title:**
