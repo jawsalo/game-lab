@@ -24,6 +24,8 @@ modules:
     telemetry:
       serviceName: game-lab-api
       otlpEndpoint: http://alloy.observability.svc.cluster.local:4317
+    auth:
+      secretName: game-lab-auth
 
   mcp:
     enabled: false
