@@ -1,6 +1,6 @@
 # Grim Dawn Character and Stash Snapshot Import Contract
 
-**Status:** Read-only parser integrated and locally smoke-tested against the user's files (November 2, 2026); clean fixtures, catalog identity coverage, and security gates remain before upload implementation  
+**Status:** Authenticated, bounded, temporary-only preview route and pinned parser runtime are merged (PRs #86–87). Preview is disabled by default pending approved, version-known compatibility fixtures and production runtime verification. No snapshot persistence exists yet.
 **Product goal:** Let the owner search personal character and stash snapshots against the shared Grim Dawn catalog, identify owned copies, and compare snapshots over time.
 
 ## Input decision
@@ -24,11 +24,11 @@ Do not assume that a parser handles the user's game version just because it can 
 - The public save-decryption implementation linked from the Crate forum says it was tested for Grim Dawn 1.1.9.1 and warns that it may contain bugs: [Save File Decryption Tools](https://forums.crateentertainment.com/t/tool-save-file-decryption-tools/110765).
 - The Crate forum's GD Stash thread reports support for the 1.3.0.0 save format in its version history, but that alone does not establish compatibility with this project's pinned 1.3.1.0 catalog: [GD Stash](https://forums.crateentertainment.com/t/tool-gd-stash/29036/).
 
-Before accepting real uploads, select a parser with a clear license and verify it against unmodified 1.3.1.0 character and stash fixtures. If a compatible parser is not available, stop at file identification and report the limitation rather than storing a misleading or partial inventory.
+The selected parser is gd-edit 0.2.586 under EPL-1.0. PR #87 packages the pinned upstream Linux release, its LICENSE and THIRD-PARTY notices, the read-only worker, and Java 21 in the API image. The parser was locally smoke-tested against the user's unmodified 1.3.1.1 character and stash files, but that does not close the compatibility gate. Before enabling preview for real uploads, verify the packaged runtime against fixtures with confirmed Grim Dawn version, expected aggregate parse results, and permission for local test use. Keep the feature flag off until that verification passes. If suitable fixtures are unavailable, document that limit and do not claim broad compatibility.
 
 ## Privacy and access contract
 
-- Snapshots are personal data and private to one owner. The current app has no user authentication; do not add a public upload or read endpoint until an owner-authentication boundary is in place.
+- Snapshots are personal data and private to one owner. The API has a single-owner authentication boundary, and the preview route requires owner authentication and CSRF protection. Snapshot storage and lookup are not implemented.
 - Begin with one owner for this single-user deployment. Do not introduce public signup, shared inventories, or multi-user collaboration in the MVP.
 - Never modify, repair, or write back a game save file. Upload and import are read-only with respect to the source files.
 - Treat uploaded binaries as untrusted input. Enforce request size, per-file size, file-count, and parser resource limits; validate signatures and detected file type rather than trusting filenames.
@@ -74,7 +74,7 @@ A source-only review of the gd-edit 0.2.586 test suite found useful parser regre
 
 The upstream tests provide evidence that gd-edit's own regression suite covers format edge cases; they do not independently verify parser correctness, expected item counts, or the exact 1.3.1.0 game build. They were inspected but not run in Game Lab, and no upstream binary fixtures were copied.
 
-**Next:** use only fixtures whose provider confirms the game version, expected read-only parse summary, and permission to use them; otherwise keep the user's files as local smoke-test evidence and proceed with synthetic tests for the adapter's allowlisted projection. Do not weaken the real-save compatibility gate for uploads.
+**Next:** use only fixtures whose provider confirms the game version, expected read-only parse summary, and permission to use them. If none are available, keep the user's files as local smoke-test evidence and use synthetic adapter tests without claiming a clean compatibility result. Do not weaken the real-save compatibility gate for uploads.
 
 ## Local parser integration validation (November 2, 2026)
 
@@ -96,7 +96,15 @@ What this establishes: the Java worker can be launched locally, the Python adapt
 
 What remains unproven: clean fixtures with confirmed game-version provenance and redistribution permission; broad compatibility beyond these files; exhaustive DBR-to-catalog ID resolution; and upload security/ownership. The game build reported for this user is 1.3.1.1, while the shared catalog is 1.3.1.0. The prior Crate hotfix notes say 1.3.1.1 did not add item data, but do not treat this user-save smoke test as the required clean 1.3.1.0 fixture gate.
 
-Restart point: continue the partial DBR-to-catalog crosswalk from DBR-CATALOG-CROSSWALK.md. Prefer a reproducible bulk export or a narrowly scoped source-driven mapping method; do not repeat the manual 100-row batch loop across all 8,695 catalog items. Keep unresolved, ambiguous, and unique mappings distinct. Then close the clean fixture/license gate before designing owner authentication, bounded temporary uploads, read-only preview, capacity limits, and PostgreSQL persistence. See SESSION-5-HANDOFF.md for the operator steps.
+The DBR extraction, index, and candidate matching steps are complete; see [Session 6 handoff](SESSION-6-HANDOFF.md). The immediate restart point is the clean parser-fixture and packaged-runtime gate described below, not broad manual mapping work. Keep unresolved item identities explicit. Do not enable preview or plan persistence until the compatibility check is done.
+
+## Preview endpoint and packaged runtime checkpoint (November 8, 2026)
+
+- The DBR index and candidate matcher are implemented; see [DBR-LOCAL-INDEX.md](DBR-LOCAL-INDEX.md) and [DBR-CANDIDATE-MATCHING.md](DBR-CANDIDATE-MATCHING.md). The latest report compared 12,070 catalog category rows against 31,205 item-directory DBRs: 10,588 unique, 1 ambiguous, and 1,481 unmatched. Treat this as evidence coverage, not complete game-item coverage.
+- Local snapshot summaries reported 181 character item instances uniquely mapped across 146 DBR paths. A shared stash summary had 114 instances, of which 109 were unique and 5 remained unresolved across four DBR paths. Those source records exist in the local DBR corpus; do not guess catalog IDs for them.
+- PR #86 added `/api/snapshots/preview`, protected by the owner authentication/CSRF boundary, with request and file limits, parser concurrency limits, temporary processing, and an allowlisted response. It does not persist snapshots.
+- PR #87 packages gd-edit 0.2.586 from its release archive after checking the pinned byte size and SHA-256, preserves upstream license notices, and includes Java 21 and the worker source. Both CI validation and image-build checks passed. Helm defaults `modules.api.snapshotPreview.enabled` to `false`; keep it disabled until compatibility is verified.
+- **Next:** validate the packaged runtime against authorized, version-known fixtures, then test the protected preview route and cleanup behavior. Only then consider enabling preview. Review live VPS capacity before planning PostgreSQL snapshot persistence.
 
 ## Snapshot and identity semantics
 
@@ -113,9 +121,9 @@ Restart point: continue the partial DBR-to-catalog crosswalk from DBR-CATALOG-CR
 
 Implement in small gates:
 
-1. **Parser spike and fixtures:** identify a maintained, licensed parser and test 1.3.1.0 `player.gdc`, `transfer.gst`, and `transfer.gsh` fixtures without changing the files. Document parser/version support and expected counts.
-2. **Owner access and upload limits:** add a single-owner authentication boundary and bounded temporary upload handling. The app is currently public and unauthenticated, so this precedes any private snapshot endpoint.
-3. **Read-only parse preview:** show detected character/stash type, game/parser version when available, counts, and unresolved records. Nothing is saved until the owner confirms import.
+1. **Parser compatibility:** gd-edit 0.2.586 is selected and packaged, but test approved fixtures with known Grim Dawn version and expected aggregate parse results before enabling uploads.
+2. **Owner access and upload limits — implemented:** the single-owner authentication/CSRF boundary and bounded temporary request handling protect the preview route (PR #86).
+3. **Read-only parse preview — implemented but disabled:** preview returns allowlisted parse summaries without persistence. Keep the deployment feature flag off until the fixture and production runtime gates pass.
 4. **PostgreSQL persistence:** after checking live VPS capacity, introduce migrations and separate snapshot tables. Keep the pinned catalog in immutable SQLite; do not migrate or mutate it.
 5. **Owned-item lookup:** search one selected snapshot, distinguish duplicate item instances, and compare snapshots. Add cleanup/deletion and backup/restore behavior before relying on retained personal data.
 
