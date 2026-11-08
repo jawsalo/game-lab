@@ -98,6 +98,12 @@ spec:
             - name: OTEL_EXPORTER_OTLP_ENDPOINT
               value: {{ . | quote }}
             {{- end }}
+            {{- with .Values.modules.api.auth.secretName }}
+          envFrom:
+            - secretRef:
+                name: {{ . | quote }}
+                optional: true
+            {{- end }}
           ports:
             - name: http
               containerPort: {{ .Values.modules.api.service.containerPort }}
