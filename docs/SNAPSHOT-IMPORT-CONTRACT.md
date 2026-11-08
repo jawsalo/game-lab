@@ -101,10 +101,18 @@ The DBR extraction, index, and candidate matching steps are complete; see [Sessi
 ## Preview endpoint and packaged runtime checkpoint (November 8, 2026)
 
 - The DBR index and candidate matcher are implemented; see [DBR-LOCAL-INDEX.md](DBR-LOCAL-INDEX.md) and [DBR-CANDIDATE-MATCHING.md](DBR-CANDIDATE-MATCHING.md). The latest report compared 12,070 catalog category rows against 31,205 item-directory DBRs: 10,588 unique, 1 ambiguous, and 1,481 unmatched. Treat this as evidence coverage, not complete game-item coverage.
-- Local snapshot summaries reported 181 character item instances uniquely mapped across 146 DBR paths. A shared stash summary had 114 instances, of which 109 were unique and 5 remained unresolved across four DBR paths. Those source records exist in the local DBR corpus; do not guess catalog IDs for them.
+- The latest local snapshot check resolved all 173 character item instances across 139 DBR paths. Of 137 shared-stash instances, 132 resolved uniquely; five instances across four paths are known game items outside the catalog, with no catalog IDs or cards assigned. The four paths and their DBR classes are recorded below. Earlier local counts are superseded by this synced-save run.
 - PR #86 added `/api/snapshots/preview`, protected by the owner authentication/CSRF boundary, with request and file limits, parser concurrency limits, temporary processing, and an allowlisted response. It does not persist snapshots.
 - PR #87 packages gd-edit 0.2.586 from its release archive after checking the pinned byte size and SHA-256, preserves upstream license notices, and includes Java 21 and the worker source. Both CI validation and image-build checks passed. Helm defaults `modules.api.snapshotPreview.enabled` to `false`; keep it disabled until compatibility is verified.
+- PR #90 added a local-only snapshot-to-candidate smoke tool. The five missing stash instances are valid inventory records but remain outside the public item catalog and have no catalog IDs/cards assigned: `records/items/misc/potions/potion_attributereset.dbr` (`ItemAttributeReset`), `records/items/misc/difficultyunlock_ultimate.dbr` (`ItemDifficultyUnlock`, two instances), `records/items/misc/potions/potion_devotionreset.dbr` (`ItemDevotionReset`), and `records/items/faction/booster/boosthostile_wendigo_c01.dbr` (`ItemFactionWarrant`). A standalone lookup for these paths is a backlog investigation, not a requirement to block snapshot parsing.
 - **Next:** validate the packaged runtime against authorized, version-known fixtures, then test the protected preview route and cleanup behavior. Only then consider enabling preview. Review live VPS capacity before planning PostgreSQL snapshot persistence.
+
+## Backlog — standalone lookup for known non-catalog inventory items
+
+- **Status:** Investigate; not blocking the parser or catalog-match smoke check.
+- **Known examples:** the four utility-item DBR paths listed above, covering attribute reset, Ultimate difficulty unlock, devotion reset, and Wendigo faction warrant.
+- **Question:** determine whether these and other inventory-bearing DBR records outside the public item catalog merit a general standalone lookup using the local DBR index and layer-aware localization, rather than one-off path mappings or catalog cards.
+- **Scope:** begin with a read-only count and classification of inventory item paths absent from catalog coverage across the seven DBR layers (about 98,827 exported DBRs). Estimate likely user value, data volume, maintenance cost, and whether this belongs only in private snapshot metadata or in a separate lookup surface. Do not promote these records into the public catalog by default.
 
 ## Snapshot and identity semantics
 
