@@ -217,6 +217,19 @@ This policy applies to all future catalog and item-card changes, not just retali
 
 These are existing investigation tasks, not new feature requests.
 
+### Investigate a standalone lookup for known non-catalog inventory items
+
+- **Device:** PC-required
+- **Status:** Backlogged; informational only, not blocking snapshot parsing or catalog matching
+- **Problem and desired behavior:** The latest local snapshot check found five stash instances across four valid game DBR paths that are absent from the catalog candidate set. Treat them as known game items without catalog cards for now. Investigate whether a reusable standalone lookup is worthwhile; the four examples may be only a small part of the roughly 90k-record DBR corpus.
+- **Known paths and source classes:**
+  - `records/items/misc/potions/potion_attributereset.dbr` — `ItemAttributeReset`
+  - `records/items/misc/difficultyunlock_ultimate.dbr` — `ItemDifficultyUnlock` (two stash instances)
+  - `records/items/misc/potions/potion_devotionreset.dbr` — `ItemDevotionReset`
+  - `records/items/faction/booster/boosthostile_wendigo_c01.dbr` — `ItemFactionWarrant`
+- **Acceptance criteria:** Inventory-scan the exported DBR corpus to estimate how many inventory-bearing records are not represented by the public catalog; classify their likely use and localization coverage; recommend whether to keep them as unresolved-but-known metadata, build a general local lookup for private snapshots, or leave them unsupported. Do not create one-off catalog IDs/cards or expand the public catalog without a separate product decision.
+- **Why PC:** Requires the local DBR exports/index, candidate report, and analysis scripts.
+
 ### Finish the targeted DBR-path-to-catalog-ID crosswalk
 
 - **Device:** PC-required
