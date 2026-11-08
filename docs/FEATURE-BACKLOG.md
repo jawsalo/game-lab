@@ -204,6 +204,30 @@ This policy applies to all future catalog and item-card changes, not just retali
 - **Acceptance criteria:** Render both Dauntless (`it14449`) conversions as `36/54% Chaos Damage converted to Physical Damage` and `36/54% Acid Damage converted to Physical Damage`; apply the shared formatting consistently to all item damage conversion types; preserve percentages, min/max rolls, conversion directions, and API values; ensure text wraps cleanly on narrow mobile screens; add representative conversion-format regression tests.
 - **Dependencies or notes:** Presentation-only. Do not conflate item-wide conversions with skill-specific conversions tracked in #7. Dauntless's two conversions were confirmed visible in normal mobile Chrome after the PR #78 rollout fix on November 7, 2026.
 
+### 22. Audit crowd-control and leech resistance property labels
+
+- **Device:** Mobile-friendly
+- **Status:** Proposed
+- **Problem and desired behavior:** Mythical Bloodmist Boots (`it14640`) display `Defensive Trap +24/+36%` and `Defensive Stun +24/+36%`; Mythical Boneshatter Treads (`it9093`) display `Defensive Slow Life Leach +40/+60%` and `Defensive Total Speed +24/+36%`. These are internal-looking names rather than recognizable resistance labels. Investigate Entrapment Resistance, Stun Resistance, Life Leech Resistance, and Slow Resistance respectively, confirming actual source semantics before relabeling.
+- **Acceptance criteria:** Inventory related crowd-control, speed-reduction, and leech resistance fields across the catalog; use accurate player-facing resistance labels with correct percentages; distinguish resistance from effect duration, application chance, and offensive slow/leech effects; preserve original values and rolls; test the two boot cards and representative sibling/exception records.
+- **Dependencies or notes:** Family-wide label/semantics investigation, not two item-specific replacements. Check whether these overlap the specialty retaliation task #16 before implementing.
+
+### 23. Audit movement speed and maximum movement speed labels
+
+- **Device:** Mobile-friendly
+- **Status:** Proposed
+- **Problem and desired behavior:** Mythical Bloodmist Boots (`it14640`) display `Character Run Speed Modifier +8/+12%`; Mythical Boneshatter Treads (`it9093`) display both `Character Run Speed Modifier +7/+9%` and `Character Run Speed Max Modifier +2/+4%`. Replace internal-looking terms with clear player-facing movement speed labels after confirming the distinction between ordinary speed bonuses and increased maximum speed.
+- **Acceptance criteria:** Verify field semantics and naming across related movement-speed properties; clearly distinguish `Movement Speed` from `Maximum Movement Speed` (or source-accurate equivalent); preserve percent values, min/max rolls, and separate lines for separate effects; test both boots and other movement-speed item categories; check narrow-screen wrapping.
+- **Dependencies or notes:** Do not merge distinct speed mechanics or assume `Run Speed Max` is a standard movement-speed bonus.
+
+### 24. Investigate Offensive Life Modifier damage label
+
+- **Device:** Mobile-friendly
+- **Status:** Proposed — investigation
+- **Problem and desired behavior:** Mythical Boneshatter Treads (`it9093`) show `Offensive Life Modifier +67/+100%`, an internal-looking property name among Physical, Vitality Decay, and Internal Trauma damage bonuses. Determine whether this represents Vitality Damage or another game mechanic before choosing a player-facing label.
+- **Acceptance criteria:** Trace the exact source field and meaning; inspect sibling offensive damage types and other items; display the verified label without changing numeric values or confusing damage, life leech, or health modifiers; add regression cases for the affected family and non-matching life-related fields.
+- **Dependencies or notes:** May overlap existing backlog #9 (player-facing item-property labels); keep the investigation separately trackable and consolidate implementation if the same translation family is involved.
+
 ### Request template
 
 - **Title:**
