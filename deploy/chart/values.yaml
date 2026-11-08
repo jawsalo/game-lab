@@ -41,6 +41,8 @@ modules:
       otlpEndpoint: ""
     auth:
       secretName: ""
+    snapshotPreview:
+      enabled: false
     resources:
       requests:
         cpu: 250m

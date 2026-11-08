@@ -92,6 +92,8 @@ spec:
               value: {{ .Values.platform.environment | quote }}
             - name: APP_VERSION
               value: {{ .Values.modules.api.appVersion | quote }}
+            - name: GAME_LAB_SNAPSHOT_PREVIEW_ENABLED
+              value: {{ .Values.modules.api.snapshotPreview.enabled | quote }}
             - name: OTEL_SERVICE_NAME
               value: {{ .Values.modules.api.telemetry.serviceName | quote }}
             {{- with .Values.modules.api.telemetry.otlpEndpoint }}

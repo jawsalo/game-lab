@@ -56,9 +56,11 @@ jobs:
       matrix:
         include:
           - name: api
-            context: apps/api
+            context: .
+            file: apps/api/Dockerfile
           - name: web
             context: apps/web
+            file: apps/web/Dockerfile
 
     steps:
       - name: Check out repository
@@ -81,6 +83,7 @@ jobs:
         uses: docker/build-push-action@v7
         with:
           context: ${{ matrix.context }}
+          file: ${{ matrix.file }}
           platforms: linux/amd64
           push: false
           tags: ${{ steps.metadata.outputs.tags }}
@@ -101,9 +104,11 @@ jobs:
       matrix:
         include:
           - name: api
-            context: apps/api
+            context: .
+            file: apps/api/Dockerfile
           - name: web
             context: apps/web
+            file: apps/web/Dockerfile
 
     steps:
       - name: Check out repository
@@ -133,6 +138,7 @@ jobs:
         uses: docker/build-push-action@v7
         with:
           context: ${{ matrix.context }}
+          file: ${{ matrix.file }}
           platforms: linux/amd64
           push: true
           tags: ${{ steps.metadata.outputs.tags }}

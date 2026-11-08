@@ -3,6 +3,7 @@
 from __future__ import annotations
 
 import asyncio
+import os
 import unittest
 from unittest.mock import patch
 
@@ -13,6 +14,7 @@ from starlette.responses import Response
 from apps.api.app.snapshot_upload import (
     MAX_INPUT_BYTES,
     RequestBodyLimitMiddleware,
+    _configured_parser,
     _read_limited,
     preview_snapshot,
 )
@@ -104,6 +106,13 @@ class FakeUpload:
 
 
 class SnapshotUploadTests(unittest.TestCase):
+    def test_preview_is_disabled_unless_explicitly_enabled(self) -> None:
+        with patch.dict(os.environ, {}, clear=True):
+            with self.assertRaises(HTTPException) as raised:
+                _configured_parser()
+        self.assertEqual(raised.exception.status_code, 503)
+        self.assertEqual(raised.exception.detail, "Save preview is disabled")
+
     def test_preview_parses_selected_files_and_omits_client_filenames(self) -> None:
         parser = FakeParser()
         request = _multipart_request(
