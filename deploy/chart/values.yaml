@@ -39,6 +39,8 @@ modules:
     telemetry:
       serviceName: game-lab-api
       otlpEndpoint: ""
+    auth:
+      secretName: ""
     resources:
       requests:
         cpu: 25m
