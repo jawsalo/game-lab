@@ -228,6 +228,14 @@ This policy applies to all future catalog and item-card changes, not just retali
 - **Acceptance criteria:** Trace the exact source field and meaning; inspect sibling offensive damage types and other items; display the verified label without changing numeric values or confusing damage, life leech, or health modifiers; add regression cases for the affected family and non-matching life-related fields.
 - **Dependencies or notes:** May overlap existing backlog #9 (player-facing item-property labels); keep the investigation separately trackable and consolidate implementation if the same translation family is involved.
 
+### 25. Render granted-skill effects as readable game mechanics
+
+- **Device:** Mixed — source/field mapping and API tests may need deeper development work; mobile screenshots and card verification are straightforward.
+- **Status:** Proposed
+- **Problem and desired behavior:** Mythical Boneshatter Treads (`it9093`) grant `Shattering Force (30% Chance when Hit)`. Its trigger, description, and 2.5-second recharge are readable, but the effects list exposes raw internal properties: `Offensive Life Max +155`, `Offensive Life Min +115`, `Physical Damage (minimum) +240`, `Offensive Slow Defensive Ability Duration Min +3`, `Offensive Slow Defensive Ability Min +70`, `Offensive Stun Min +1`, `Skill Target Radius +3.5`, and `Skill Ultimate Level +1`.
+- **Acceptance criteria:** Trace granted-skill source fields and their actual units; compose matching minimum/maximum damage fields into one correctly labeled range (likely 115–155 Vitality Damage); render flat physical damage accurately; express Defensive Ability reduction together with its duration when supported; label stun duration and area radius in player-facing terms; determine whether `Skill Ultimate Level` is displayable gameplay information or internal metadata; retain trigger chance, recharge, and description; add regression cases across multiple granted skills, including non-matching or incomplete field pairs.
+- **Dependencies or notes:** Do not infer units or mechanics solely from internal field names. Implement shared, source-verified granted-skill formatting rather than a Boneshatter-specific override. Distinct from #7, which concerns item modifiers to existing skills. Screenshot supplied November 8, 2026.
+
 ### Request template
 
 - **Title:**
