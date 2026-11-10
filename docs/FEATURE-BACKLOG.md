@@ -59,7 +59,7 @@ This policy applies to all future catalog and item-card changes, not just retali
 ### 4. Show all item damage conversions on cards
 
 - **Device:** Mobile-friendly
-- **Status:** Proposed
+- **Status:** Complete — implemented and reverified by user on mobile (2026-11-10)
 - **Problem and desired behavior:** Dauntless shield (`it14449`) shows only `45% Chaos to Physical` under Conversions in Game Lab, whereas the GrimTools 1.3.1.0 reference shows two variable-roll conversions: `36/54% Chaos Damage converted to Physical Damage` and `36/54% Acid Damage converted to Physical Damage`.
 - **Acceptance criteria:** Both conversion types appear in the Dauntless item details with correct damage directions and source-backed min/max values; other item conversions remain correct.
 - **Dependencies or notes:** Diagnose whether the missing Acid conversion originates in catalog extraction, structured card API, or frontend rendering. Do not infer a conversion from the screenshot alone; validate against the pinned source data. User supplied side-by-side mobile screenshots.
@@ -75,7 +75,7 @@ This policy applies to all future catalog and item-card changes, not just retali
 ### 6. Rename Retaliation Physical Min to Physical Retaliation
 
 - **Device:** Mobile-friendly
-- **Status:** Proposed
+- **Status:** Complete — implemented and reverified by user on mobile (2026-11-10)
 - **Problem and desired behavior:** Dauntless shield (`it14449`) shows `Retaliation Physical Min` on its item card, while the player-facing name should be `Physical Retaliation`.
 - **Acceptance criteria:** Display `Physical Retaliation` with the existing `1,200/1,800` values; leave `Retaliation Physical Modifier` as a separate percentage-based stat, and do not change calculations or source values.
 - **Dependencies or notes:** Apply the label through the shared item-property translation layer where appropriate. User supplied mobile screenshot.
@@ -131,7 +131,7 @@ This policy applies to all future catalog and item-card changes, not just retali
 ### 13. Add pagination controls to catalog search results
 
 - **Device:** Mobile-friendly
-- **Status:** Proposed
+- **Status:** Complete — implemented and reverified by user on mobile (2026-11-10)
 - **Problem and desired behavior:** Catalog search currently displays only the first 30 matching items with no visible way to reach the rest. A mobile screenshot shows `Showing 30 of 270 matching records` for Equipment-only + Head + highest-level version, but no next-page control.
 - **Acceptance criteria:** Provide accessible, mobile-friendly Next and Previous controls (or equivalent) to browse all matches in stable pages; display the current range and total count; disable navigation at the beginning and end; preserve all active search terms, Equipment/Group, Slot, Rarity, and highest-level settings between pages; reset to page one when a new search or Clear occurs; avoid duplicate/skipped records.
 - **Dependencies or notes:** Inspect the existing API `limit`/`offset` pagination before implementation. Test the screenshot's 270-result case as well as fewer than 30 results and an exact multiple of 30.
