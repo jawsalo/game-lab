@@ -261,6 +261,34 @@ function propertyValue(property) {
   return isPercent ? `${formatted}%` : formatted;
 }
 
+const CONVERSION_DAMAGE_TYPES = new Map([
+  ["aether", "Aether Damage"],
+  ["acid", "Acid Damage"],
+  ["poison", "Acid Damage"],
+  ["bleeding", "Bleeding Damage"],
+  ["chaos", "Chaos Damage"],
+  ["cold", "Cold Damage"],
+  ["elemental", "Elemental Damage"],
+  ["fire", "Fire Damage"],
+  ["lightning", "Lightning Damage"],
+  ["physical", "Physical Damage"],
+  ["pierce", "Pierce Damage"],
+  ["vitality", "Vitality Damage"],
+]);
+
+function conversionDamageLabel(type) {
+  if (typeof type !== "string") return "";
+  return CONVERSION_DAMAGE_TYPES.get(type.toLowerCase()) || friendlyLabel(type);
+}
+
+function conversionDisplayName(conversion) {
+  const hasRange = Number.isFinite(conversion.minValue) && Number.isFinite(conversion.maxValue);
+  const amount = hasRange
+    ? `${numberFormatter.format(conversion.minValue)}/${numberFormatter.format(conversion.maxValue)}`
+    : numberFormatter.format(conversion.percentage);
+  return `${amount}% ${conversionDamageLabel(conversion.from)} converted to ${conversionDamageLabel(conversion.to)}`;
+}
+
 function addSectionHeading(parent, text) {
   const heading = document.createElement("h4");
   heading.className = "item-card__heading";
@@ -358,21 +386,13 @@ function renderItemDetails(card, summaryDescription) {
     fragment.append(skills);
   }
 
-  function conversionValue(conversion) {
-    if (Number.isFinite(conversion.minValue) && Number.isFinite(conversion.maxValue)) {
-      return `${numberFormatter.format(conversion.minValue)}/${numberFormatter.format(conversion.maxValue)}`;
-    }
-    return numberFormatter.format(conversion.percentage);
-  }
-
   if (Array.isArray(card.conversions) && card.conversions.length > 0) {
     addSectionHeading(fragment, "Conversions");
     const list = document.createElement("ul");
     list.className = "item-card__list";
     card.conversions.forEach((conversion) => {
       const entry = document.createElement("li");
-      entry.textContent =
-        `${conversionValue(conversion)}% ${friendlyLabel(conversion.from)} to ${friendlyLabel(conversion.to)}`;
+      entry.textContent = conversionDisplayName(conversion);
       list.append(entry);
     });
     fragment.append(list);
