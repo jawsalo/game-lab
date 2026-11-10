@@ -199,7 +199,7 @@ This policy applies to all future catalog and item-card changes, not just retali
 ### 21. Polish damage conversion display names
 
 - **Device:** Mobile-friendly
-- **Status:** In progress — implementation and regression tests in PR; pending CI, merge, and mobile verification
+- **Status:** Implemented and merged in PR #94; production/mobile verification blocked by P1 deployment issue #28
 - **Problem and desired behavior:** Item cards currently show abbreviated conversion labels such as `36/54% Chaos to Physical`. Use complete, player-facing damage type names, e.g. `36/54% Chaos Damage converted to Physical Damage`, consistent with the Dauntless GrimTools reference.
 - **Acceptance criteria:** Render both Dauntless (`it14449`) conversions as `36/54% Chaos Damage converted to Physical Damage` and `36/54% Acid Damage converted to Physical Damage`; apply the shared formatting consistently to all item damage conversion types; preserve percentages, min/max rolls, conversion directions, and API values; ensure text wraps cleanly on narrow mobile screens; add representative conversion-format regression tests.
 - **Dependencies or notes:** Presentation-only. Do not conflate item-wide conversions with skill-specific conversions tracked in #7. Dauntless's two conversions were confirmed visible in normal mobile Chrome after the PR #78 rollout fix on November 7, 2026.
@@ -251,6 +251,16 @@ This policy applies to all future catalog and item-card changes, not just retali
 - **Problem and desired behavior:** Chillgore (`it15817`) still exposes raw `Offensive Slow Bleeding Duration Min`, `Offensive Slow Bleeding Duration Modifier`, `Offensive Slow Bleeding Min`, and corresponding `Offensive Slow Cold ...` fields even though the Bleeding Damage and Frostburn Damage percentage modifier labels are already corrected. The earlier fix did not fully cover flat damage-over-time, duration, and duration-modifier siblings.
 - **Acceptance criteria:** Trace and inventory the full DoT field families (Bleeding, Frostburn, Burn, Electrocute, Poison, Vitality Decay, Internal Trauma and verified variants); combine damage, duration, and duration-modifier fields into source-accurate player-facing effects where appropriate; preserve separate percentage damage modifiers and original values/rolls; handle missing or non-matching fields safely; add Chillgore and representative sibling/exception tests and mobile verification.
 - **Dependencies or notes:** Explicitly cross-reference existing #17 rather than treating the prior implementation as family-complete. The same screenshot also exposes `Character Offensive Ability Modifier` (percentage OA) and split physical minimum/maximum damage fields; assess these under #9 or separately if implementation scope differs. Do not invent a final damage range from unverified field semantics.
+
+### 28. P1 blocker: investigate and restore automated VPS pull deployment
+
+- **Priority:** P1 — blocker for verifying newly merged frontend and API changes
+- **Device:** VPS terminal/SSH required for definitive diagnosis; GitHub workflow and public API checks can be done on mobile
+- **Status:** Blocked — pending VPS access; investigate before further feature deployment verification
+- **Observed behavior:** After PR #94 merged and images built, the production verification workflow for commit `19ddd01` failed while waiting for the VPS to report that commit. The live `/api` endpoint still reported `2c02034`, and Dauntless (`it14449`) displayed the old `36/54% Chaos to Physical` / `36/54% Acid to Physical` labels in both regular and Incognito mobile Chrome. This confirms production is behind the expected release; it does **not** establish why the pull deployer failed.
+- **Investigation:** On VPS, inspect `systemctl --user status game-lab-pull-deploy.timer`, `systemctl --user status game-lab-pull-deploy.service`, and `journalctl --user -u game-lab-pull-deploy.service -n 60 --no-pager`; check current Kubernetes deployments, pod readiness, and recent events; compare pull-deployer tracked state and latest successful GitHub build/validation. Diagnose before manually restarting, reinstalling, or forcing a rollout.
+- **Acceptance criteria:** Identify and fix the actual deployment failure; confirm timer and service are healthy, API and web pods are ready and on matching current images, public `/api` reports the expected version, and production verification succeeds. Confirm #21's full Dauntless conversion labels in regular mobile Chrome after deployment. Preserve the existing non-root Kubernetes security policy.
+- **Dependencies or notes:** Blocks #21 post-deploy acceptance and reliable verification of later PRs. Earlier PR #78 fixed a separate web `runAsNonRoot`/non-numeric `nginx` UID error; do not assume it recurred. Keep this P1 until deployment is restored and validated.
 
 ### Request template
 
