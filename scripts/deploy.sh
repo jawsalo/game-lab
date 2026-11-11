@@ -20,7 +20,16 @@ fi
 
 expected_version="${image_tag#sha-}"
 
-make validate
+# Mirror CI's declared dependencies in an isolated environment. The VPS system
+# Python intentionally does not need the API test dependencies installed.
+validation_env="$(mktemp -d "${TMPDIR:-/tmp}/game-lab-validation.XXXXXX")"
+trap 'rm -rf "$validation_env"' EXIT
+python3 -m venv "$validation_env"
+"$validation_env/bin/python" -m pip install --disable-pip-version-check \
+  -r requirements.txt \
+  -r apps/api/requirements.txt
+PATH="$validation_env/bin:$PATH" make validate
+
 helm lint deploy/chart --values "$values_file"
 
 helm upgrade --install "$release" deploy/chart \
