@@ -123,3 +123,31 @@ test("non-shields retain all original properties and their order", () => {
   assert.equal(context.groupItemProperties({ slot: "Shield", properties: [] }).shieldStats.length, 0);
 });
 
+
+test("movement speed and maximum movement speed retain distinct labels and rolls", () => {
+  for (const [item, properties, expected] of [
+    ["Mythical Bloodmist Boots", [
+      { key: "characterRunSpeedModifier", value: 10, minValue: 8, maxValue: 12 },
+    ], [["Movement Speed", "+8/+12%"]]],
+    ["Mythical Boneshatter Treads", [
+      { key: "characterRunSpeedModifier", value: 8, minValue: 7, maxValue: 9 },
+      { key: "characterRunSpeedMaxModifier", value: 3, minValue: 2, maxValue: 4 },
+    ], [["Movement Speed", "+7/+9%"], ["Maximum Movement Speed", "+2/+4%"]]],
+    ["Non-boot equipment with movement speed", [
+      { key: "characterRunSpeedModifier", value: 5 },
+      { key: "characterRunSpeedMaxModifier", value: 2 },
+    ], [["Movement Speed", "+5%"], ["Maximum Movement Speed", "+2%"]]],
+  ]) {
+    assert.deepEqual(properties.map((property) => [
+      context.getLabel(property), context.getValue(property),
+    ]), expected, item);
+  }
+});
+
+test("movement speed labels do not change other speed or life-related properties", () => {
+  assert.equal(context.getLabel({ key: "characterAttackSpeedModifier" }), "Attack Speed");
+  assert.equal(context.getLabel({ key: "characterSpellCastSpeedModifier" }), "Cast Speed");
+  assert.equal(context.getLabel({ key: "characterTotalSpeedModifier" }), "Character Total Speed Modifier");
+  assert.equal(context.getLabel({ key: "characterRunSpeed" }), "Character Run Speed");
+  assert.equal(context.getLabel({ key: "characterLifeModifier" }), "Health");
+});
