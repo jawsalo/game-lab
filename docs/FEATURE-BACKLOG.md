@@ -47,6 +47,20 @@ Priorities below apply to **open numbered feature requests**, not completed item
 
 **Completed items:** #21 is complete after PR #94 merged and the user verified both Dauntless conversion labels and line wrapping in normal mobile Chrome on November 10, 2026. Other completed entries retain their existing status.
 
+## Pistol QA triage — #33–#37
+
+All five are **P1 — Incorrect/incomplete stat interpretation**, below missing-gameplay-information P0 work. They should be investigated as source-key families, not item-specific fixes. Mobile visual QA is useful for all five; **Mixed** means the underlying mechanic needs substantial source analysis and automated testing.
+
+| Order | Item | Priority | Device | Rationale |
+| --- | --- | --- | --- | --- |
+| 1 | **#37 Corruption of Gargabol** | P1 | Mixed | Duplicate-looking Vitality rows and ambiguous Life/Vitality Decay mechanics may mislead damage comparisons. |
+| 2 | **#35 Bloodborer** | P1 | Mixed | Bleeding duration units and pierce ratio need source-backed interpretation. |
+| 3 | **#36 Burrwitch Peacekeeper** | P1 | Mixed | Bonus physical min/max must be distinguished from base physical min/max; percentage DA is simpler. |
+| 4 | **#34 Barrelsmith's Crossfire** | P1 | Mixed | Electrocute duration naming/grouping should be audited alongside bleeding duration. |
+| 5 | **#33 Mythical Arcanum Sigillis** | P1 | Mobile-friendly | Spirit percentage label and attribute grouping are a constrained frontend change with phone-based verification. |
+
+The order is a recommendation, not a dependency chain. One documentation PR (#110) collects findings; a comprehensive implementation PR can follow after source verification. No local Windows setup is needed for mobile review.
+
 ## Feature requests
 
 ### 1. Add independent Equipment and Slot filters
@@ -298,7 +312,8 @@ Priorities below apply to **open numbered feature requests**, not completed item
 
 ### 33. Label percentage Spirit modifiers and classify attribute modifiers
 
-- **Device:** Mobile-friendly
+- **Device:** Mobile-friendly — GitHub-based frontend work and mobile QA.
+- **Priority:** P1 — incorrect/incomplete stat interpretation.
 - **Status:** Proposed — source-key verification and focused frontend regression tests required.
 - **Problem and desired behavior:** Mythical Arcanum Sigillis currently shows `Character Intelligence Modifier +3/+5%` under **Other Properties**. Investigate the pinned source property `characterIntelligenceModifier`; if confirmed as the player-facing Spirit percentage bonus, label it **Spirit** (with percentage range retained) and group it under **Attributes & Combat**.
 - **Acceptance criteria:** Verify the source key and expected label against the item and GrimTools; handle the full corresponding attribute-modifier family (Physique, Cunning, Spirit) consistently, not a one-off item replacement; preserve values and formatting; prevent duplicate rows; ensure genuinely unknown keys still appear in **Other Properties**. Add regression coverage for Mythical Arcanum Sigillis and sibling attribute modifiers, and verify on mobile.
@@ -306,7 +321,8 @@ Priorities below apply to **open numbered feature requests**, not completed item
 
 ### 34. Correct Electrocute duration modifier label and grouping
 
-- **Device:** Mobile-friendly
+- **Device:** Mixed — mobile QA/review, with source-mechanic investigation and automated tests.
+- **Priority:** P1 — incorrect/incomplete stat interpretation.
 - **Status:** Proposed — verify source semantics before changing application code.
 - **Regression item:** Mythical Barrelsmith's Crossfire (`it9383`), one-handed ranged pistol.
 - **Problem and desired behavior:** Pistol QA screenshot shows `Offensive Slow Lightning Duration Modifier +56/+84%` under **Other Properties**. Investigate the source key and confirm whether this represents **Electrocute Duration +56/+84%** (the lightning damage-over-time duration modifier). If confirmed, use the player-facing label and classify it under **Damage & Retaliation** rather than Other Properties.
@@ -315,7 +331,8 @@ Priorities below apply to **open numbered feature requests**, not completed item
 
 ### 35. Audit Bloodborer bleeding damage, duration, and pierce ratio properties
 
-- **Device:** Mobile-friendly for presentation and regression QA; source-key investigation and automated tests required.
+- **Device:** Mixed — mobile QA/review, with source-mechanic investigation and automated tests.
+- **Priority:** P1 — incorrect/incomplete stat interpretation.
 - **Status:** Proposed — investigate source semantics before changing any labels or values.
 - **Regression item:** Bloodborer (`it11695`), legendary one-handed ranged weapon, reported during pistol QA.
 - **Observed issues:** `Offensive Slow Bleeding Min +22/+33` currently appears under **Damage & Retaliation** with an internal field label; investigate its flat Bleeding Damage meaning and distinguish it from the separate `Bleeding Damage +224/+336%` modifier. **Other Properties** contains `Offensive Pierce Ratio Min +112/+168`, `Offensive Slow Bleeding Duration Min +3`, and `Offensive Slow Bleeding Duration Modifier +112/+168%`.
@@ -325,7 +342,8 @@ Priorities below apply to **open numbered feature requests**, not completed item
 
 ### 36. Audit Burrwitch Peacekeeper percentage DA and bonus physical damage fields
 
-- **Device:** Mobile-friendly for item-card QA; pinned-source investigation and regression tests required.
+- **Device:** Mixed — mobile QA/review, with source-mechanic investigation and automated tests.
+- **Priority:** P1 — incorrect/incomplete stat interpretation.
 - **Status:** Proposed — do not change display labels until source semantics are verified.
 - **Regression item:** Burrwitch Peacekeeper (`it17068`), legendary one-handed ranged pistol.
 - **Observed Other Properties:** `Character Defensive Ability Modifier +2/+4%`; `Offensive Bonus Physical Max +40/+60`; `Offensive Bonus Physical Min +25/+36`.
@@ -336,7 +354,8 @@ Priorities below apply to **open numbered feature requests**, not completed item
 
 ### 37. Audit Corruption of Gargabol duplicate-looking Vitality, stun resistance, and Life labels
 
-- **Device:** Mobile-friendly for presentation and QA; pinned-source investigation and automated regression tests required.
+- **Device:** Mixed — mobile QA/review, with source-mechanic investigation and automated tests.
+- **Priority:** P1 — incorrect/incomplete stat interpretation.
 - **Status:** Proposed — verify source semantics before changing any labels or merging damage rows.
 - **Regression item:** Corruption of Gargabol (`it11231`), legendary one-handed ranged weapon.
 - **Observed screenshot:** **Damage & Retaliation** shows two identically labeled `Flat Vitality Damage` rows with different values, `+99/+147` and `+67/+100`; `Offensive Life Min +18/+26` appears alongside `Vitality Damage +123/+184%` and `Vitality Decay Damage +123/+184%`. **Resistances & Defense** shows `Defensive Stun +16/+24%`.
