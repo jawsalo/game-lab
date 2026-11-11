@@ -227,6 +227,7 @@ Priorities below apply to **open numbered feature requests**, not completed item
 - **Status:** Proposed
 - **Problem and desired behavior:** Mythical Bloodmist Boots (`it14640`) display `Defensive Trap +24/+36%` and `Defensive Stun +24/+36%`; Mythical Boneshatter Treads (`it9093`) display `Defensive Slow Life Leach +40/+60%` and `Defensive Total Speed +24/+36%`. These are internal-looking names rather than recognizable resistance labels. Investigate Entrapment Resistance, Stun Resistance, Life Leech Resistance, and Slow Resistance respectively, confirming actual source semantics before relabeling.
 - **Acceptance criteria:** Inventory related crowd-control, speed-reduction, and leech resistance fields across the catalog; use accurate player-facing resistance labels with correct percentages; distinguish resistance from effect duration, application chance, and offensive slow/leech effects; preserve original values and rolls; test the two boot cards and representative sibling/exception records.
+- **Additional mobile evidence (November 11, 2026):** User screenshots of Mythical Boneshatter Treads (`it9093`) confirm the exact rendered strings `Defensive Slow Life Leach +40/+60%` and `Defensive Total Speed Resistance +24/+36%` (the latter wraps onto two lines). Investigate source-backed player-facing `Life Leech Resistance` and `Slow Resistance`; preserve the ranges and avoid assuming the existing internal labels are accurate.
 - **Dependencies or notes:** Family-wide label/semantics investigation, not two item-specific replacements. Check whether these overlap the specialty retaliation task #16 before implementing.
 
 ### 23. Audit movement speed and maximum movement speed labels
@@ -276,6 +277,14 @@ Priorities below apply to **open numbered feature requests**, not completed item
 - **Problem and desired behavior:** Dauntless shield (`it14449`) grants `+1 to All Skills in Occultist` and `+1 to All Skills in Soldier` according to the user's GrimTools reference, but neither mastery-wide bonus appears in Game Lab's Skill Bonuses section. The four individual skill bonuses are visible. Missing mastery-wide bonuses can materially misrepresent equipment benefits.
 - **Acceptance criteria:** Trace mastery-wide bonuses from the pinned Grim Dawn 1.3.1.0 source through the versioned skill lookup, item-card API contract, and frontend; render both Dauntless bonuses with accurate mastery names and rank values; support all recognized masteries and other items using the same field family; preserve existing individual skill bonuses and avoid duplicates; handle absent/unknown source fields conservatively; add API/lookup and frontend regression tests for Dauntless, another mastery-bonus item, and an item with no mastery bonus; verify the deployed Dauntless card on mobile.
 - **Dependencies or notes:** Do not hardcode Dauntless or invent bonuses from class associations. Inspect the pinned lookup extraction before selecting the fix layer. Distinct from #7 (modifiers to specific skills) and #26 (missing granted-skill effects). Reported November 10, 2026.
+
+### 29. Promote base armor to the top of equipment item details
+
+- **Device:** Mobile-friendly
+- **Status:** Implemented in PR #106; pending CI, merge, and mobile verification.
+- **Problem and desired behavior:** Armor is a base equipment stat, not a general bonus. Boots such as Mythical Boneshatter Treads (`it9093`), Mythical Bilethread Greaves (`it14641`), and Mythical Bloodmist Boots (`it14640`) currently bury `Armor` among damage and resistance properties. Give base armor its own `Base Stats` section above `Properties`, analogous to shield-specific block mechanics.
+- **Acceptance criteria:** Apply to equipment with the `defensiveProtection` property, preserve the existing armor value and flat-number formatting, avoid duplication in general Properties, leave non-equipment records and items without armor unchanged, and retain `Shield Stats` before `Base Stats` on shields when both exist. Verify on mobile and with shield/non-shield regression tests.
+- **Dependencies or notes:** Presentation-only; do not reinterpret the source armor value or conflate base armor with percentage armor modifiers. Keep shield block recovery/source audit (#8) separate.
 
 ### Request template
 

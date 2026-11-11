@@ -174,3 +174,56 @@ test("Vitality damage labeling does not affect health, resistance, or life leech
     assert.equal(context.getLabel({ key }), expected, key);
   }
 });
+
+test("base armor appears in its own section on boots without duplication", () => {
+  for (const item of ["it9093", "it14641", "it14640"]) {
+    const properties = [
+      { key: "characterDefensiveAbility", value: 75 },
+      { key: "defensiveProtection", value: 1454 },
+      { key: "offensiveLifeModifier", value: 100 },
+    ];
+    const grouped = context.groupItemProperties({
+      id: item, group: "equipment", slot: "Feet", properties,
+    });
+    assert.deepEqual(Array.from(grouped.baseStats, (p) => p.key), ["defensiveProtection"]);
+    assert.deepEqual(Array.from(grouped.general, (p) => p.key),
+      ["characterDefensiveAbility", "offensiveLifeModifier"]);
+    assert.equal(context.getLabel(grouped.baseStats[0]), "Armor");
+    assert.equal(context.getValue(grouped.baseStats[0]), "+1,454");
+    assert.equal(grouped.baseStats.length + grouped.general.length, properties.length);
+  }
+});
+
+test("shields retain shield stats first and armor separately when present", () => {
+  const properties = [
+    { key: "defensiveProtection", value: 1000 },
+    { key: "defensiveBlock", value: 900 },
+    { key: "defensiveBlockChance", value: 34 },
+    { key: "defensivePhysical", value: 10 },
+  ];
+  const grouped = context.groupItemProperties({
+    id: "shield", group: "equipment", slot: "Shield", properties,
+  });
+  assert.deepEqual(Array.from(grouped.shieldStats, (p) => p.key),
+    ["defensiveBlockChance", "defensiveBlock"]);
+  assert.deepEqual(Array.from(grouped.baseStats, (p) => p.key), ["defensiveProtection"]);
+  assert.deepEqual(Array.from(grouped.general, (p) => p.key), ["defensivePhysical"]);
+  assert.equal(grouped.shieldStats.length + grouped.baseStats.length + grouped.general.length,
+    properties.length);
+});
+
+test("items without base armor and non-equipment records remain unchanged", () => {
+  const properties = [
+    { key: "defensiveProtection", value: 50 },
+    { key: "characterLife", value: 100 },
+  ];
+  const nonEquipment = context.groupItemProperties({ group: "component", properties });
+  assert.equal(nonEquipment.baseStats.length, 0);
+  assert.deepEqual(Array.from(nonEquipment.general, (p) => p.key),
+    ["defensiveProtection", "characterLife"]);
+  const noArmor = context.groupItemProperties({
+    group: "equipment", slot: "Finger", properties: [properties[1]],
+  });
+  assert.equal(noArmor.baseStats.length, 0);
+  assert.deepEqual(Array.from(noArmor.general, (p) => p.key), ["characterLife"]);
+});
