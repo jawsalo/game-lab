@@ -311,6 +311,65 @@ function groupItemProperties(card) {
   };
 }
 
+
+const PROPERTY_GROUP_ORDER = [
+  ["base", "Base Stats"],
+  ["combat", "Attributes & Combat"],
+  ["damage", "Damage & Retaliation"],
+  ["defense", "Resistances & Defense"],
+  ["utility", "Utility"],
+  ["other", "Other Properties"],
+];
+
+// Explicit source-key families only. Unrecognized fields must remain visible.
+const COMBAT_PROPERTY_KEYS = new Set([
+  "characterStrength", "characterDexterity", "characterSpirit", "characterPhysique",
+  "characterOffensiveAbility", "characterDefensiveAbility",
+  "characterLife", "characterLifeModifier", "characterMana", "characterManaModifier",
+  "characterManaRegen", "characterManaRegenModifier",
+]);
+const UTILITY_PROPERTY_KEYS = new Set([
+  "characterRunSpeed", "characterRunSpeedModifier", "characterRunSpeedMaxModifier",
+  "characterAttackSpeedModifier", "characterSpellCastSpeedModifier",
+  "characterTotalSpeedModifier", "skillCooldownReduction",
+]);
+const DAMAGE_PROPERTY_TYPES = new Set([
+  "Physical", "Pierce", "Fire", "Cold", "Lightning", "Aether", "Chaos",
+  "Vitality", "Life", "Poison", "Acid", "Bleeding", "Elemental",
+  "SlowPhysical", "SlowFire", "SlowCold", "SlowLightning", "SlowPoison",
+  "SlowLife", "SlowBleeding",
+]);
+const RESISTANCE_PROPERTY_TYPES = new Set([
+  "Physical", "Pierce", "Fire", "Cold", "Lightning", "Aether", "Chaos",
+  "Life", "Vitality", "Poison", "Bleeding", "Elemental",
+]);
+
+function classifyItemProperty(key) {
+  if (COMBAT_PROPERTY_KEYS.has(key)) return "combat";
+  if (UTILITY_PROPERTY_KEYS.has(key)) return "utility";
+  if (key === "retaliationTotalDamageModifier") return "damage";
+  const damage = /^(?:offensive(?:Base)?|retaliation)([A-Z][a-zA-Z]*)(?:Min|Max|Modifier)$/.exec(key);
+  if (damage && DAMAGE_PROPERTY_TYPES.has(damage[1])) return "damage";
+  const resistance = /^defensive([A-Z][a-zA-Z]*)(?:MaxResist)?$/.exec(key);
+  if (resistance && RESISTANCE_PROPERTY_TYPES.has(resistance[1])) return "defense";
+  // These are resistance families, not damage bonuses or offensive debuffs.
+  if (/^defensive(?:Stun|Trap|Freeze|Petrify|Sleep|Confusion|Fear|SlowLifeLeech|TotalSpeed)$/.test(key)) {
+    return "defense";
+  }
+  return "other";
+}
+
+function groupedPropertySections(card) {
+  const { shieldStats, baseStats, general } = groupItemProperties(card);
+  const buckets = Object.fromEntries(PROPERTY_GROUP_ORDER.map(([key]) => [key, []]));
+  // Shield block values are prioritized before armor, as in the existing shield view.
+  buckets.base.push(...shieldStats, ...baseStats);
+  general.forEach((property) => buckets[classifyItemProperty(property.key)].push(property));
+  return PROPERTY_GROUP_ORDER.map(([key, heading]) => ({
+    key, heading, properties: buckets[key],
+  })).filter((section) => section.properties.length > 0);
+}
+
 function addPropertySection(parent, heading, properties) {
   if (properties.length === 0) return;
   addSectionHeading(parent, heading);
@@ -348,10 +407,9 @@ function renderItemDetails(card, summaryDescription) {
     fragment.append(description);
   }
 
-  const { shieldStats, baseStats, general } = groupItemProperties(card);
-  addPropertySection(fragment, "Shield Stats", shieldStats);
-  addPropertySection(fragment, "Base Stats", baseStats);
-  addPropertySection(fragment, "Properties", general);
+  groupedPropertySections(card).forEach((section) => {
+    addPropertySection(fragment, section.heading, section.properties);
+  });
 
   if (Array.isArray(card.skillBonuses) && card.skillBonuses.length > 0) {
     addSectionHeading(fragment, "Skill Bonuses");

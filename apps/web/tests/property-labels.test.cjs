@@ -15,7 +15,7 @@ const relevant = source.slice(labelsStart, labelsEnd);
 const context = vm.createContext({
   numberFormatter: new Intl.NumberFormat("en-US"),
 });
-vm.runInContext(relevant + "\nthis.getLabel = propertyLabel; this.getValue = propertyValue; this.conversionDisplayName = conversionDisplayName; this.groupItemProperties = groupItemProperties;", context);
+vm.runInContext(relevant + "\nthis.getLabel = propertyLabel; this.getValue = propertyValue; this.conversionDisplayName = conversionDisplayName; this.groupItemProperties = groupItemProperties; this.groupedPropertySections = groupedPropertySections; this.classifyItemProperty = classifyItemProperty;", context);
 
 test("damage-over-time modifiers use player-facing damage names", () => {
   for (const [key, expected] of [
@@ -226,4 +226,80 @@ test("items without base armor and non-equipment records remain unchanged", () =
   });
   assert.equal(noArmor.baseStats.length, 0);
   assert.deepEqual(Array.from(noArmor.general, (p) => p.key), ["characterLife"]);
+});
+
+test("six-group presentation classifies representative source keys without losing properties", () => {
+  const properties = [
+    { key: "characterOffensiveAbility", value: 75 },
+    { key: "offensiveLifeModifier", value: 100 },
+    { key: "defensivePhysical", value: 5 },
+    { key: "characterRunSpeedModifier", value: 8 },
+    { key: "retaliationPoisonMin", value: 368 },
+    { key: "defensiveSlowLifeLeech", value: 40 },
+    { key: "unrecognizedSourceStat", value: 123 },
+    { key: "defensiveProtection", value: 1454 },
+    { key: "characterLife", value: 500 },
+    { key: "defensiveTotalSpeed", value: 24 },
+  ];
+  const sections = context.groupedPropertySections({ group: "equipment", slot: "Feet", properties });
+  assert.deepEqual(Array.from(sections, (section) => section.heading), [
+    "Base Stats", "Attributes & Combat", "Damage & Retaliation",
+    "Resistances & Defense", "Utility", "Other Properties",
+  ]);
+  const keys = Array.from(sections, (section) =>
+    Array.from(section.properties, (property) => property.key)).flat();
+  assert.equal(keys.length, properties.length);
+  assert.equal(new Set(keys).size, keys.length);
+  assert.deepEqual(keys.slice(-1), ["unrecognizedSourceStat"]);
+  assert.deepEqual(Array.from(sections[2].properties, (property) => property.key),
+    ["offensiveLifeModifier", "retaliationPoisonMin"]);
+  assert.deepEqual(Array.from(sections[3].properties, (property) => property.key),
+    ["defensivePhysical", "defensiveSlowLifeLeech", "defensiveTotalSpeed"]);
+});
+
+test("shields put block chance, blocked damage, and armor in one base section", () => {
+  const properties = [
+    { key: "defensiveProtection", value: 1200 },
+    { key: "defensiveBlock", value: 900 },
+    { key: "defensiveBlockChance", value: 34 },
+    { key: "defensivePhysical", value: 10 },
+  ];
+  const sections = context.groupedPropertySections({
+    group: "equipment", slot: "Shield", properties,
+  });
+  assert.equal(sections[0].heading, "Base Stats");
+  assert.deepEqual(Array.from(sections[0].properties, (property) => property.key),
+    ["defensiveBlockChance", "defensiveBlock", "defensiveProtection"]);
+  assert.equal(sections[1].heading, "Resistances & Defense");
+});
+
+test("unknown and ambiguous properties stay visible and are not guessed into a group", () => {
+  const properties = [
+    { key: "offensiveLifeLeechMin", value: 5 },
+    { key: "offensiveSlowLifeLeechMin", value: 8 },
+    { key: "retaliationUnknownModifier", value: 10 },
+    { key: "defensiveBlock", value: 200 },
+    { key: "defensiveProtection", value: 20 },
+    { key: "characterRunSpeedModifier", value: 7 },
+  ];
+  const sections = context.groupedPropertySections({ group: "component", properties });
+  const other = sections.find((section) => section.key === "other");
+  assert.deepEqual(Array.from(other.properties, (property) => property.key),
+    ["offensiveLifeLeechMin", "offensiveSlowLifeLeechMin",
+      "retaliationUnknownModifier", "defensiveBlock", "defensiveProtection"]);
+  assert.equal(sections.some((section) => section.key === "base"), false);
+  assert.equal(sections.some((section) => section.key === "utility"), true);
+});
+
+test("empty sections are omitted and source order is stable within a group", () => {
+  const properties = [
+    { key: "offensiveFireModifier", value: 10 },
+    { key: "offensivePhysicalModifier", value: 20 },
+    { key: "offensiveSlowLifeModifier", value: 30 },
+  ];
+  const sections = context.groupedPropertySections({ group: "equipment", properties });
+  assert.deepEqual(Array.from(sections, (section) => section.heading), ["Damage & Retaliation"]);
+  assert.deepEqual(Array.from(sections[0].properties, (property) => property.key),
+    properties.map((property) => property.key));
+  assert.equal(context.groupedPropertySections({ group: "equipment", properties: [] }).length, 0);
 });
