@@ -32,6 +32,21 @@ This policy applies to all future catalog and item-card changes, not just retali
 - **Remaining hardening (non-blocking):** The production smoke test verifies the expected API version, versioned frontend asset URLs, HTML cache revalidation, and JS/CSS content hashes. It does **not** currently prove that the web image was built from the same commit as the API. Add a web build commit marker and assert web/API expected-commit parity in deployment verification as a separate follow-up; do not mark that original acceptance criterion complete without implementation and validation.
 - **Notes:** Do not reopen this resolved incident for unrelated item-card issues. Investigate any future rollout failure on its own evidence.
 
+## Approved feature priorities — November 10, 2026
+
+Priorities below apply to **open numbered feature requests**, not completed items, the resolved deployment incident, or separate snapshot/backend carry-over work. P0 means highest **feature** priority, not a new production incident. Preserve each request's own status and acceptance criteria. Implement in focused PRs, investigate shared extraction/formatting layers where useful, and verify source semantics before changing values.
+
+| Priority | Backlog items | Rationale |
+| --- | --- | --- |
+| **P0 — Missing gameplay information** | **#28** mastery-wide skill bonuses; **#7** item-granted modifiers to existing skills; **#26** missing granted-skill effects; **#8** shield block/recovery data | Missing mechanics can materially mislead build choices. |
+| **P1 — Incorrect/incomplete stat interpretation** | **#9** property labels/base damage; **#27** damage-over-time field family; **#25** granted-skill effect formatting; **#16** specialty retaliation; **#22** crowd-control/leech resistances; **#23** movement speed; **#24** Offensive Life Modifier investigation | Displayed data needs accurate player-facing semantics and units. |
+| **P2 — Catalog enhancements** | **#18** equipment sets; **#3** stat filtering; **#5** readable recipes; **#10** acquisition/vendor information | Valuable discovery and crafting features, but not prerequisites for correcting missing mechanics. |
+| **P3 — Presentation and maintenance** | **#20** shield stats positioning; **#11** stale branch audit | Polish and repository hygiene. |
+
+**Suggested first five implementation tasks (subject to source findings):** #28 → #7 → #26 → #8 → #9. Keep separate, reviewable PRs even when shared underlying code is involved. The resolved deployment incident's remaining **web/API build-commit parity assertion** is non-blocking infrastructure hardening, tracked in its incident section rather than renumbered as a feature request.
+
+**Completed items:** #21 is complete after PR #94 merged and the user verified both Dauntless conversion labels and line wrapping in normal mobile Chrome on November 10, 2026. Other completed entries retain their existing status.
+
 ## Feature requests
 
 ### 1. Add independent Equipment and Slot filters
@@ -201,10 +216,10 @@ This policy applies to all future catalog and item-card changes, not just retali
 ### 21. Polish damage conversion display names
 
 - **Device:** Mobile-friendly
-- **Status:** In progress — implementation and regression tests in PR; pending CI, merge, and mobile verification
-- **Problem and desired behavior:** Item cards currently show abbreviated conversion labels such as `36/54% Chaos to Physical`. Use complete, player-facing damage type names, e.g. `36/54% Chaos Damage converted to Physical Damage`, consistent with the Dauntless GrimTools reference.
+- **Status:** Complete — PR #94 merged; user verified both Dauntless conversion labels in normal mobile Chrome on November 10, 2026.
+- **Problem and desired behavior:** Item cards previously showed abbreviated conversion labels such as `36/54% Chaos to Physical`. Use complete, player-facing damage type names, e.g. `36/54% Chaos Damage converted to Physical Damage`, consistent with the Dauntless GrimTools reference.
 - **Acceptance criteria:** Render both Dauntless (`it14449`) conversions as `36/54% Chaos Damage converted to Physical Damage` and `36/54% Acid Damage converted to Physical Damage`; apply the shared formatting consistently to all item damage conversion types; preserve percentages, min/max rolls, conversion directions, and API values; ensure text wraps cleanly on narrow mobile screens; add representative conversion-format regression tests.
-- **Dependencies or notes:** Presentation-only. Do not conflate item-wide conversions with skill-specific conversions tracked in #7. Dauntless's two conversions were confirmed visible in normal mobile Chrome after the PR #78 rollout fix on November 7, 2026.
+- **Dependencies or notes:** Presentation-only. Do not conflate item-wide conversions with skill-specific conversions tracked in #7. Dauntless's two conversions were confirmed visible with full damage-type labels and correct 36/54% ranges in normal mobile Chrome on November 10, 2026. Screenshot also confirmed mobile line wrapping.
 
 ### 22. Audit crowd-control and leech resistance property labels
 
