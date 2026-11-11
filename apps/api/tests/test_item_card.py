@@ -335,6 +335,21 @@ class ItemCardTests(unittest.TestCase):
         )
 
 
+    def test_dauntless_mastery_wide_skill_bonuses_from_pinned_data(self) -> None:
+        card = build_item_card(
+            {
+                "id": "it14449",
+                "name": "Dauntless",
+                "group": "equipment",
+                "category": "ArmorProtective_Shield",
+                "record": {},
+            }
+        )
+        bonuses = [(bonus.name, bonus.ranks) for bonus in card.skill_bonuses]
+        self.assertEqual(len(bonuses), 6)
+        self.assertIn(("All Skills in Soldier", 1), bonuses)
+        self.assertIn(("All Skills in Occultist", 1), bonuses)
+
     def test_recipe_includes_output_cost_and_alternative_ingredients(self) -> None:
         card = build_item_card(
             {
