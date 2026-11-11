@@ -304,6 +304,15 @@ Priorities below apply to **open numbered feature requests**, not completed item
 - **Acceptance criteria:** Verify the source key and expected label against the item and GrimTools; handle the full corresponding attribute-modifier family (Physique, Cunning, Spirit) consistently, not a one-off item replacement; preserve values and formatting; prevent duplicate rows; ensure genuinely unknown keys still appear in **Other Properties**. Add regression coverage for Mythical Arcanum Sigillis and sibling attribute modifiers, and verify on mobile.
 - **Dependencies or notes:** Follow the existing six-group layout (#30). Backlog numbers #31 and #32 are reserved in the separate documentation PR #108; this entry is #33 to avoid collisions.
 
+### 34. Correct Electrocute duration modifier label and grouping
+
+- **Device:** Mobile-friendly
+- **Status:** Proposed — verify source semantics before changing application code.
+- **Regression item:** Mythical Barrelsmith's Crossfire (`it9383`), one-handed ranged pistol.
+- **Problem and desired behavior:** Pistol QA screenshot shows `Offensive Slow Lightning Duration Modifier +56/+84%` under **Other Properties**. Investigate the source key and confirm whether this represents **Electrocute Duration +56/+84%** (the lightning damage-over-time duration modifier). If confirmed, use the player-facing label and classify it under **Damage & Retaliation** rather than Other Properties.
+- **Acceptance criteria:** Check pinned 1.3.1.0 source fields and GrimTools display; preserve percentage values and ranges; cover sibling damage-over-time duration modifiers as a family (e.g. Burn, Frostburn, Poison, Vitality Decay, Internal Trauma, Bleeding) without assuming every source token maps identically; preserve unknown modifiers in Other Properties; add tests and verify on mobile.
+- **Dependencies or notes:** This is the first pistol-QA finding tracked in the same backlog PR as #33. Do not change Granted Skills or unrelated damage properties.
+
 ### Request template
 
 - **Title:**
