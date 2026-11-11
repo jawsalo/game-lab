@@ -296,12 +296,18 @@ const SHIELD_PROPERTY_KEYS = new Set(["defensiveBlockChance", "defensiveBlock"])
 function groupItemProperties(card) {
   const properties = Array.isArray(card.properties) ? card.properties : [];
   const isShield = card.slot === "Shield" || card.category === "ArmorProtective_Shield";
-  if (!isShield) return { shieldStats: [], general: properties };
-
+  const isEquipment = card.group === "equipment";
   return {
-    shieldStats: ["defensiveBlockChance", "defensiveBlock"]
-      .flatMap((key) => properties.filter((property) => property.key === key)),
-    general: properties.filter((property) => !SHIELD_PROPERTY_KEYS.has(property.key)),
+    shieldStats: isShield
+      ? ["defensiveBlockChance", "defensiveBlock"]
+        .flatMap((key) => properties.filter((property) => property.key === key))
+      : [],
+    baseStats: isEquipment
+      ? properties.filter((property) => property.key === "defensiveProtection")
+      : [],
+    general: properties.filter((property) =>
+      !(isShield && SHIELD_PROPERTY_KEYS.has(property.key))
+      && !(isEquipment && property.key === "defensiveProtection")),
   };
 }
 
@@ -342,8 +348,9 @@ function renderItemDetails(card, summaryDescription) {
     fragment.append(description);
   }
 
-  const { shieldStats, general } = groupItemProperties(card);
+  const { shieldStats, baseStats, general } = groupItemProperties(card);
   addPropertySection(fragment, "Shield Stats", shieldStats);
+  addPropertySection(fragment, "Base Stats", baseStats);
   addPropertySection(fragment, "Properties", general);
 
   if (Array.isArray(card.skillBonuses) && card.skillBonuses.length > 0) {
