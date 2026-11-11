@@ -323,6 +323,17 @@ Priorities below apply to **open numbered feature requests**, not completed item
 - **Acceptance criteria:** Preserve all values and min/max ranges, distinguish flat and percentage bleeding damage and duration units, avoid duplicate entries, add source-family regression tests (including the related Electrocute duration modifier from #34), and mobile-verify Bloodborer. Investigate the minimum/maximum physical weapon damage entries alongside #31 without assuming their labels are already correct.
 - **Dependencies or notes:** Second pistol-QA finding in PR #110; no Granted Skills or unrelated item changes. Do not infer that `Offensive Pierce Ratio Min` is a percentage without confirming the source semantics.
 
+### 36. Audit Burrwitch Peacekeeper percentage DA and bonus physical damage fields
+
+- **Device:** Mobile-friendly for item-card QA; pinned-source investigation and regression tests required.
+- **Status:** Proposed — do not change display labels until source semantics are verified.
+- **Regression item:** Burrwitch Peacekeeper (`it17068`), legendary one-handed ranged pistol.
+- **Observed Other Properties:** `Character Defensive Ability Modifier +2/+4%`; `Offensive Bonus Physical Max +40/+60`; `Offensive Bonus Physical Min +25/+36`.
+- **Expected investigation:** Verify whether `Character Defensive Ability Modifier` is the percentage-based **Defensive Ability +2/+4%** modifier, and group it under **Attributes & Combat** if confirmed. Audit related percentage OA/DA modifiers as a family. Determine the exact game mechanics, units, and presentation for `Offensive Bonus Physical Min/Max` before proposing source-backed player-facing labels and **Damage & Retaliation** placement.
+- **Important distinction:** This pistol also shows separate `Physical Damage (maximum) +106/+159` and `Physical Damage (minimum) +86/+128` fields. Do not merge or rename the bonus physical min/max values by assumption; compare the source records and the related minimum/maximum damage investigation (#31).
+- **Acceptance criteria:** Preserve all four existing physical min/max values and their respective ranges, keep percentage DA distinct from flat DA, avoid duplicate or omitted rows, test the corresponding source-key families, and mobile-verify the pistol. Unverified fields must remain visible in **Other Properties**.
+- **Dependencies or notes:** Third pistol-QA finding in this same documentation PR (#110); no application changes in this entry.
+
 ### Request template
 
 - **Title:**
