@@ -232,7 +232,7 @@ Priorities below apply to **open numbered feature requests**, not completed item
 ### 23. Audit movement speed and maximum movement speed labels
 
 - **Device:** Mobile-friendly
-- **Status:** Proposed
+- **Status:** Implemented in PR #104; pending CI, merge, and mobile verification.
 - **Problem and desired behavior:** Mythical Bloodmist Boots (`it14640`) display `Character Run Speed Modifier +8/+12%`; Mythical Boneshatter Treads (`it9093`) display both `Character Run Speed Modifier +7/+9%` and `Character Run Speed Max Modifier +2/+4%`. Replace internal-looking terms with clear player-facing movement speed labels after confirming the distinction between ordinary speed bonuses and increased maximum speed.
 - **Acceptance criteria:** Verify field semantics and naming across related movement-speed properties; clearly distinguish `Movement Speed` from `Maximum Movement Speed` (or source-accurate equivalent); preserve percent values, min/max rolls, and separate lines for separate effects; test both boots and other movement-speed item categories; check narrow-screen wrapping.
 - **Dependencies or notes:** Do not merge distinct speed mechanics or assume `Run Speed Max` is a standard movement-speed bonus.
