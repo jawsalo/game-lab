@@ -334,6 +334,16 @@ Priorities below apply to **open numbered feature requests**, not completed item
 - **Acceptance criteria:** Preserve all four existing physical min/max values and their respective ranges, keep percentage DA distinct from flat DA, avoid duplicate or omitted rows, test the corresponding source-key families, and mobile-verify the pistol. Unverified fields must remain visible in **Other Properties**.
 - **Dependencies or notes:** Third pistol-QA finding in this same documentation PR (#110); no application changes in this entry.
 
+### 37. Audit Corruption of Gargabol duplicate-looking Vitality, stun resistance, and Life labels
+
+- **Device:** Mobile-friendly for presentation and QA; pinned-source investigation and automated regression tests required.
+- **Status:** Proposed — verify source semantics before changing any labels or merging damage rows.
+- **Regression item:** Corruption of Gargabol (`it11231`), legendary one-handed ranged weapon.
+- **Observed screenshot:** **Damage & Retaliation** shows two identically labeled `Flat Vitality Damage` rows with different values, `+99/+147` and `+67/+100`; `Offensive Life Min +18/+26` appears alongside `Vitality Damage +123/+184%` and `Vitality Decay Damage +123/+184%`. **Resistances & Defense** shows `Defensive Stun +16/+24%`.
+- **Desired investigation:** Identify the distinct source DBR keys for both flat Vitality rows, determine whether they represent separate mechanics or a duplicated presentation, and assign distinct source-backed labels if warranted. Verify whether `Offensive Life Min` represents flat Vitality damage, Vitality Decay damage, or another field; the user's report flags a Life/Vitality Decay terminology issue, so compare source semantics rather than assuming `Life` means one specific mechanic in every context. Rename `Defensive Stun` to player-facing **Stun Resistance** if verified, retaining the existing Resistances & Defense group.
+- **Acceptance criteria:** Preserve all values, signs, and min/max roll ranges; never collapse two distinct source properties merely because they currently share a display label; apply verified mappings to the relevant source-key families, not only this item; add regression tests for the duplicate-looking flat Vitality rows, Life-related modifier(s), and Stun Resistance; mobile-verify the item. Any unverified source fields must remain visible in **Other Properties**.
+- **Dependencies or notes:** Fourth pistol-QA finding in the same documentation PR #110. This screenshot does not show the contents of the Other Properties section below the fold; inspect the complete item card/source before claiming which Vitality Decay modifier appears there. No Granted Skills changes.
+
 ### Request template
 
 - **Title:**
