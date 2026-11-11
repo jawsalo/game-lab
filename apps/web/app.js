@@ -289,6 +289,35 @@ function conversionDisplayName(conversion) {
   return `${amount}% ${conversionDamageLabel(conversion.from)} converted to ${conversionDamageLabel(conversion.to)}`;
 }
 
+const SHIELD_PROPERTY_KEYS = new Set(["defensiveBlockChance", "defensiveBlock"]);
+
+function groupItemProperties(card) {
+  const properties = Array.isArray(card.properties) ? card.properties : [];
+  const isShield = card.slot === "Shield" || card.category === "ArmorProtective_Shield";
+  if (!isShield) return { shieldStats: [], general: properties };
+
+  return {
+    shieldStats: ["defensiveBlockChance", "defensiveBlock"]
+      .flatMap((key) => properties.filter((property) => property.key === key)),
+    general: properties.filter((property) => !SHIELD_PROPERTY_KEYS.has(property.key)),
+  };
+}
+
+function addPropertySection(parent, heading, properties) {
+  if (properties.length === 0) return;
+  addSectionHeading(parent, heading);
+  const list = document.createElement("dl");
+  list.className = "item-card__properties";
+  properties.forEach((property) => {
+    const term = document.createElement("dt");
+    term.textContent = propertyLabel(property);
+    const value = document.createElement("dd");
+    value.textContent = propertyValue(property);
+    list.append(term, value);
+  });
+  parent.append(list);
+}
+
 function addSectionHeading(parent, text) {
   const heading = document.createElement("h4");
   heading.className = "item-card__heading";
@@ -311,19 +340,9 @@ function renderItemDetails(card, summaryDescription) {
     fragment.append(description);
   }
 
-  if (Array.isArray(card.properties) && card.properties.length > 0) {
-    addSectionHeading(fragment, "Properties");
-    const list = document.createElement("dl");
-    list.className = "item-card__properties";
-    card.properties.forEach((property) => {
-      const term = document.createElement("dt");
-      term.textContent = propertyLabel(property);
-      const value = document.createElement("dd");
-      value.textContent = propertyValue(property);
-      list.append(term, value);
-    });
-    fragment.append(list);
-  }
+  const { shieldStats, general } = groupItemProperties(card);
+  addPropertySection(fragment, "Shield Stats", shieldStats);
+  addPropertySection(fragment, "Properties", general);
 
   if (Array.isArray(card.skillBonuses) && card.skillBonuses.length > 0) {
     addSectionHeading(fragment, "Skill Bonuses");

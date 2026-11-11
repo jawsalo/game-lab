@@ -208,7 +208,7 @@ Priorities below apply to **open numbered feature requests**, not completed item
 ### 20. Prioritize shield block chance and blocked damage at top of item details
 
 - **Device:** Mobile-friendly
-- **Status:** Proposed
+- **Status:** Implemented in PR #103; pending CI, merge, and mobile verification.
 - **Problem and desired behavior:** Shield cards currently bury their defining block mechanics among general properties. On Dauntless (`it14449`), `Blocked Damage` and `Block Chance` appear below offensive bonuses and Defensive Ability. Display block chance and blocked damage together at the top of expanded shield details, ideally under a dedicated `Shield Stats` heading, before general properties.
 - **Acceptance criteria:** Apply to all shield item cards, not just Dauntless; preserve the original chance and amount values/ranges and their units; avoid duplicate rows in the general Properties section; do not move similarly named non-shield properties; keep the ordering responsive and readable on mobile; add representative shield and non-shield regression tests.
 - **Dependencies or notes:** Use Dauntless (`it14449`) and Mythical Bramblevine (`it12725`) as visual regression cases. The Dauntless GrimTools reference is [03-1000115465.jpg](reference/grimtools-item-cards/03-1000115465.jpg). Keep this presentation-only task distinct from backlog #8's deeper block recovery and source-data audit.
@@ -272,7 +272,7 @@ Priorities below apply to **open numbered feature requests**, not completed item
 ### 28. Display mastery-wide skill bonuses on item cards
 
 - **Device:** Mixed — pinned source/lookup and API investigation may require PC development; mobile card verification is straightforward.
-- **Status:** Proposed — newly reported; prioritize with the existing backlog before implementation.
+- **Status:** Implemented and mobile-verified November 11, 2026 — upstream grimtools-data PR #4 and Game Lab PR #102 merged; Dauntless shows all six bonuses in production. Broader frontend/other-item regression coverage from the original acceptance criteria remains unverified.
 - **Problem and desired behavior:** Dauntless shield (`it14449`) grants `+1 to All Skills in Occultist` and `+1 to All Skills in Soldier` according to the user's GrimTools reference, but neither mastery-wide bonus appears in Game Lab's Skill Bonuses section. The four individual skill bonuses are visible. Missing mastery-wide bonuses can materially misrepresent equipment benefits.
 - **Acceptance criteria:** Trace mastery-wide bonuses from the pinned Grim Dawn 1.3.1.0 source through the versioned skill lookup, item-card API contract, and frontend; render both Dauntless bonuses with accurate mastery names and rank values; support all recognized masteries and other items using the same field family; preserve existing individual skill bonuses and avoid duplicates; handle absent/unknown source fields conservatively; add API/lookup and frontend regression tests for Dauntless, another mastery-bonus item, and an item with no mastery bonus; verify the deployed Dauntless card on mobile.
 - **Dependencies or notes:** Do not hardcode Dauntless or invent bonuses from class associations. Inspect the pinned lookup extraction before selecting the fix layer. Distinct from #7 (modifiers to specific skills) and #26 (missing granted-skill effects). Reported November 10, 2026.
