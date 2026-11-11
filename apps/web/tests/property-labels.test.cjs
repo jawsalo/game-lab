@@ -15,7 +15,7 @@ const relevant = source.slice(labelsStart, labelsEnd);
 const context = vm.createContext({
   numberFormatter: new Intl.NumberFormat("en-US"),
 });
-vm.runInContext(relevant + "\nthis.getLabel = propertyLabel; this.getValue = propertyValue; this.conversionDisplayName = conversionDisplayName;", context);
+vm.runInContext(relevant + "\nthis.getLabel = propertyLabel; this.getValue = propertyValue; this.conversionDisplayName = conversionDisplayName; this.groupItemProperties = groupItemProperties;", context);
 
 test("damage-over-time modifiers use player-facing damage names", () => {
   for (const [key, expected] of [
@@ -74,3 +74,52 @@ test("conversion formatting preserves fixed percentages and handles damage sibli
     "20% Unknown Type converted to Physical Damage"
   );
 });
+
+test("Dauntless shield stats are first, retain their values, and are not duplicated", () => {
+  const properties = [
+    { key: "characterDefensiveAbility", value: 75 },
+    { key: "defensiveBlock", value: 930, minValue: 744, maxValue: 1116 },
+    { key: "offensivePhysicalModifier", value: 110 },
+    { key: "defensiveBlockChance", value: 34 },
+  ];
+  const grouped = context.groupItemProperties({
+    id: "it14449", category: "ArmorProtective_Shield", slot: "Shield", properties,
+  });
+  assert.deepEqual(Array.from(grouped.shieldStats, (p) => p.key),
+    ["defensiveBlockChance", "defensiveBlock"]);
+  assert.deepEqual(Array.from(grouped.general, (p) => p.key),
+    ["characterDefensiveAbility", "offensivePhysicalModifier"]);
+  assert.equal(context.getValue(grouped.shieldStats[0]), "+34%");
+  assert.equal(context.getValue(grouped.shieldStats[1]), "+744/+1,116");
+  assert.equal(grouped.shieldStats.length + grouped.general.length, properties.length);
+});
+
+test("other shields, including Bramblevine, use the same shield-only grouping", () => {
+  const properties = [
+    { key: "defensiveBlock", value: 500 },
+    { key: "defensiveBlockChance", value: 25 },
+    { key: "defensivePhysical", value: 10 },
+  ];
+  const grouped = context.groupItemProperties({
+    id: "it12725", slot: "Shield", category: "OtherShieldCategory", properties,
+  });
+  assert.deepEqual(Array.from(grouped.shieldStats, (p) => p.key),
+    ["defensiveBlockChance", "defensiveBlock"]);
+  assert.deepEqual(Array.from(grouped.general, (p) => p.key), ["defensivePhysical"]);
+});
+
+test("non-shields retain all original properties and their order", () => {
+  const properties = [
+    { key: "defensiveBlock", value: 500 },
+    { key: "offensivePhysicalModifier", value: 50 },
+    { key: "defensiveBlockChance", value: 20 },
+  ];
+  const grouped = context.groupItemProperties({
+    id: "non-shield", slot: "Chest", category: "ArmorProtective_Chest", properties,
+  });
+  assert.equal(grouped.shieldStats.length, 0);
+  assert.deepEqual(Array.from(grouped.general, (p) => p.key),
+    ["defensiveBlock", "offensivePhysicalModifier", "defensiveBlockChance"]);
+  assert.equal(context.groupItemProperties({ slot: "Shield", properties: [] }).shieldStats.length, 0);
+});
+
