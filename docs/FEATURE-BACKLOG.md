@@ -254,6 +254,14 @@ This policy applies to all future catalog and item-card changes, not just retali
 - **Acceptance criteria:** Trace and inventory the full DoT field families (Bleeding, Frostburn, Burn, Electrocute, Poison, Vitality Decay, Internal Trauma and verified variants); combine damage, duration, and duration-modifier fields into source-accurate player-facing effects where appropriate; preserve separate percentage damage modifiers and original values/rolls; handle missing or non-matching fields safely; add Chillgore and representative sibling/exception tests and mobile verification.
 - **Dependencies or notes:** Explicitly cross-reference existing #17 rather than treating the prior implementation as family-complete. The same screenshot also exposes `Character Offensive Ability Modifier` (percentage OA) and split physical minimum/maximum damage fields; assess these under #9 or separately if implementation scope differs. Do not invent a final damage range from unverified field semantics.
 
+### 28. Display mastery-wide skill bonuses on item cards
+
+- **Device:** Mixed — pinned source/lookup and API investigation may require PC development; mobile card verification is straightforward.
+- **Status:** Proposed — newly reported; prioritize with the existing backlog before implementation.
+- **Problem and desired behavior:** Dauntless shield (`it14449`) grants `+1 to All Skills in Occultist` and `+1 to All Skills in Soldier` according to the user's GrimTools reference, but neither mastery-wide bonus appears in Game Lab's Skill Bonuses section. The four individual skill bonuses are visible. Missing mastery-wide bonuses can materially misrepresent equipment benefits.
+- **Acceptance criteria:** Trace mastery-wide bonuses from the pinned Grim Dawn 1.3.1.0 source through the versioned skill lookup, item-card API contract, and frontend; render both Dauntless bonuses with accurate mastery names and rank values; support all recognized masteries and other items using the same field family; preserve existing individual skill bonuses and avoid duplicates; handle absent/unknown source fields conservatively; add API/lookup and frontend regression tests for Dauntless, another mastery-bonus item, and an item with no mastery bonus; verify the deployed Dauntless card on mobile.
+- **Dependencies or notes:** Do not hardcode Dauntless or invent bonuses from class associations. Inspect the pinned lookup extraction before selecting the fix layer. Distinct from #7 (modifiers to specific skills) and #26 (missing granted-skill effects). Reported November 10, 2026.
+
 ### Request template
 
 - **Title:**
