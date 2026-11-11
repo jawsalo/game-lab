@@ -49,6 +49,8 @@ const PROPERTY_LABELS = {
   characterManaRegen: "Energy Regeneration",
   characterOffensiveAbility: "Offensive Ability",
   characterPhysique: "Physique",
+  characterRunSpeedModifier: "Movement Speed",
+  characterRunSpeedMaxModifier: "Maximum Movement Speed",
   characterSpellCastSpeedModifier: "Cast Speed",
   characterSpirit: "Spirit",
   characterStrength: "Physique",
