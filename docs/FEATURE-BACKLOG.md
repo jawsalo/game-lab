@@ -286,6 +286,16 @@ Priorities below apply to **open numbered feature requests**, not completed item
 - **Acceptance criteria:** Apply to equipment with the `defensiveProtection` property, preserve the existing armor value and flat-number formatting, avoid duplication in general Properties, leave non-equipment records and items without armor unchanged, and retain `Shield Stats` before `Base Stats` on shields when both exist. Verify on mobile and with shield/non-shield regression tests.
 - **Dependencies or notes:** Presentation-only; do not reinterpret the source armor value or conflate base armor with percentage armor modifiers. Keep shield block recovery/source audit (#8) separate.
 
+### 30. Group item properties into six readable sections without nested disclosures
+
+- **Device:** Mixed — frontend architecture, catalog-wide classification audit, and automated tests benefit from development/CI; mobile visual verification is essential.
+- **Status:** Implemented in PR #107; pending CI, merge, mobile verification, and full catalog-key coverage audit.
+- **Problem and desired behavior:** A single long Properties list makes equipment difficult to scan on mobile. Preserve the existing single Show/Hide Item Details control, but display properties under six ordered headings: **Base Stats**, **Attributes & Combat**, **Damage & Retaliation**, **Resistances & Defense**, **Utility**, and **Other Properties**. Do not add dropdowns within the expanded item card.
+- **Acceptance criteria:** Use verified source-key families rather than guessing from display labels; keep shield block chance, blocked damage, and armor together in Base Stats with shield block mechanics prioritized; preserve every property value, percentage, min/max roll, and formatting; keep original order within each group except explicitly prioritized base stats; render each property exactly once; suppress empty headings; and send every unrecognized or ambiguous property to a visible Other Properties section. Retain existing Skill Bonuses, Granted Skills, skill-specific effects, and Conversions sections without regrouping them.
+- **Regression coverage:** Test shield, boots, non-equipment records, all six groups, fallback for unknown and potentially misleading keys, no duplicates, no omissions, empty groups, and stable ordering. Mobile-verify long names and narrow-screen rows.
+- **Follow-up audit:** Inventory actual source property keys across the pinned 1.3.1.0 catalog and report the frequency of keys landing in Other Properties before expanding the classification allowlists. Do not hide unclassified keys or classify unfamiliar keys just to make the fallback bucket smaller.
+- **Dependencies or notes:** This is a presentation-only grouping pass, not a source-data or damage-semantics rewrite. Follow-on label audits (#16, #17, #22, #24) may improve readability of Other Properties. No nested accordions.
+
 ### Request template
 
 - **Title:**
