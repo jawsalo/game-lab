@@ -203,7 +203,7 @@ function resultCard(item) {
 const DAMAGE_TYPE_LABELS = {
   Physical: "Physical", Pierce: "Pierce", Fire: "Fire", Cold: "Cold",
   Lightning: "Lightning", Aether: "Aether", Chaos: "Chaos",
-  Vitality: "Vitality", Poison: "Acid", Acid: "Acid",
+  Vitality: "Vitality", Life: "Vitality", Poison: "Acid", Acid: "Acid",
   Bleeding: "Bleeding", Elemental: "Elemental",
   SlowPhysical: "Internal Trauma", SlowFire: "Burn",
   SlowCold: "Frostburn", SlowLightning: "Electrocute",
