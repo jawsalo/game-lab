@@ -303,3 +303,22 @@ test("empty sections are omitted and source order is stable within a group", () 
     properties.map((property) => property.key));
   assert.equal(context.groupedPropertySections({ group: "equipment", properties: [] }).length, 0);
 });
+
+test("Life conversion source token renders Vitality Damage in either direction", () => {
+  assert.equal(
+    context.conversionDisplayName({ from: "aether", to: "Life", percentage: 25, minValue: 20, maxValue: 30 }),
+    "20/30% Aether Damage converted to Vitality Damage"
+  );
+  assert.equal(
+    context.conversionDisplayName({ from: "life", to: "physical", percentage: 15 }),
+    "15% Vitality Damage converted to Physical Damage"
+  );
+  assert.equal(
+    context.conversionDisplayName({ from: "vitality", to: "life", percentage: 10 }),
+    "10% Vitality Damage converted to Vitality Damage"
+  );
+  assert.equal(
+    context.conversionDisplayName({ from: "aether", to: "vitality", percentage: 30 }),
+    "30% Aether Damage converted to Vitality Damage"
+  );
+});

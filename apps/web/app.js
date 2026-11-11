@@ -273,6 +273,7 @@ const CONVERSION_DAMAGE_TYPES = new Map([
   ["elemental", "Elemental Damage"],
   ["fire", "Fire Damage"],
   ["lightning", "Lightning Damage"],
+  ["life", "Vitality Damage"],
   ["physical", "Physical Damage"],
   ["pierce", "Pierce Damage"],
   ["vitality", "Vitality Damage"],
