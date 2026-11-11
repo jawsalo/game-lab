@@ -296,6 +296,22 @@ Priorities below apply to **open numbered feature requests**, not completed item
 - **Follow-up audit:** Inventory actual source property keys across the pinned 1.3.1.0 catalog and report the frequency of keys landing in Other Properties before expanding the classification allowlists. Do not hide unclassified keys or classify unfamiliar keys just to make the fallback bucket smaller.
 - **Dependencies or notes:** This is a presentation-only grouping pass, not a source-data or damage-semantics rewrite. Follow-on label audits (#16, #17, #22, #24) may improve readability of Other Properties. No nested accordions.
 
+### 31. Investigate the meaning of offensive minimum damage properties
+
+- **Device:** Mixed — source-record research and tests, with mobile verification of the resulting label.
+- **Status:** Proposed — investigation only; no label change approved.
+- **Problem and desired behavior:** Dauntless (`it14449`) displays `Physical Damage (minimum) +190/+285`. Determine the precise Grim Dawn meaning of the underlying offensive minimum damage source key(s), whether these are flat weapon damage or another mechanic, and how the game and GrimTools present them. Avoid guessing from the current display name.
+- **Acceptance criteria:** Identify the exact pinned 1.3.1.0 source field and representative item records; cross-check with GrimTools and official game references where needed; document the mechanic, scaling, units, and any related minimum/maximum damage fields; then propose a source-backed player-facing label and appropriate grouping. Preserve existing values until verified. Add family-level regression tests if a correction is implemented.
+- **Dependencies or notes:** This may overlap with damage-label audits #16 and #17, but should be investigated independently before any UI rename.
+
+### 32. Show percent signs on both endpoints of percentage ranges
+
+- **Device:** Mobile-friendly — presentation-only implementation and phone verification; automated tests required.
+- **Status:** Proposed — low priority, cosmetic.
+- **Problem and desired behavior:** Percentage ranges currently display as `+67/+100%` or `23/33%`, which makes the first endpoint look like a flat value. Render `+67%/+100%` and `23%/33%` instead.
+- **Acceptance criteria:** For properties known to be percentages, render the percent sign on **each** endpoint of a min/max range; preserve sign conventions, numerical values, rounding, and separators; keep single-value percentages correctly formatted; never add a percent sign to flat armor, OA/DA, health, retaliation amounts, or other non-percentage ranges. Include positive, unsigned, negative, and single-value regression cases, plus mobile verification.
+- **Dependencies or notes:** Centralize in the existing frontend value formatter, not item-specific replacements. Keep this separate from property-group ordering work.
+
 ### Request template
 
 - **Title:**
