@@ -313,6 +313,16 @@ Priorities below apply to **open numbered feature requests**, not completed item
 - **Acceptance criteria:** Check pinned 1.3.1.0 source fields and GrimTools display; preserve percentage values and ranges; cover sibling damage-over-time duration modifiers as a family (e.g. Burn, Frostburn, Poison, Vitality Decay, Internal Trauma, Bleeding) without assuming every source token maps identically; preserve unknown modifiers in Other Properties; add tests and verify on mobile.
 - **Dependencies or notes:** This is the first pistol-QA finding tracked in the same backlog PR as #33. Do not change Granted Skills or unrelated damage properties.
 
+### 35. Audit Bloodborer bleeding damage, duration, and pierce ratio properties
+
+- **Device:** Mobile-friendly for presentation and regression QA; source-key investigation and automated tests required.
+- **Status:** Proposed — investigate source semantics before changing any labels or values.
+- **Regression item:** Bloodborer (`it11695`), legendary one-handed ranged weapon, reported during pistol QA.
+- **Observed issues:** `Offensive Slow Bleeding Min +22/+33` currently appears under **Damage & Retaliation** with an internal field label; investigate its flat Bleeding Damage meaning and distinguish it from the separate `Bleeding Damage +224/+336%` modifier. **Other Properties** contains `Offensive Pierce Ratio Min +112/+168`, `Offensive Slow Bleeding Duration Min +3`, and `Offensive Slow Bleeding Duration Modifier +112/+168%`.
+- **Desired behavior:** Verify the pinned 1.3.1.0 DBR keys, units, game mechanics, and GrimTools equivalents. Display source-backed player-facing labels for flat bleeding damage, bleeding duration, duration percentage modifiers, and the pierce-ratio field. Group confidently identified damage/duration properties under **Damage & Retaliation**; keep genuinely ambiguous properties visible in **Other Properties** until verified.
+- **Acceptance criteria:** Preserve all values and min/max ranges, distinguish flat and percentage bleeding damage and duration units, avoid duplicate entries, add source-family regression tests (including the related Electrocute duration modifier from #34), and mobile-verify Bloodborer. Investigate the minimum/maximum physical weapon damage entries alongside #31 without assuming their labels are already correct.
+- **Dependencies or notes:** Second pistol-QA finding in PR #110; no Granted Skills or unrelated item changes. Do not infer that `Offensive Pierce Ratio Min` is a percentage without confirming the source semantics.
+
 ### Request template
 
 - **Title:**
