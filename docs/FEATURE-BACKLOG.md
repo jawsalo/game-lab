@@ -296,6 +296,14 @@ Priorities below apply to **open numbered feature requests**, not completed item
 - **Follow-up audit:** Inventory actual source property keys across the pinned 1.3.1.0 catalog and report the frequency of keys landing in Other Properties before expanding the classification allowlists. Do not hide unclassified keys or classify unfamiliar keys just to make the fallback bucket smaller.
 - **Dependencies or notes:** This is a presentation-only grouping pass, not a source-data or damage-semantics rewrite. Follow-on label audits (#16, #17, #22, #24) may improve readability of Other Properties. No nested accordions.
 
+### 33. Label percentage Spirit modifiers and classify attribute modifiers
+
+- **Device:** Mobile-friendly
+- **Status:** Proposed — source-key verification and focused frontend regression tests required.
+- **Problem and desired behavior:** Mythical Arcanum Sigillis currently shows `Character Intelligence Modifier +3/+5%` under **Other Properties**. Investigate the pinned source property `characterIntelligenceModifier`; if confirmed as the player-facing Spirit percentage bonus, label it **Spirit** (with percentage range retained) and group it under **Attributes & Combat**.
+- **Acceptance criteria:** Verify the source key and expected label against the item and GrimTools; handle the full corresponding attribute-modifier family (Physique, Cunning, Spirit) consistently, not a one-off item replacement; preserve values and formatting; prevent duplicate rows; ensure genuinely unknown keys still appear in **Other Properties**. Add regression coverage for Mythical Arcanum Sigillis and sibling attribute modifiers, and verify on mobile.
+- **Dependencies or notes:** Follow the existing six-group layout (#30). Backlog numbers #31 and #32 are reserved in the separate documentation PR #108; this entry is #33 to avoid collisions.
+
 ### Request template
 
 - **Title:**
