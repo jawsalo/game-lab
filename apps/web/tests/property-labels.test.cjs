@@ -151,3 +151,26 @@ test("movement speed labels do not change other speed or life-related properties
   assert.equal(context.getLabel({ key: "characterRunSpeed" }), "Character Run Speed");
   assert.equal(context.getLabel({ key: "characterLifeModifier" }), "Health");
 });
+
+test("offensive Life damage family uses Vitality Damage labels and preserves rolls", () => {
+  for (const item of ["Mythical Boneshatter Treads (it9093)", "Mythical Bilethread Greaves (it14641)"]) {
+    const property = { key: "offensiveLifeModifier", value: 83, minValue: 67, maxValue: 100 };
+    assert.equal(context.getLabel(property), "Vitality Damage", item);
+    assert.equal(context.getValue(property), "+67/+100%", item);
+  }
+  assert.equal(context.getLabel({ key: "offensiveBaseLifeMin" }), "Flat Vitality Damage");
+  assert.equal(context.getLabel({ key: "offensiveLifeMin" }), "Offensive Life Min");
+  assert.equal(context.getLabel({ key: "offensiveSlowLifeModifier" }), "Vitality Decay Damage");
+});
+
+test("Vitality damage labeling does not affect health, resistance, or life leech", () => {
+  for (const [key, expected] of [
+    ["characterLife", "Health"],
+    ["characterLifeModifier", "Health"],
+    ["defensiveLife", "Vitality Resistance"],
+    ["offensiveLifeLeechMin", "Attack Damage converted to Health"],
+    ["defensiveSlowLifeLeech", "Defensive Slow Life Leech"],
+  ]) {
+    assert.equal(context.getLabel({ key }), expected, key);
+  }
+});
