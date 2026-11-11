@@ -240,10 +240,10 @@ Priorities below apply to **open numbered feature requests**, not completed item
 ### 24. Investigate Offensive Life Modifier damage label
 
 - **Device:** Mobile-friendly
-- **Status:** Proposed — investigation
+- **Status:** Implemented in PR #105; pending CI, merge, and mobile verification.
 - **Problem and desired behavior:** Mythical Boneshatter Treads (`it9093`) show `Offensive Life Modifier +67/+100%`, an internal-looking property name among Physical, Vitality Decay, and Internal Trauma damage bonuses. Determine whether this represents Vitality Damage or another game mechanic before choosing a player-facing label.
 - **Acceptance criteria:** Trace the exact source field and meaning; inspect sibling offensive damage types and other items; display the verified label without changing numeric values or confusing damage, life leech, or health modifiers; add regression cases for the affected family and non-matching life-related fields.
-- **Dependencies or notes:** May overlap existing backlog #9 (player-facing item-property labels); keep the investigation separately trackable and consolidate implementation if the same translation family is involved. User believes `Offensive Life Modifier` represents Vitality Damage; verify against pinned source before applying the label.
+- **Dependencies or notes:** May overlap existing backlog #9 (player-facing item-property labels); keep the investigation separately trackable and consolidate implementation if the same translation family is involved. User-provided GrimTools reference for Mythical Boneshatter Treads confirms `+67/+100% Vitality Damage` at the corresponding position. The frontend's existing offensive damage-family formatter now maps source `Life` to `Vitality` while leaving life leech, health, and resistances untouched.
 
 ### 25. Render granted-skill effects as readable game mechanics
 
