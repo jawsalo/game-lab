@@ -25,8 +25,8 @@ fi
 # Validate the actual deployed HTML and assets, not just the API commit.
 html="$(curl "${curl_options[@]}" "$base_url/")"
 html_headers="$(curl "${curl_options[@]}" --head "$base_url/")"
-js_url="$(printf '%s' "$html" | grep -oE '/app\\.js\\?v=[0-9a-f]{16}' | head -n 1)"
-css_url="$(printf '%s' "$html" | grep -oE '/styles\\.css\\?v=[0-9a-f]{16}' | head -n 1)"
+js_url="$(printf '%s' "$html" | grep -oE '/app\.js\?v=[0-9a-f]{16}' | head -n 1)"
+css_url="$(printf '%s' "$html" | grep -oE '/styles\.css\?v=[0-9a-f]{16}' | head -n 1)"
 if [[ -z "$js_url" || -z "$css_url" ]] || ! grep -qi 'cache-control:.*no-cache' <<< "$html_headers"; then
   echo "Frontend smoke test failed: missing versioned assets or HTML revalidation header." >&2
   exit 1
