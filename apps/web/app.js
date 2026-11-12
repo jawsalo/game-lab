@@ -73,6 +73,7 @@ const PROPERTY_LABELS = {
   defensiveSlowLifeLeech: "Life Leech Resistance",
   defensiveStun: "Stun Resistance",
   defensiveTotalSpeed: "Slow Resistance",
+  defensiveTotalSpeedResistance: "Slow Resistance",
   defensiveTrap: "Entrapment Resistance",
   defensiveCold: "Cold Resistance",
   defensiveElementalResistance: "Elemental Resistance",
@@ -371,7 +372,7 @@ function classifyItemProperty(key) {
   const resistance = /^defensive([A-Z][a-zA-Z]*)(?:MaxResist)?$/.exec(key);
   if (resistance && RESISTANCE_PROPERTY_TYPES.has(resistance[1])) return "defense";
   // These are resistance families, not damage bonuses or offensive debuffs.
-  if (/^defensive(?:Stun|Trap|Freeze|Petrify|Sleep|Confusion|Fear|SlowLifeLeach|SlowLifeLeech|TotalSpeed)$/.test(key)) {
+  if (/^defensive(?:Stun|Trap|Freeze|Petrify|Sleep|Confusion|Fear|SlowLifeLeach|SlowLifeLeech|TotalSpeed|TotalSpeedResistance)$/.test(key)) {
     return "defense";
   }
   return "other";
