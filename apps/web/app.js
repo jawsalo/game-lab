@@ -244,7 +244,7 @@ function damagePropertyLabel(key) {
 }
 
 function propertyLabel(property) {
-  if (property.key === "specialtyFearRetaliation") return property.label;
+  if (property.key === "specialtyControlRetaliation") return property.label;
   if (property.key === "offensiveSlowPoisonMin"
       && Number.isFinite(property.durationSeconds)) {
     return `Poison Damage over ${numberFormatter.format(property.durationSeconds)} Seconds`;
@@ -368,7 +368,7 @@ const RESISTANCE_PROPERTY_TYPES = new Set([
 function classifyItemProperty(key) {
   if (COMBAT_PROPERTY_KEYS.has(key)) return "combat";
   if (UTILITY_PROPERTY_KEYS.has(key)) return "utility";
-  if (key === "retaliationTotalDamageModifier" || key === "specialtyFearRetaliation") return "damage";
+  if (key === "retaliationTotalDamageModifier" || key === "specialtyControlRetaliation") return "damage";
   const damage = /^(?:offensive(?:Base)?|retaliation)([A-Z][a-zA-Z]*)(?:Min|Max|Modifier)$/.exec(key);
   if (damage && DAMAGE_PROPERTY_TYPES.has(damage[1])) return "damage";
   const resistance = /^defensive([A-Z][a-zA-Z]*)(?:MaxResist)?$/.exec(key);
@@ -382,25 +382,38 @@ function classifyItemProperty(key) {
 
 // Source-backed specialty retaliation: chance and duration are distinct fields.
 // Keep unmatched keys visible rather than guessing at other control effects.
+const SPECIALTY_RETALIATION_TYPES = [
+  ["Fear", "Terrify"],
+  ["Freeze", "Freeze"],
+  ["Confusion", "Confuse"],
+];
+
 function combineSpecialtyRetaliation(properties) {
-  const chance = properties.filter((property) => property.key === "retaliationFearChance");
-  const duration = properties.filter((property) => property.key === "retaliationFearMin");
-  if (chance.length !== 1 || duration.length !== 1) return properties;
-  const probability = chance[0].value;
-  const seconds = duration[0];
-  if (!Number.isFinite(probability) || !Number.isFinite(seconds.value)) return properties;
-  const durationText = Number.isFinite(seconds.minValue) && Number.isFinite(seconds.maxValue)
-    && seconds.minValue !== seconds.maxValue
-    ? `${numberFormatter.format(seconds.minValue)}/${numberFormatter.format(seconds.maxValue)}`
-    : numberFormatter.format(seconds.value);
-  return [
-    ...properties.filter((property) => property !== chance[0] && property !== seconds),
-    {
-      key: "specialtyFearRetaliation",
-      label: "Terrify Retaliation",
-      displayValue: `${numberFormatter.format(probability)}% Chance of ${durationText} Seconds`,
-    },
-  ];
+  let result = properties;
+  for (const [sourceType, displayType] of SPECIALTY_RETALIATION_TYPES) {
+    const chanceKey = `retaliation${sourceType}Chance`;
+    const durationKey = `retaliation${sourceType}Min`;
+    const chance = result.filter((property) => property.key === chanceKey);
+    const duration = result.filter((property) => property.key === durationKey);
+    // Preserve unpaired or ambiguous raw fields rather than guessing.
+    if (chance.length !== 1 || duration.length !== 1) continue;
+    const probability = chance[0].value;
+    const seconds = duration[0];
+    if (!Number.isFinite(probability) || !Number.isFinite(seconds.value)) continue;
+    const durationText = Number.isFinite(seconds.minValue) && Number.isFinite(seconds.maxValue)
+      && seconds.minValue !== seconds.maxValue
+      ? `${numberFormatter.format(seconds.minValue)}/${numberFormatter.format(seconds.maxValue)}`
+      : numberFormatter.format(seconds.value);
+    result = [
+      ...result.filter((property) => property !== chance[0] && property !== seconds),
+      {
+        key: "specialtyControlRetaliation",
+        label: `${displayType} Retaliation`,
+        displayValue: `${numberFormatter.format(probability)}% Chance of ${durationText} Seconds`,
+      },
+    ];
+  }
+  return result;
 }
 
 function groupedPropertySections(card) {
