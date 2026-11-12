@@ -64,6 +64,16 @@ const PROPERTY_LABELS = {
   defensiveAether: "Aether Resistance",
   defensiveBleeding: "Bleeding Resistance",
   defensiveChaos: "Chaos Resistance",
+  defensiveConfusion: "Confusion Resistance",
+  defensiveFear: "Fear Resistance",
+  defensiveFreeze: "Freeze Resistance",
+  defensivePetrify: "Petrify Resistance",
+  defensiveSleep: "Sleep Resistance",
+  defensiveSlowLifeLeach: "Life Leech Resistance",
+  defensiveSlowLifeLeech: "Life Leech Resistance",
+  defensiveStun: "Stun Resistance",
+  defensiveTotalSpeed: "Slow Resistance",
+  defensiveTrap: "Entrapment Resistance",
   defensiveCold: "Cold Resistance",
   defensiveElementalResistance: "Elemental Resistance",
   defensiveFire: "Fire Resistance",
@@ -361,7 +371,7 @@ function classifyItemProperty(key) {
   const resistance = /^defensive([A-Z][a-zA-Z]*)(?:MaxResist)?$/.exec(key);
   if (resistance && RESISTANCE_PROPERTY_TYPES.has(resistance[1])) return "defense";
   // These are resistance families, not damage bonuses or offensive debuffs.
-  if (/^defensive(?:Stun|Trap|Freeze|Petrify|Sleep|Confusion|Fear|SlowLifeLeech|TotalSpeed)$/.test(key)) {
+  if (/^defensive(?:Stun|Trap|Freeze|Petrify|Sleep|Confusion|Fear|SlowLifeLeach|SlowLifeLeech|TotalSpeed)$/.test(key)) {
     return "defense";
   }
   return "other";
