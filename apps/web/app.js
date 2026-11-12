@@ -249,6 +249,7 @@ function propertyLabel(property) {
       && Number.isFinite(property.durationSeconds)) {
     return `Poison Damage over ${numberFormatter.format(property.durationSeconds)} Seconds`;
   }
+  if (property.key === "retaliationSlowPoisonMin" && property.label) return property.label;
   const damageLabel = damagePropertyLabel(property.key);
   if (damageLabel) return damageLabel;
   if (PROPERTY_LABELS[property.key]) return PROPERTY_LABELS[property.key];
@@ -416,12 +417,29 @@ function combineSpecialtyRetaliation(properties) {
   return result;
 }
 
+// Preserve the source duration for poison retaliation rather than showing a
+// detached internal duration field in Other Properties.
+function combinePoisonRetaliationDuration(properties) {
+  const poison = properties.filter((property) => property.key === "retaliationSlowPoisonMin");
+  const duration = properties.filter((property) => property.key === "retaliationSlowPoisonDurationMin");
+  if (poison.length !== 1 || duration.length !== 1
+      || !Number.isFinite(duration[0].value) || duration[0].value <= 0) {
+    return properties;
+  }
+  return [
+    ...properties.filter((property) => property !== duration[0]).map((property) =>
+      property === poison[0]
+        ? { ...property, label: `Poison Retaliation over ${numberFormatter.format(duration[0].value)} Seconds` }
+        : property),
+  ];
+}
+
 function groupedPropertySections(card) {
   const { shieldStats, baseStats, general } = groupItemProperties(card);
   const buckets = Object.fromEntries(PROPERTY_GROUP_ORDER.map(([key]) => [key, []]));
   // Shield block values are prioritized before armor, as in the existing shield view.
   buckets.base.push(...shieldStats, ...baseStats);
-  combineSpecialtyRetaliation(general).forEach((property) =>
+  combinePoisonRetaliationDuration(combineSpecialtyRetaliation(general)).forEach((property) =>
     buckets[classifyItemProperty(property.key)].push(property));
   return PROPERTY_GROUP_ORDER.map(([key, heading]) => ({
     key, heading, properties: buckets[key],
