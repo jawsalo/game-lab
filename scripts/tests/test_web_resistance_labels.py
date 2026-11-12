@@ -22,6 +22,7 @@ class ResistanceLabelContractTests(unittest.TestCase):
             "defensiveSlowLifeLeach": "Life Leech Resistance",
             "defensiveSlowLifeLeech": "Life Leech Resistance",
             "defensiveTotalSpeed": "Slow Resistance",
+            "defensiveTotalSpeedResistance": "Slow Resistance",
             "defensiveFreeze": "Freeze Resistance",
             "defensivePetrify": "Petrify Resistance",
             "defensiveSleep": "Sleep Resistance",
@@ -38,7 +39,7 @@ class ResistanceLabelContractTests(unittest.TestCase):
         variants = set(match.group(1).split("|"))
         self.assertTrue({
             "Trap", "Stun", "SlowLifeLeach", "SlowLifeLeech",
-            "TotalSpeed", "Freeze", "Petrify", "Sleep", "Confusion", "Fear",
+            "TotalSpeed", "TotalSpeedResistance", "Freeze", "Petrify", "Sleep", "Confusion", "Fear",
         }.issubset(variants))
         self.assertIn('return "defense";', self.classifier)
 
