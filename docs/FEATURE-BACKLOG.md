@@ -23,9 +23,17 @@ This snapshot reconciles the **current main branch**, merged GitHub PR metadata,
 | #20 | PR #103 merged | Full shield regression and block semantics tracked under #8 |
 | #23 | PR #104 merged | Original movement-speed family regression not rechecked here |
 | #24 | PR #105 and follow-up #109 merged | Other Life keys need source-specific review, not a blanket replacement |
-| #33 | PR #111 merged | Explicit mobile screenshot of Mythical Arcanum Sigillis `Spirit +3/+5%` not recorded |
+| #33 | PR #111 merged | User reconfirmed targeted mobile regression November 15, 2026 |
 
 Other earlier completed entries (#1, #2, #4, #6, #12, #13, #15, #21) retain their original recorded verification statuses.
+
+### Reconciliation follow-up — November 15, 2026
+
+- **#23:** User explicitly reconfirmed that Movement Speed and Maximum Movement Speed are separately and correctly labeled on mobile. No repeat QA required.
+- **#33:** User explicitly reconfirmed Mythical Arcanum Sigillis's Spirit percentage modifier under Attributes & Combat on mobile. No repeat QA required.
+- **#34–#37:** Original pistol QA descriptions restored below from the prior discussion, with source verification still pending. Do not mark these implemented merely because related property families have received fixes.
+- **#31/#32:** Existing PR #108 was repaired by refreshing its backlog file content against the reconciled main document; the PR remains subject to GitHub mergeability review and user merge.
+- These two verification confirmations are user-reported; no new screenshots or automated reruns were required.
 
 ### Outstanding work, ownership and duplication boundaries
 
@@ -45,7 +53,7 @@ Other earlier completed entries (#1, #2, #4, #6, #12, #13, #15, #21) retain thei
 ### Unmerged documentation and missing-number integrity
 
 - **PR #108 remains open and unmerged.** Its backlog **#31** (Dauntless physical minimum damage source semantics) and **#32** (percentage signs at both ends of ranges, e.g. `+67%/+100%`) are **not present on main**. Do not claim they are implemented or open duplicate implementation work without checking #108.
-- **#34–#37 are absent from the main backlog**, despite earlier discussion of pistol QA and the merged #110. Reconcile their actual source document/PR history before restoring them; do not silently assume that the merged #110 contained those entries.
+- **#34–#37 were missing from main after merged #110.** Their original pistol QA findings have now been restored as separate numbered entries in this documentation update, pending merge; no implementation is implied.
 - **#33 is present on main and implemented** in PR #111; its original backlog status was stale.
 - Existing entry numbers intentionally skip #31/#32 on main while #108 remains unmerged. Avoid reusing these identifiers.
 - No code changes are included in this documentation reconciliation.
@@ -290,7 +298,7 @@ Priorities below apply to **open numbered feature requests**, not completed item
 ### 23. Audit movement speed and maximum movement speed labels
 
 - **Device:** Mobile-friendly
-- **Status:** Implemented — PR #104 merged; original item-level regression acceptance criteria not independently rechecked in this reconciliation.
+- **Status:** Complete — PR #104 merged; user reconfirmed correct Movement Speed and Maximum Movement Speed labels on mobile November 15, 2026.
 - **Problem and desired behavior:** Mythical Bloodmist Boots (`it14640`) display `Character Run Speed Modifier +8/+12%`; Mythical Boneshatter Treads (`it9093`) display both `Character Run Speed Modifier +7/+9%` and `Character Run Speed Max Modifier +2/+4%`. Replace internal-looking terms with clear player-facing movement speed labels after confirming the distinction between ordinary speed bonuses and increased maximum speed.
 - **Acceptance criteria:** Verify field semantics and naming across related movement-speed properties; clearly distinguish `Movement Speed` from `Maximum Movement Speed` (or source-accurate equivalent); preserve percent values, min/max rolls, and separate lines for separate effects; test both boots and other movement-speed item categories; check narrow-screen wrapping.
 - **Dependencies or notes:** Do not merge distinct speed mechanics or assume `Run Speed Max` is a standard movement-speed bonus.
@@ -356,7 +364,7 @@ Priorities below apply to **open numbered feature requests**, not completed item
 ### 33. Label percentage Spirit modifiers and classify attribute modifiers
 
 - **Device:** Mobile-friendly
-- **Status:** Implemented — PR #111 merged; targeted Mythical Arcanum Sigillis mobile regression not yet recorded as verified.
+- **Status:** Complete — PR #111 merged; user reconfirmed Mythical Arcanum Sigillis Spirit percentage modifier under Attributes & Combat on mobile November 15, 2026.
 - **Problem and desired behavior:** Mythical Arcanum Sigillis currently shows `Character Intelligence Modifier +3/+5%` under **Other Properties**. Investigate the pinned source property `characterIntelligenceModifier`; if confirmed as the player-facing Spirit percentage bonus, label it **Spirit** (with percentage range retained) and group it under **Attributes & Combat**.
 - **Acceptance criteria:** Verify the source key and expected label against the item and GrimTools; handle the full corresponding attribute-modifier family (Physique, Cunning, Spirit) consistently, not a one-off item replacement; preserve values and formatting; prevent duplicate rows; ensure genuinely unknown keys still appear in **Other Properties**. Add regression coverage for Mythical Arcanum Sigillis and sibling attribute modifiers, and verify on mobile.
 - **Dependencies or notes:** Follow the existing six-group layout (#30). Backlog numbers #31 and #32 are reserved in the separate documentation PR #108; this entry is #33 to avoid collisions.
