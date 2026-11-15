@@ -2,6 +2,63 @@
 
 This backlog captures feature requests as the user provides their requirements. Each entry states whether it can be advanced from a phone or needs a PC. Keep requirements and acceptance criteria tied to what the user actually asked for; clarify only when a missing detail affects implementation.
 
+## Reconciliation snapshot — November 15, 2026
+
+This snapshot reconciles the **current main branch**, merged GitHub PR metadata, and user-provided mobile screenshots. It is an evidence/status register, **not** a claim that all original acceptance criteria or CI checks were independently re-run. A merged PR establishes implementation, not necessarily full regression coverage.
+
+### Delivered and verified
+
+| Backlog | Evidence | Verified scope |
+| --- | --- | --- |
+| #16 (partial) | PRs #114, #115 merged; user mobile screenshots | Terrify (Mythical Screams of the Aether), Freeze (Mythical Chilldread Mantle `it9208`), Confuse (Soiled Trousers `it1430`); additional specialty types unverified |
+| #17 (partial) | PRs #64, #116 merged; user mobile screenshot | Existing Bleeding/Block Chance label fix merged; Soiled Trousers `it1430` poison retaliation now displays duration alongside damage; broader DoT inventory remains |
+| #22 | PRs #112, #113 merged; user mobile screenshots | Bloodmist Boots `it14640`: Stun/Entrapment; Boneshatter Treads `it9093`: Life Leech/Slow, all in Resistances & Defense |
+| #29/#30 | PRs #106/#107 merged; later mobile item screenshots | Base armor and six property sections render; source-key coverage audit remains |
+| #28 | PR #102 merged; earlier user mobile verification | Dauntless mastery-wide bonuses; other-item coverage unverified |
+
+### Merged implementation; verification still bounded
+
+| Backlog | GitHub evidence | Remaining evidence |
+| --- | --- | --- |
+| #20 | PR #103 merged | Full shield regression and block semantics tracked under #8 |
+| #23 | PR #104 merged | Original movement-speed family regression not rechecked here |
+| #24 | PR #105 and follow-up #109 merged | Other Life keys need source-specific review, not a blanket replacement |
+| #33 | PR #111 merged | Explicit mobile screenshot of Mythical Arcanum Sigillis `Spirit +3/+5%` not recorded |
+
+Other earlier completed entries (#1, #2, #4, #6, #12, #13, #15, #21) retain their original recorded verification statuses.
+
+### Outstanding work, ownership and duplication boundaries
+
+| Workstream | Backlog | State / next step | Device |
+| --- | --- | --- | --- |
+| Crafting recipe readability | #5 | Open; source-backed ingredient ID/name resolution and alternative groups; Blueprint: Dauntless `it14332` | Mobile-friendly |
+| Damage-over-time family | #17 + #27 | **One coordinated workstream.** #17 owns player-facing presentation, #27 owns missing/source-field coverage (Chillgore `it15817`); do not implement duplicate mappings | Mixed for source audit; mobile for card QA |
+| Specialty retaliation | #16 | Terrify/Freeze/Confuse done; inventory any *other actual source keys* before extending; do not invent a Slow retaliation family from granted-skill Slow | Mobile-friendly for verified frontend cases |
+| Frontend asset caching | #19 | Open but **reproduce first**; deployed frontend-only fixes may not change API version. Confirm whether stale assets still occur before writing a fix | Mobile-friendly |
+| Git branch cleanup | #11 | Open; enumerate and confirm merged/unused branches before deleting; never delete active/unmerged work | Mobile-friendly |
+| Source semantics and grouping | #8, #9, #30 | #8 owns shield-value/block recovery semantics; #9 owns broader source labels; #30 owns UI grouping and fallback; share inventory, avoid three independent label sweeps | Mixed |
+| Granted-skill detail | #7, #25, #26 | #26 owns **missing source effects**, #25 owns **readable effect formatting**, #7 owns **item-granted modifiers**; verify actual overlap before implementation | Mixed |
+| Set and acquisition metadata | #18, #10 | Open and distinct: set membership/bonuses vs acquisition/vendor data | Mixed |
+| Stat filtering | #3 | Deferred by user; reassess PC need when scoped | PC-required tentative |
+| Desktop PR workflow | #14 | Deferred by user; do not prioritize without renewed request | PC-required |
+
+### Unmerged documentation and missing-number integrity
+
+- **PR #108 remains open and unmerged.** Its backlog **#31** (Dauntless physical minimum damage source semantics) and **#32** (percentage signs at both ends of ranges, e.g. `+67%/+100%`) are **not present on main**. Do not claim they are implemented or open duplicate implementation work without checking #108.
+- **#34–#37 are absent from the main backlog**, despite earlier discussion of pistol QA and the merged #110. Reconcile their actual source document/PR history before restoring them; do not silently assume that the merged #110 contained those entries.
+- **#33 is present on main and implemented** in PR #111; its original backlog status was stale.
+- Existing entry numbers intentionally skip #31/#32 on main while #108 remains unmerged. Avoid reusing these identifiers.
+- No code changes are included in this documentation reconciliation.
+
+### Verification and delivery conventions
+
+1. Record **merged**, **deployed**, **mobile-verified**, and **fully accepted** separately. A merge SHA or Helm revision alone does not prove the item UI is updated; frontend-only changes may leave the API version unchanged.
+2. Record regression **item name and catalog ID**, exact displayed key/value, group, source comparison when available, and screenshot outcome.
+3. Keep incomplete families **partial**, not Done; note outstanding sibling keys and cases.
+4. For UI labels, avoid hardcoded item values. Preserve roll ranges, source-level differences, unrelated properties, and unknown fallback.
+5. Before opening a PR, search merged/open PRs and this register for overlapping implementation. Prefer a single owner per source-key family.
+6. After each merge and mobile QA, update this register and the affected entry's status in the same documentation pass.
+
 ## Implementation policy: fix families, not screenshots
 
 When a screenshot or single item exposes a naming, unit, formatting, or data-display problem, treat it as a **symptom of a potentially broader property family** rather than patching only that one item.
@@ -172,7 +229,7 @@ Priorities below apply to **open numbered feature requests**, not completed item
 ### 16. Correct specialty retaliation labels and presentation
 
 - **Device:** Mobile-friendly
-- **Status:** Proposed
+- **Status:** Partially complete — PRs #114 and #115 merged; Terrify, Freeze, Confuse mobile-verified November 2026. Other specialty effects remain unverified.
 - **Problem and desired behavior:** Specialty retaliation effects such as Terrifying, Slow, and Freeze Retaliation need accurate, readable player-facing names and values. They should not be treated as ordinary flat damage retaliation or displayed with raw internal property labels.
 - **Acceptance criteria:** Audit the catalog/API keys and rendered labels for terrifying/fear, slow, freeze, and other non-damage retaliation effects; show accurate effect names, durations, chances, and units where supported by source data; distinguish crowd-control retaliation from flat damage and percentage damage modifiers; add representative regression cases; preserve underlying values and mechanics.
 - **Dependencies or notes:** Follow-up to global flat damage retaliation label PR #56. Inspect source fields and actual examples before deciding mappings; do not blindly apply the `retaliation<Type>Min` → `<Type> Retaliation` damage naming rule to specialty effects. Keep PR #55 as documentation-only backlog intake.
@@ -180,7 +237,7 @@ Priorities below apply to **open numbered feature requests**, not completed item
 ### 17. Audit damage-over-time property labels and block chance naming
 
 - **Device:** Mobile-friendly
-- **Status:** Proposed
+- **Status:** Partially complete — PR #64 merged (Bleeding/Block Chance); PR #116 merged and poison retaliation duration mobile-verified. Full DoT field-family inventory remains open; coordinate with #27.
 - **Problem and desired behavior:** Mobile verification after PR #57 revealed `Offensive Slow Bleeding Modifier` on Mythical Bramblevine (`it12725`) and `Defensive Block Chance` on shields. Present these as readable `Bleeding Damage` and `Block Chance`, respectively, without overlooking other related property keys.
 - **Acceptance criteria:** Inventory the full offensive damage-over-time family (Bleeding, Burn, Frostburn, Electrocute, Poison, Vitality Decay, Internal Trauma, and any source-backed variants) and standardize labels across modifier and flat/duration forms where semantically correct; distinguish damage-over-time from ordinary flat damage; normalize block-chance labeling wherever the same property occurs while keeping `Blocked Damage` as a separate flat amount; add representative regression tests for siblings and exceptions; preserve values, percentages, durations, and mechanics.
 - **Dependencies or notes:** Follow the family-wide implementation policy introduced in PR #58. Verify Mythical Bramblevine (`it12725`) and additional damage types on mobile. Keep this separate from specialty retaliation backlog #16 and block recovery/source audit #8.
@@ -208,7 +265,7 @@ Priorities below apply to **open numbered feature requests**, not completed item
 ### 20. Prioritize shield block chance and blocked damage at top of item details
 
 - **Device:** Mobile-friendly
-- **Status:** Implemented in PR #103; pending CI, merge, and mobile verification.
+- **Status:** Implemented — PR #103 merged; mobile layout verified in later shield/item QA. Broader shield-value semantics remain tracked under #8.
 - **Problem and desired behavior:** Shield cards currently bury their defining block mechanics among general properties. On Dauntless (`it14449`), `Blocked Damage` and `Block Chance` appear below offensive bonuses and Defensive Ability. Display block chance and blocked damage together at the top of expanded shield details, ideally under a dedicated `Shield Stats` heading, before general properties.
 - **Acceptance criteria:** Apply to all shield item cards, not just Dauntless; preserve the original chance and amount values/ranges and their units; avoid duplicate rows in the general Properties section; do not move similarly named non-shield properties; keep the ordering responsive and readable on mobile; add representative shield and non-shield regression tests.
 - **Dependencies or notes:** Use Dauntless (`it14449`) and Mythical Bramblevine (`it12725`) as visual regression cases. The Dauntless GrimTools reference is [03-1000115465.jpg](reference/grimtools-item-cards/03-1000115465.jpg). Keep this presentation-only task distinct from backlog #8's deeper block recovery and source-data audit.
@@ -224,7 +281,7 @@ Priorities below apply to **open numbered feature requests**, not completed item
 ### 22. Audit crowd-control and leech resistance property labels
 
 - **Device:** Mobile-friendly
-- **Status:** Proposed
+- **Status:** Complete — PRs #112 and #113 merged; Bloodmist Stun/Entrapment and Boneshatter Life Leech/Slow mobile-verified.
 - **Problem and desired behavior:** Mythical Bloodmist Boots (`it14640`) display `Defensive Trap +24/+36%` and `Defensive Stun +24/+36%`; Mythical Boneshatter Treads (`it9093`) display `Defensive Slow Life Leach +40/+60%` and `Defensive Total Speed +24/+36%`. These are internal-looking names rather than recognizable resistance labels. Investigate Entrapment Resistance, Stun Resistance, Life Leech Resistance, and Slow Resistance respectively, confirming actual source semantics before relabeling.
 - **Acceptance criteria:** Inventory related crowd-control, speed-reduction, and leech resistance fields across the catalog; use accurate player-facing resistance labels with correct percentages; distinguish resistance from effect duration, application chance, and offensive slow/leech effects; preserve original values and rolls; test the two boot cards and representative sibling/exception records.
 - **Additional mobile evidence (November 11, 2026):** User screenshots of Mythical Boneshatter Treads (`it9093`) confirm the exact rendered strings `Defensive Slow Life Leach +40/+60%` and `Defensive Total Speed Resistance +24/+36%` (the latter wraps onto two lines). Investigate source-backed player-facing `Life Leech Resistance` and `Slow Resistance`; preserve the ranges and avoid assuming the existing internal labels are accurate.
@@ -233,7 +290,7 @@ Priorities below apply to **open numbered feature requests**, not completed item
 ### 23. Audit movement speed and maximum movement speed labels
 
 - **Device:** Mobile-friendly
-- **Status:** Implemented in PR #104; pending CI, merge, and mobile verification.
+- **Status:** Implemented — PR #104 merged; original item-level regression acceptance criteria not independently rechecked in this reconciliation.
 - **Problem and desired behavior:** Mythical Bloodmist Boots (`it14640`) display `Character Run Speed Modifier +8/+12%`; Mythical Boneshatter Treads (`it9093`) display both `Character Run Speed Modifier +7/+9%` and `Character Run Speed Max Modifier +2/+4%`. Replace internal-looking terms with clear player-facing movement speed labels after confirming the distinction between ordinary speed bonuses and increased maximum speed.
 - **Acceptance criteria:** Verify field semantics and naming across related movement-speed properties; clearly distinguish `Movement Speed` from `Maximum Movement Speed` (or source-accurate equivalent); preserve percent values, min/max rolls, and separate lines for separate effects; test both boots and other movement-speed item categories; check narrow-screen wrapping.
 - **Dependencies or notes:** Do not merge distinct speed mechanics or assume `Run Speed Max` is a standard movement-speed bonus.
@@ -241,7 +298,7 @@ Priorities below apply to **open numbered feature requests**, not completed item
 ### 24. Investigate Offensive Life Modifier damage label
 
 - **Device:** Mobile-friendly
-- **Status:** Implemented in PR #105; pending CI, merge, and mobile verification.
+- **Status:** Implemented — PR #105 merged; frontend Life-to-Vitality conversion follow-up PR #109 also merged. Other raw Life fields remain separate investigations.
 - **Problem and desired behavior:** Mythical Boneshatter Treads (`it9093`) show `Offensive Life Modifier +67/+100%`, an internal-looking property name among Physical, Vitality Decay, and Internal Trauma damage bonuses. Determine whether this represents Vitality Damage or another game mechanic before choosing a player-facing label.
 - **Acceptance criteria:** Trace the exact source field and meaning; inspect sibling offensive damage types and other items; display the verified label without changing numeric values or confusing damage, life leech, or health modifiers; add regression cases for the affected family and non-matching life-related fields.
 - **Dependencies or notes:** May overlap existing backlog #9 (player-facing item-property labels); keep the investigation separately trackable and consolidate implementation if the same translation family is involved. User-provided GrimTools reference for Mythical Boneshatter Treads confirms `+67/+100% Vitality Damage` at the corresponding position. The frontend's existing offensive damage-family formatter now maps source `Life` to `Vitality` while leaving life leech, health, and resistances untouched.
@@ -281,7 +338,7 @@ Priorities below apply to **open numbered feature requests**, not completed item
 ### 29. Promote base armor to the top of equipment item details
 
 - **Device:** Mobile-friendly
-- **Status:** Implemented in PR #106; pending CI, merge, and mobile verification.
+- **Status:** Implemented — PR #106 merged; armor visible in later mobile item screenshots.
 - **Problem and desired behavior:** Armor is a base equipment stat, not a general bonus. Boots such as Mythical Boneshatter Treads (`it9093`), Mythical Bilethread Greaves (`it14641`), and Mythical Bloodmist Boots (`it14640`) currently bury `Armor` among damage and resistance properties. Give base armor its own `Base Stats` section above `Properties`, analogous to shield-specific block mechanics.
 - **Acceptance criteria:** Apply to equipment with the `defensiveProtection` property, preserve the existing armor value and flat-number formatting, avoid duplication in general Properties, leave non-equipment records and items without armor unchanged, and retain `Shield Stats` before `Base Stats` on shields when both exist. Verify on mobile and with shield/non-shield regression tests.
 - **Dependencies or notes:** Presentation-only; do not reinterpret the source armor value or conflate base armor with percentage armor modifiers. Keep shield block recovery/source audit (#8) separate.
@@ -289,12 +346,20 @@ Priorities below apply to **open numbered feature requests**, not completed item
 ### 30. Group item properties into six readable sections without nested disclosures
 
 - **Device:** Mixed — frontend architecture, catalog-wide classification audit, and automated tests benefit from development/CI; mobile visual verification is essential.
-- **Status:** Implemented in PR #107; pending CI, merge, mobile verification, and full catalog-key coverage audit.
+- **Status:** Implemented — PR #107 merged; six-section layout visible in mobile screenshots. Full catalog-key coverage audit remains open.
 - **Problem and desired behavior:** A single long Properties list makes equipment difficult to scan on mobile. Preserve the existing single Show/Hide Item Details control, but display properties under six ordered headings: **Base Stats**, **Attributes & Combat**, **Damage & Retaliation**, **Resistances & Defense**, **Utility**, and **Other Properties**. Do not add dropdowns within the expanded item card.
 - **Acceptance criteria:** Use verified source-key families rather than guessing from display labels; keep shield block chance, blocked damage, and armor together in Base Stats with shield block mechanics prioritized; preserve every property value, percentage, min/max roll, and formatting; keep original order within each group except explicitly prioritized base stats; render each property exactly once; suppress empty headings; and send every unrecognized or ambiguous property to a visible Other Properties section. Retain existing Skill Bonuses, Granted Skills, skill-specific effects, and Conversions sections without regrouping them.
 - **Regression coverage:** Test shield, boots, non-equipment records, all six groups, fallback for unknown and potentially misleading keys, no duplicates, no omissions, empty groups, and stable ordering. Mobile-verify long names and narrow-screen rows.
 - **Follow-up audit:** Inventory actual source property keys across the pinned 1.3.1.0 catalog and report the frequency of keys landing in Other Properties before expanding the classification allowlists. Do not hide unclassified keys or classify unfamiliar keys just to make the fallback bucket smaller.
 - **Dependencies or notes:** This is a presentation-only grouping pass, not a source-data or damage-semantics rewrite. Follow-on label audits (#16, #17, #22, #24) may improve readability of Other Properties. No nested accordions.
+
+### 33. Label percentage Spirit modifiers and classify attribute modifiers
+
+- **Device:** Mobile-friendly
+- **Status:** Implemented — PR #111 merged; targeted Mythical Arcanum Sigillis mobile regression not yet recorded as verified.
+- **Problem and desired behavior:** Mythical Arcanum Sigillis currently shows `Character Intelligence Modifier +3/+5%` under **Other Properties**. Investigate the pinned source property `characterIntelligenceModifier`; if confirmed as the player-facing Spirit percentage bonus, label it **Spirit** (with percentage range retained) and group it under **Attributes & Combat**.
+- **Acceptance criteria:** Verify the source key and expected label against the item and GrimTools; handle the full corresponding attribute-modifier family (Physique, Cunning, Spirit) consistently, not a one-off item replacement; preserve values and formatting; prevent duplicate rows; ensure genuinely unknown keys still appear in **Other Properties**. Add regression coverage for Mythical Arcanum Sigillis and sibling attribute modifiers, and verify on mobile.
+- **Dependencies or notes:** Follow the existing six-group layout (#30). Backlog numbers #31 and #32 are reserved in the separate documentation PR #108; this entry is #33 to avoid collisions.
 
 ### 31. Investigate the meaning of offensive minimum damage properties
 
