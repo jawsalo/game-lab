@@ -361,6 +361,42 @@ Priorities below apply to **open numbered feature requests**, not completed item
 - **Acceptance criteria:** Verify the source key and expected label against the item and GrimTools; handle the full corresponding attribute-modifier family (Physique, Cunning, Spirit) consistently, not a one-off item replacement; preserve values and formatting; prevent duplicate rows; ensure genuinely unknown keys still appear in **Other Properties**. Add regression coverage for Mythical Arcanum Sigillis and sibling attribute modifiers, and verify on mobile.
 - **Dependencies or notes:** Follow the existing six-group layout (#30). Backlog numbers #31 and #32 are reserved in the separate documentation PR #108; this entry is #33 to avoid collisions.
 
+### 34. Correct Electrocute duration modifier presentation on Mythical Barrelsmith's Crossfire
+
+- **Device:** Mixed — mobile item verification; source-mechanic investigation and regression tests may require deeper development.
+- **Priority:** P1 — incorrect/incomplete stat interpretation.
+- **Status:** Proposed — recovered from pistol QA; no implementation verified.
+- **Problem and desired behavior:** Mythical Barrelsmith's Crossfire (`it9383`) shows `Offensive Slow Lightning Duration Modifier +56/+84%` in Other Properties. Investigate whether the source mechanic is **Electrocute Duration +56/+84%** and present it under Damage & Retaliation if verified.
+- **Acceptance criteria:** Verify the exact source key and duration semantics against pinned game data; audit related DoT duration modifiers; use a constrained shared mapping; preserve percentage ranges and unrelated properties; test the named item and siblings on mobile.
+- **Dependencies or notes:** Coordinate with #17/#27 DoT family work and #35; do not rename by string similarity alone.
+
+### 35. Audit Bloodborer Bleeding, Pierce Ratio, and duration fields
+
+- **Device:** Mixed — mobile verification plus source/API mechanic research.
+- **Priority:** P1 — incorrect/incomplete stat interpretation.
+- **Status:** Proposed — recovered from pistol QA; no implementation verified.
+- **Problem and desired behavior:** Bloodborer (`it11695`) exposes `Offensive Slow Bleeding Min +22/+33` under Damage & Retaliation and `Offensive Pierce Ratio Min +112/+168`, `Offensive Slow Bleeding Duration Min +3`, and `Offensive Slow Bleeding Duration Modifier +112/+168%` under Other Properties.
+- **Acceptance criteria:** Trace the four exact source keys and distinguish Bleeding amount, Pierce Ratio, fixed duration, and duration modifier; choose player-facing names, groups, and correct units only after verifying mechanics; preserve all distinct values; regression-test source variants and named item.
+- **Dependencies or notes:** Coordinate with #17/#27 and #34. Do not collapse separate mechanics into a single displayed property without source evidence.
+
+### 36. Classify percentage Defensive Ability and additional Physical Damage fields on Burrwitch Peacekeeper
+
+- **Device:** Mixed — mobile verification plus source-key investigation.
+- **Priority:** P1 — incorrect/incomplete stat interpretation.
+- **Status:** Proposed — recovered from pistol QA; no implementation verified.
+- **Problem and desired behavior:** Burrwitch Peacekeeper (`it17068`) shows `Character Defensive Ability Modifier +2/+4%` in Other Properties and `Offensive Bonus Physical Max +40/+60` / `Offensive Bonus Physical Min +25/+36`. The card also has `Physical Damage (maximum) +106/+159` and `Physical Damage (minimum) +86/+128`.
+- **Acceptance criteria:** Verify the percentage DA source key and place it under Attributes & Combat with a correct player-facing label; investigate whether the bonus Physical fields are separate mechanics from existing Physical minimum/maximum rows; preserve values and avoid double counting; regression-test other OA/DA modifier keys and the named item.
+- **Dependencies or notes:** Related to #33 attribute modifiers and #31 offensive minimum semantics (currently documented in open PR #108).
+
+### 37. Disambiguate duplicate-looking Vitality and raw Life/Stun fields on Corruption of Gargabol
+
+- **Device:** Mixed — mobile verification plus source semantics and regression tests.
+- **Priority:** P1 — incorrect/incomplete stat interpretation.
+- **Status:** Proposed — recovered from pistol QA; no implementation verified.
+- **Problem and desired behavior:** Corruption of Gargabol (`it11231`) shows two distinct `Flat Vitality Damage` rows (`+99/+147` and `+67/+100`), a raw `Offensive Life Min +18/+26`, and `Defensive Stun +16/+24%` that should read **Stun Resistance** under Resistances & Defense. Earlier QA suspected Vitality Decay but did not establish the exact source fields.
+- **Acceptance criteria:** Trace the source keys behind both Vitality rows and Life field, distinguish damage mechanics without assuming they are duplicates, and keep both values until verified. Confirm Stun Resistance classification against the already merged #22 family fix; do not create a redundant Stun patch. Test this item and related Life/Vitality keys.
+- **Dependencies or notes:** Coordinate with #9/#17/#24 and existing #22 implementation. The initial screenshot did not expose every Other Properties row; do not assume unobserved fields exist.
+
 ### Request template
 
 - **Title:**
