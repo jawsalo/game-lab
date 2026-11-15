@@ -2,6 +2,13 @@
 
 This backlog captures feature requests as the user provides their requirements. Each entry states whether it can be advanced from a phone or needs a PC. Keep requirements and acceptance criteria tied to what the user actually asked for; clarify only when a missing detail affects implementation.
 
+### Follow-up verification and recovered QA — November 15, 2026
+
+- **#23:** User confirmed Movement Speed and Maximum Movement Speed are distinct and correctly labeled on mobile.
+- **#33:** User confirmed Mythical Arcanum Sigillis Spirit percentage modifier is correctly labeled and grouped on mobile.
+- **#34–#37:** Recovered pistol QA entries are documented below, but remain proposed and unimplemented pending source-mechanic investigation.
+- **#31/#32:** Recovered separately via merged PR #119 after the original PR #108 was closed; both entries are now present on main.
+
 ## Reconciliation snapshot — November 15, 2026
 
 This snapshot reconciles the **current main branch**, merged GitHub PR metadata, and user-provided mobile screenshots. It is an evidence/status register, **not** a claim that all original acceptance criteria or CI checks were independently re-run. A merged PR establishes implementation, not necessarily full regression coverage.
@@ -290,7 +297,7 @@ Priorities below apply to **open numbered feature requests**, not completed item
 ### 23. Audit movement speed and maximum movement speed labels
 
 - **Device:** Mobile-friendly
-- **Status:** Implemented — PR #104 merged; original item-level regression acceptance criteria not independently rechecked in this reconciliation.
+- **Status:** Complete — PR #104 merged; user confirmed correct distinct Movement Speed and Maximum Movement Speed labels on mobile November 15, 2026.
 - **Problem and desired behavior:** Mythical Bloodmist Boots (`it14640`) display `Character Run Speed Modifier +8/+12%`; Mythical Boneshatter Treads (`it9093`) display both `Character Run Speed Modifier +7/+9%` and `Character Run Speed Max Modifier +2/+4%`. Replace internal-looking terms with clear player-facing movement speed labels after confirming the distinction between ordinary speed bonuses and increased maximum speed.
 - **Acceptance criteria:** Verify field semantics and naming across related movement-speed properties; clearly distinguish `Movement Speed` from `Maximum Movement Speed` (or source-accurate equivalent); preserve percent values, min/max rolls, and separate lines for separate effects; test both boots and other movement-speed item categories; check narrow-screen wrapping.
 - **Dependencies or notes:** Do not merge distinct speed mechanics or assume `Run Speed Max` is a standard movement-speed bonus.
@@ -356,7 +363,7 @@ Priorities below apply to **open numbered feature requests**, not completed item
 ### 33. Label percentage Spirit modifiers and classify attribute modifiers
 
 - **Device:** Mobile-friendly
-- **Status:** Implemented — PR #111 merged; targeted Mythical Arcanum Sigillis mobile regression not yet recorded as verified.
+- **Status:** Complete — PR #111 merged; user confirmed Mythical Arcanum Sigillis Spirit percentage modifier under Attributes & Combat on mobile November 15, 2026.
 - **Problem and desired behavior:** Mythical Arcanum Sigillis currently shows `Character Intelligence Modifier +3/+5%` under **Other Properties**. Investigate the pinned source property `characterIntelligenceModifier`; if confirmed as the player-facing Spirit percentage bonus, label it **Spirit** (with percentage range retained) and group it under **Attributes & Combat**.
 - **Acceptance criteria:** Verify the source key and expected label against the item and GrimTools; handle the full corresponding attribute-modifier family (Physique, Cunning, Spirit) consistently, not a one-off item replacement; preserve values and formatting; prevent duplicate rows; ensure genuinely unknown keys still appear in **Other Properties**. Add regression coverage for Mythical Arcanum Sigillis and sibling attribute modifiers, and verify on mobile.
 - **Dependencies or notes:** Follow the existing six-group layout (#30). Backlog numbers #31 and #32 are reserved in the separate documentation PR #108; this entry is #33 to avoid collisions.
@@ -376,6 +383,42 @@ Priorities below apply to **open numbered feature requests**, not completed item
 - **Problem and desired behavior:** Percentage ranges currently display as `+67/+100%` or `23/33%`, which makes the first endpoint look like a flat value. Render `+67%/+100%` and `23%/33%` instead.
 - **Acceptance criteria:** For properties known to be percentages, render the percent sign on **each** endpoint of a min/max range; preserve sign conventions, numerical values, rounding, and separators; keep single-value percentages correctly formatted; never add a percent sign to flat armor, OA/DA, health, retaliation amounts, or other non-percentage ranges. Include positive, unsigned, negative, and single-value regression cases, plus mobile verification.
 - **Dependencies or notes:** Centralize in the existing frontend value formatter, not item-specific replacements. Keep this separate from property-group ordering work.
+
+### 34. Correct Electrocute duration modifier presentation on Mythical Barrelsmith's Crossfire
+
+- **Device:** Mixed — mobile item verification; source-mechanic investigation and regression tests may require deeper development.
+- **Priority:** P1 — incorrect/incomplete stat interpretation.
+- **Status:** Proposed — recovered from pistol QA; no implementation verified.
+- **Problem and desired behavior:** Mythical Barrelsmith's Crossfire (`it9383`) shows `Offensive Slow Lightning Duration Modifier +56/+84%` in Other Properties. Investigate whether the source mechanic is **Electrocute Duration +56/+84%** and present it under Damage & Retaliation if verified.
+- **Acceptance criteria:** Verify the exact source key and duration semantics against pinned game data; audit related DoT duration modifiers; use a constrained shared mapping; preserve percentage ranges and unrelated properties; test the named item and siblings on mobile.
+- **Dependencies or notes:** Coordinate with #17/#27 DoT family work and #35; do not rename by string similarity alone.
+
+### 35. Audit Bloodborer Bleeding, Pierce Ratio, and duration fields
+
+- **Device:** Mixed — mobile verification plus source/API mechanic research.
+- **Priority:** P1 — incorrect/incomplete stat interpretation.
+- **Status:** Proposed — recovered from pistol QA; no implementation verified.
+- **Problem and desired behavior:** Bloodborer (`it11695`) exposes `Offensive Slow Bleeding Min +22/+33` under Damage & Retaliation and `Offensive Pierce Ratio Min +112/+168`, `Offensive Slow Bleeding Duration Min +3`, and `Offensive Slow Bleeding Duration Modifier +112/+168%` under Other Properties.
+- **Acceptance criteria:** Trace the four exact source keys and distinguish Bleeding amount, Pierce Ratio, fixed duration, and duration modifier; choose player-facing names, groups, and correct units only after verifying mechanics; preserve all distinct values; regression-test source variants and named item.
+- **Dependencies or notes:** Coordinate with #17/#27 and #34. Do not collapse separate mechanics into a single displayed property without source evidence.
+
+### 36. Classify percentage Defensive Ability and additional Physical Damage fields on Burrwitch Peacekeeper
+
+- **Device:** Mixed — mobile verification plus source-key investigation.
+- **Priority:** P1 — incorrect/incomplete stat interpretation.
+- **Status:** Proposed — recovered from pistol QA; no implementation verified.
+- **Problem and desired behavior:** Burrwitch Peacekeeper (`it17068`) shows `Character Defensive Ability Modifier +2/+4%` in Other Properties and `Offensive Bonus Physical Max +40/+60` / `Offensive Bonus Physical Min +25/+36`. The card also has `Physical Damage (maximum) +106/+159` and `Physical Damage (minimum) +86/+128`.
+- **Acceptance criteria:** Verify the percentage DA source key and place it under Attributes & Combat with a correct player-facing label; investigate whether the bonus Physical fields are separate mechanics from existing Physical minimum/maximum rows; preserve values and avoid double counting; regression-test other OA/DA modifier keys and the named item.
+- **Dependencies or notes:** Related to #33 attribute modifiers and #31 offensive minimum semantics (currently documented in open PR #108).
+
+### 37. Disambiguate duplicate-looking Vitality and raw Life/Stun fields on Corruption of Gargabol
+
+- **Device:** Mixed — mobile verification plus source semantics and regression tests.
+- **Priority:** P1 — incorrect/incomplete stat interpretation.
+- **Status:** Proposed — recovered from pistol QA; no implementation verified.
+- **Problem and desired behavior:** Corruption of Gargabol (`it11231`) shows two distinct `Flat Vitality Damage` rows (`+99/+147` and `+67/+100`), a raw `Offensive Life Min +18/+26`, and `Defensive Stun +16/+24%` that should read **Stun Resistance** under Resistances & Defense. Earlier QA suspected Vitality Decay but did not establish the exact source fields.
+- **Acceptance criteria:** Trace the source keys behind both Vitality rows and Life field, distinguish damage mechanics without assuming they are duplicates, and keep both values until verified. Confirm Stun Resistance classification against the already merged #22 family fix; do not create a redundant Stun patch. Test this item and related Life/Vitality keys.
+- **Dependencies or notes:** Coordinate with #9/#17/#24 and existing #22 implementation. The initial screenshot did not expose every Other Properties row; do not assume unobserved fields exist.
 
 ### Request template
 
